@@ -62,11 +62,7 @@
     </Reference>
   </ItemGroup>
   <ItemGroup>
-    <Compile Include="Filters\AveragePointFilter.cs" />
-    <Compile Include="Filters\AverageValueFilter.cs" />
     <Compile Include="Filters\HandStateCounter.cs" />
-    <Compile Include="Filters\PointFilter.cs" />
-    <Compile Include="Filters\ValueFilter.cs" />
     <Compile Include="Helpers\FileAccessHelpers.cs" />
     <Compile Include="Helpers\ImageExtensions.cs" />
     <Compile Include="Kinect Processing\KinectGestureManager.cs" />

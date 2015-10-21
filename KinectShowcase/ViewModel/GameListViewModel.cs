@@ -61,7 +61,7 @@ namespace KinectShowcase.ViewModel
         {
             get
             {
-                return (_currentPage != _maxPages ? Visibility.Visible : Visibility.Hidden);
+                return (_currentPage != _maxPages && _maxPages > 0 ? Visibility.Visible : Visibility.Hidden);
             }
         }
 

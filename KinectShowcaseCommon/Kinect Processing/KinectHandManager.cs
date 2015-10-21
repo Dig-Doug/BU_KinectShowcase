@@ -91,29 +91,19 @@ namespace KinectShowcaseCommon.Kinect_Processing
                 }
             }
         }
-        public bool ShouldMoveCursor { get; set; }
-        public bool ShouldSetCursorState { get; set; }
         public int MinimumClosedStatesAfterOpen { get; set; }
         public int MinimumOpenStatesAfterClose { get; set; }
         public bool ShouldAttachToControls { get; set; }
+        public KinectCursorView Cursor { get; set; }
 
         private KinectManager _kinectManager;
         private CoordinateMapper _coordinateMapper;
         private WeakCollection<HandStateChangeListener> _handStateListeners = new WeakCollection<HandStateChangeListener>();
         private WeakCollection<HandLocationListener> _handLocationListeners = new WeakCollection<HandLocationListener>();
         private Point _currentHandLocation;
-        private Point _lastStableHandPosition;
-
-        // Hand State
         private HandState _lastConfirmedHandState = HandState.Open;
-
-
-        public KinectCursorView Cursor { get; set; }
         private float _depthFrameWidth, _depthFrameHeight;
-
-
         private HandStateCounter _handStateCounter = new HandStateCounter();
-
         private Point _handRectCenter = new Point(0.5, -0.5);
         private Size _handRectSize = new Size(1.0, 1.0);
 
@@ -126,8 +116,6 @@ namespace KinectShowcaseCommon.Kinect_Processing
             _kinectManager = aManager;
             _coordinateMapper = this._kinectManager.KinectSensor.CoordinateMapper;
             this.TrackingLeftHand = false;
-            this.ShouldMoveCursor = true;
-            this.ShouldSetCursorState = true;
             this.MinimumClosedStatesAfterOpen = DEFAULT_MINIMUM_CLOSED_STATES_AFTER_OPEN;
             this.MinimumOpenStatesAfterClose = DEFAULT_MINIMUM_OPEN_STATES_AFTER_CLOSE;
             this.ShouldAttachToControls = true;
@@ -171,7 +159,7 @@ namespace KinectShowcaseCommon.Kinect_Processing
                     }
                 }
 
-                MapCurrentHandPosition(jointPoints);
+                _currentHandLocation = MapHandPosition(jointPoints, this.TrackingLeftHand);
                 if (!double.IsNaN(_currentHandLocation.X) && !double.IsNaN(_currentHandLocation.Y))
                 {
                     HandLocationEvent movedEvent = new HandLocationEvent(_currentHandLocation);
@@ -221,7 +209,7 @@ namespace KinectShowcaseCommon.Kinect_Processing
         {
             bool result = false;
 
-            Rect handRect = CalculateHandRectForJointPointsInDepthSpace(aJointPoints, aShouldTestLeftHand);
+            Rect handRect = CalculateHandRect(aJointPoints, aShouldTestLeftHand);
             Point handPos = GetRawHandPosition(aJointPoints, aShouldTestLeftHand);
 
             //if (aShouldTestLeftHand)
@@ -272,15 +260,6 @@ namespace KinectShowcaseCommon.Kinect_Processing
             }
         }
 
-        private void MapCurrentHandPosition(Dictionary<JointType, Point> aJointPoints)
-        {
-            // convert the joint points to depth (display) space
-            Point handLocation = MapHandPositionInHandRectWithJointPointsInDepthSpace(aJointPoints, this.TrackingLeftHand);
-
-            _currentHandLocation = handLocation;
-            _lastStableHandPosition = handLocation;
-        }
-
         private void DidDetectHandStateChange(HandState aFromState, HandState aToState)
         {
             HandStateChangeEvent handEvent = null;
@@ -325,7 +304,7 @@ namespace KinectShowcaseCommon.Kinect_Processing
                 }
             }
 
-            if (this.ShouldSetCursorState && this.Cursor != null)
+            if (this.Cursor != null)
             {
                 KinectCursorView.CursorState state = (aEvent.EventType == HandStateChangeType.OpenToClose ? KinectCursorView.CursorState.ClosedHand : KinectCursorView.CursorState.OpenHand);
                 this.Cursor.SetCursorState(state);
@@ -363,7 +342,7 @@ namespace KinectShowcaseCommon.Kinect_Processing
                 }
             }
 
-            if (this.ShouldMoveCursor && this.Cursor != null)
+            if (this.Cursor != null)
             {
                 Point handPos;
                 if (isAttaching)
@@ -409,7 +388,7 @@ namespace KinectShowcaseCommon.Kinect_Processing
             return jointPoints;
         }
 
-        private Rect CalculateHandRectForJointPointsInDepthSpace(Dictionary<JointType, Point> aJointPoints, bool aShouldDoLeftHand)
+        private Rect CalculateHandRect(Dictionary<JointType, Point> aJointPoints, bool aShouldDoLeftHand)
         {
             //calculate the shoulder length (from neck to shoulder)
             double shoulderLengthScale = Point.Subtract(aJointPoints[JointType.ShoulderLeft], aJointPoints[JointType.ShoulderRight]).Length / 2;
@@ -451,12 +430,12 @@ namespace KinectShowcaseCommon.Kinect_Processing
             return result;
         }
 
-        private Point MapHandPositionInHandRectWithJointPointsInDepthSpace(Dictionary<JointType, Point> aJointPoints, bool aShouldDoLeftHand)
+        private Point MapHandPosition(Dictionary<JointType, Point> aJointPoints, bool aShouldDoLeftHand)
         {
             //get the raw hand pos
             Point handPos = GetRawHandPosition(aJointPoints, aShouldDoLeftHand);
             //get the hand rect
-            Rect handRect = CalculateHandRectForJointPointsInDepthSpace(aJointPoints, aShouldDoLeftHand);
+            Rect handRect = CalculateHandRect(aJointPoints, aShouldDoLeftHand);
             //map the hand coord to the rect
             double scaledX = (handPos.X - handRect.X) / handRect.Width;
             double scaledY = (handPos.Y - handRect.Y) / handRect.Height;
@@ -474,7 +453,6 @@ namespace KinectShowcaseCommon.Kinect_Processing
             _currentHandLocation = aLocation;
             _currentHandLocation.X = _currentHandLocation.X + 0.5f;
             _currentHandLocation.Y = _currentHandLocation.Y + 0.5f;
-            _lastStableHandPosition = _currentHandLocation;
             HandLocationEvent movedEvent = new HandLocationEvent(_currentHandLocation);
             this.NotifyHandLocationListenersOfEvent(movedEvent);
         }

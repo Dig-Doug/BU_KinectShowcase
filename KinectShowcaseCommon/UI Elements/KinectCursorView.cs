@@ -32,7 +32,7 @@ namespace KinectShowcaseCommon.UI_Elements
         private CursorState _cursorState = CursorState.ClosedHand;
         private Point _cursorPosition;
         private Point _cursorPositionDraw;
-        private float _selectionCiclePercent = 0.0f;
+        private float _selectionCiclePercent = 0.5f;
         private DrawingGroup _drawingGroup = null;
         private Storyboard _openToCloseHandAnimation, _closeToOpenHandAnimation;
         private Image[] _cursorImages = null;
