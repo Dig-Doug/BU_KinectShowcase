@@ -1,0 +1,38 @@
+﻿<Window x:Class="KinectShowcase.MainWindow"
+        xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        Title="MainWindow" Height="1080" Width="1920"
+        xmlns:views="clr-namespace:KinectShowcase.Views"
+        xmlns:vms="clr-namespace:KinectShowcase.ViewModel"
+        xmlns:ui="clr-namespace:KinectShowcaseCommon.UI_Elements;assembly=KinectShowcaseCommon"
+        KeyDown="Window_KeyDown"
+        DataContext="{Binding Source={StaticResource Locator}, Path=ApplicationViewModel}"
+        WindowState="Maximized"  WindowStyle="None">
+
+    <Window.Resources>
+        <DataTemplate DataType="{x:Type vms:HomeViewModel}">
+            <views:HomeView />
+        </DataTemplate>
+        <DataTemplate DataType="{x:Type vms:GameListViewModel}">
+            <views:GameListView />
+        </DataTemplate>
+        <DataTemplate DataType="{x:Type vms:GameDetailViewModel}">
+            <views:GameDetailView />
+        </DataTemplate>
+        <DataTemplate DataType="{x:Type vms:GalleryViewModel}">
+            <views:GalleryView />
+        </DataTemplate>
+        <DataTemplate DataType="{x:Type vms:GalleryDetailViewModel}">
+            <views:GalleryDetailView />
+        </DataTemplate>
+        <DataTemplate DataType="{x:Type vms:BrowserViewModel}">
+            <views:BrowserView />
+        </DataTemplate>
+    </Window.Resources>
+
+    <Grid Background="Black">
+        <ui:SkeletonView x:Name="skeletonView" Panel.ZIndex="0" Source="/KinectShowcase;component/Assets/background.png"/>
+        <ContentControl Content="{Binding CurrentPageViewModel}" />
+        <ui:KinectCursorView x:Name="cursorView" Panel.ZIndex="2"/>
+    </Grid>
+</Window>

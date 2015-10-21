@@ -1,0 +1,43 @@
+﻿<UserControl x:Class="KinectShowcase.Views.HomeView"
+             xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006" 
+             xmlns:d="http://schemas.microsoft.com/expression/blend/2008" 
+             xmlns:System="clr-namespace:System;assembly=mscorlib"
+             xmlns:ui="clr-namespace:KinectShowcaseCommon.UI_Elements;assembly=KinectShowcaseCommon"
+             mc:Ignorable="d" 
+             d:DesignHeight="1080" d:DesignWidth="1920">
+    
+    <UserControl.Resources>
+        <System:Double x:Key="buttonHeight">208</System:Double>
+    </UserControl.Resources>
+    
+    <Grid Name="rootGrid" Margin="20">
+        <Grid.RowDefinitions>
+            <RowDefinition Height="208" />
+            <RowDefinition Height="728" />
+            <RowDefinition Height="104" />
+        </Grid.RowDefinitions>
+
+        <StackPanel Grid.Row="0" Orientation="Horizontal" HorizontalAlignment="Center" Visibility="{Binding ControlVisibility}">
+            <ui:KinectButton x:Name="Button_Games" Command="{Binding OpenGameListView}" Width="{StaticResource buttonHeight}" Style="{DynamicResource Button_NoHighlight}">
+                <ui:KinectButton.Background>
+                    <ImageBrush ImageSource="/KinectShowcase;component/Assets/Icons/icon_game_rounded.png"/>
+                </ui:KinectButton.Background>
+            </ui:KinectButton>
+            <ui:KinectButton x:Name="Button_Photos" Command="{Binding OpenGalleryView}" Width="{StaticResource buttonHeight}" Margin="50,0" Style="{DynamicResource Button_NoHighlight}">
+                <ui:KinectButton.Background>
+                    <ImageBrush ImageSource="/KinectShowcase;component/Assets/Icons/icon_gallery_rounded.png"/>
+                </ui:KinectButton.Background>
+            </ui:KinectButton>
+            <ui:KinectButton x:Name="Button_Web" Command="{Binding OpenBrowserView}" Width="{StaticResource buttonHeight}" Style="{DynamicResource Button_NoHighlight}">
+                <ui:KinectButton.Background>
+                    <ImageBrush ImageSource="/KinectShowcase;component/Assets/Icons/icon_web_rounded.png"/>
+                </ui:KinectButton.Background>
+            </ui:KinectButton>
+        </StackPanel>
+
+        <Image x:Name="Logo_BU" Source="/KinectShowcase;component/Assets/Logos/logo_bu.png" HorizontalAlignment="Left" VerticalAlignment="Top" Grid.Row="2" Visibility="{Binding ControlVisibility}" />
+        <Image x:Name="Logo_UROP" Source="/KinectShowcase;component/Assets/Logos/logo_urop.png" HorizontalAlignment="Right" VerticalAlignment="Top" Grid.Row="2" Visibility="{Binding ControlVisibility}" />
+    </Grid>
+</UserControl>

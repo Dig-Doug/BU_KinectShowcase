@@ -1,0 +1,47 @@
+﻿<UserControl x:Class="KinectShowcase.Views.GameDetailView"
+             xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006" 
+             xmlns:d="http://schemas.microsoft.com/expression/blend/2008" 
+             xmlns:ui="clr-namespace:KinectShowcaseCommon.UI_Elements;assembly=KinectShowcaseCommon"
+             mc:Ignorable="d" 
+             d:DesignHeight="1080" d:DesignWidth="1920">
+    <Grid Name="rootGrid" Margin="20">
+            <Grid.RowDefinitions>
+                <RowDefinition Height="208"/>
+                <RowDefinition Height="364" />
+                <RowDefinition Height="468" />
+            </Grid.RowDefinitions>
+
+            <Grid.ColumnDefinitions>
+                <ColumnDefinition Width="376" />
+                <ColumnDefinition Width="1128" />
+                <ColumnDefinition Width="376" />
+            </Grid.ColumnDefinitions>
+
+            <StackPanel Grid.Row="0" Grid.Column="0" Grid.ColumnSpan="3" Orientation="Horizontal" HorizontalAlignment="Center" >
+                <TextBlock Name="TitlePlaceholder" Text="{Binding Title}" Foreground="White" HorizontalAlignment="Center"  VerticalAlignment="Center" FontSize="156" />
+            </StackPanel>
+
+        <ui:KinectButton Grid.Row="1" Grid.Column="0" Grid.ColumnSpan="3" HorizontalAlignment="Center" Command="{Binding PlayGameCommand}" Style="{DynamicResource Button_NoHighlight}">
+                <Image x:Name="ScreenshotPlaceholder" Source="{Binding IconPath}" Width="364"/>
+            </ui:KinectButton>
+
+            <StackPanel Grid.Row="2" Grid.Column="1" Grid.ColumnSpan="1" HorizontalAlignment="Center" >
+                <TextBlock x:Name="DescriptionPlaceholder" TextWrapping="Wrap" Text="{Binding Description}" TextAlignment="Center" HorizontalAlignment="Center" Foreground="White" FontSize="52" />
+            </StackPanel>
+
+        <ui:KinectButton Grid.Row="0" Grid.RowSpan="3" Grid.Column="0" x:Name="closeButton" Command="{Binding OpenGameListViewCommand}" HorizontalAlignment="Left" VerticalAlignment="Center" Style="{DynamicResource CircleButton}">
+                <ui:KinectButton.Background>
+                    <ImageBrush ImageSource="/KinectShowcase;component/Assets/Buttons/button_return.png"/>
+                </ui:KinectButton.Background>
+            </ui:KinectButton>
+
+        <ui:KinectButton Grid.Row="0" Grid.RowSpan="3" Grid.Column="2" x:Name="StartGameButton" Command="{Binding PlayGameCommand}" HorizontalAlignment="Right" VerticalAlignment="Center" Style="{DynamicResource CircleButton}">
+                <ui:KinectButton.Background>
+                    <ImageBrush ImageSource="/KinectShowcase;component/Assets/Buttons/button_play.png"/>
+                </ui:KinectButton.Background>
+            </ui:KinectButton>
+
+        </Grid>
+</UserControl>

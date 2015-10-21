@@ -1,0 +1,64 @@
+﻿<UserControl x:Class="KinectShowcase.Views.GameListView"
+             xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006" 
+             xmlns:d="http://schemas.microsoft.com/expression/blend/2008" 
+             xmlns:System="clr-namespace:System;assembly=mscorlib"
+             xmlns:vms="clr-namespace:KinectShowcase.ViewModel"
+             xmlns:ui="clr-namespace:KinectShowcaseCommon.UI_Elements;assembly=KinectShowcaseCommon"
+             mc:Ignorable="d" 
+             d:DesignHeight="1080" d:DesignWidth="1920">
+
+    <Grid Margin="20">
+        <Grid.RowDefinitions>
+            <RowDefinition Height="208"/>
+            <RowDefinition Height="624" />
+            <RowDefinition Height="208"/>
+        </Grid.RowDefinitions>
+
+        <StackPanel Orientation="Vertical" HorizontalAlignment="Center">
+            <TextBlock Text="Games" Foreground="White" HorizontalAlignment="Center" FontSize="104" />
+            <TextBlock Name="PageCountPlaceholder" Text="{Binding CurrentPageText}" Foreground="White" HorizontalAlignment="Center" FontSize="32" />
+        </StackPanel>
+
+        <StackPanel Grid.Row="2" Orientation="Horizontal" HorizontalAlignment="Center" VerticalAlignment="Center">
+            <ui:KinectButton Command="{Binding OpenHomeViewCommand}" Margin="50,0,50,0" Style="{DynamicResource CircleButton}">
+                <ui:KinectButton.Background>
+                    <ImageBrush ImageSource="/KinectShowcase;component/Assets/Buttons/button_return.png"/>
+                </ui:KinectButton.Background>
+            </ui:KinectButton>
+        </StackPanel>
+
+        <ui:KinectButton Grid.Row="1" HorizontalAlignment="Left" Command="{Binding PageLeftCommand}" Visibility="{Binding PageLeftButtonVisibility}" Style="{DynamicResource CircleButton}">
+            <ui:KinectButton.Background>
+                <ImageBrush ImageSource="/KinectShowcase;component/Assets/Buttons/button_arrow_left.png"/>
+            </ui:KinectButton.Background>
+        </ui:KinectButton>
+
+        <ui:KinectButton Grid.Row="1" HorizontalAlignment="Right" Command="{Binding PageRightCommand}" Visibility="{Binding PageRightButtonVisibility}" VerticalAlignment="Center" Style="{DynamicResource CircleButton}">
+            <ui:KinectButton.Background>
+                <ImageBrush ImageSource="/KinectShowcase;component/Assets/Buttons/button_arrow_right.png"/>
+            </ui:KinectButton.Background>
+        </ui:KinectButton>
+
+        <Grid Grid.Row="1" HorizontalAlignment="Center" Width="832">
+            <ItemsControl HorizontalAlignment="Center" ItemsSource="{Binding GridObjects}">
+                <ItemsControl.ItemTemplate>
+                    <DataTemplate DataType="{x:Type vms:GameViewModel}">
+                        <ui:KinectButton HorizontalAlignment="Center" VerticalAlignment="Center" Command="{Binding OnClickCommand}" Foreground="{x:Null}" Visibility="Visible" Style="{DynamicResource Button_NoHighlight}">
+                            <StackPanel HorizontalAlignment="Center" VerticalAlignment="Center" Margin="0,0,20,20">
+                                <Image Source="{Binding IconPath}" Width="239" Height="239" HorizontalAlignment="Center"/>
+                                <TextBlock Text="{Binding Title}" Foreground="White" FontSize="20" HorizontalAlignment="Center"/>
+                            </StackPanel>
+                        </ui:KinectButton>
+                    </DataTemplate>
+                </ItemsControl.ItemTemplate>
+                <ItemsControl.ItemsPanel>
+                    <ItemsPanelTemplate>
+                        <UniformGrid Columns="{Binding GameGridColumnCount}" Rows="{Binding GameGridRowCount}" />
+                    </ItemsPanelTemplate>
+                </ItemsControl.ItemsPanel>
+            </ItemsControl>
+        </Grid>
+    </Grid>
+</UserControl>
