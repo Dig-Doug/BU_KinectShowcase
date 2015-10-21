@@ -1,0 +1,93 @@
+﻿<Page x:Class="KinectShowcaseGameTemplate.MainPage"
+      xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+      xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+      xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006" 
+      xmlns:d="http://schemas.microsoft.com/expression/blend/2008" 
+      xmlns:local="clr-namespace:KinectShowcaseCommon.UI_Elements;assembly=KinectShowcaseCommon"
+      xmlns:System="clr-namespace:System;assembly=mscorlib"
+      mc:Ignorable="d" 
+      d:DesignHeight="1080" d:DesignWidth="1920"
+	Title="MainPage" MouseDown="Page_MouseDown" MouseUp="Page_MouseUp">
+
+    <Page.Resources>
+        <SolidColorBrush x:Key="TextBrush" Color="White" />
+
+        <Style x:Key="CircleButton" TargetType="{x:Type Button}">
+            <Setter Property="OverridesDefaultStyle" Value="True"/>
+            <Setter Property="Margin" Value="5"/>
+            <Setter Property="Width" Value="180" />
+            <Setter Property="Height" Value="180" />
+            <Setter Property="Foreground" Value="{x:Null}"/>
+            <Setter Property="BorderBrush" Value="{x:Null}"/>
+            <Setter Property="Template">
+                <Setter.Value>
+                    <ControlTemplate TargetType="{x:Type Button}">
+                        <Grid Name="rootGrid"  Background="{TemplateBinding Background}">
+                            <ContentPresenter HorizontalAlignment="Center" VerticalAlignment="Center" />
+                            <Ellipse x:Name="r1" Fill="White" Width="{TemplateBinding ActualWidth}" Height="{TemplateBinding ActualHeight}" Opacity="0.0" />
+                        </Grid>
+                        <ControlTemplate.Triggers>
+                            <Trigger Property="IsMouseOver" Value="True">
+                                <Setter TargetName="r1" Property="Opacity" Value="0.15" />
+                            </Trigger>
+                            <Trigger Property="IsEnabled" Value="True">
+                                <Setter TargetName="rootGrid" Property="Opacity" Value="1.0" />
+                            </Trigger>
+                            <Trigger Property="IsEnabled" Value="False">
+                                <Setter TargetName="rootGrid" Property="Opacity" Value="0.0" />
+                            </Trigger>
+                        </ControlTemplate.Triggers>
+                    </ControlTemplate>
+                </Setter.Value>
+            </Setter>
+        </Style>
+    </Page.Resources>
+
+
+    <Grid Name="rootGrid">
+        <Grid x:Name="contentGrid" Margin="20">
+
+            <Grid.RowDefinitions>
+                <RowDefinition Height="108" />
+                <RowDefinition Height="756" />
+                <RowDefinition Height="216" />
+            </Grid.RowDefinitions>
+
+            <Grid.ColumnDefinitions>
+                <ColumnDefinition Width="1152"/>
+                <ColumnDefinition Width="*"/>
+            </Grid.ColumnDefinitions>
+
+            <UniformGrid Grid.Row="0" Grid.RowSpan="3" Grid.Column="0" Grid.ColumnSpan="2" x:Name="uniGrid" HorizontalAlignment="Left" VerticalAlignment="Center" Width="1026" Height="1026"/>
+
+            <TextBlock Grid.Row="0" Grid.Column="2" x:Name="textHere" HorizontalAlignment="Center" TextAlignment="Center" 
+                       TextWrapping="Wrap" VerticalAlignment="Top" Text="Tic-Tac-Toe Game (Use Left Hand)" 
+                       FontSize="81" 
+                       Foreground="{DynamicResource TextBrush}"/>
+
+
+            <TextBlock Grid.Row="1" Grid.Column="2" x:Name="instructionText" HorizontalAlignment="Center" TextWrapping="Wrap" VerticalAlignment="Top" TextAlignment="Center" Text="Set Instruction Text Here" FontSize="32" Foreground="{DynamicResource TextBrush}"/>
+
+            <TextBlock Grid.Row="1" Grid.Column="2" x:Name="byText" Text="Made in EK131 By: XXXXXXXX" 
+                       HorizontalAlignment="Center" TextWrapping="Wrap" VerticalAlignment="Bottom" 
+                       TextAlignment="Center" Foreground="{DynamicResource TextBrush}" Margin="0,0,0,5"
+                       FontSize="27"/>
+
+            <StackPanel Grid.Row="2" Grid.Column="2" Orientation="Horizontal" HorizontalAlignment="Center" VerticalAlignment="Center">
+                <local:KinectButton Grid.Row="1" Grid.RowSpan="2" Grid.Column="2" Margin="0,0,60,0" x:Name="Button1" Content="Button1" FontSize="20" Click="ResetButton_Click" Style="{DynamicResource CircleButton}">
+                    <local:KinectButton.Background>
+                        <ImageBrush ImageSource="Resources/button_2_reset.png"/>
+                    </local:KinectButton.Background>
+                </local:KinectButton>
+
+                <local:KinectButton Grid.Row="0" Grid.RowSpan="2"  Grid.Column="2" x:Name="Close_Button" Content="Close" FontSize="20" Click="Close_Button_Click" Style="{DynamicResource CircleButton}" >
+                    <local:KinectButton.Background>
+                        <ImageBrush ImageSource="Resources/button_2_return.png"/>
+                    </local:KinectButton.Background>
+                </local:KinectButton>
+
+            </StackPanel>
+
+        </Grid>
+    </Grid>
+</Page>

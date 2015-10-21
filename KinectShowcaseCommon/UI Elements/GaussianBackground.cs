@@ -167,7 +167,7 @@ namespace KinectShowcaseCommon.UI_Elements
                     //apply scale to the source
                     _nonGaussian.RenderTransform = new ScaleTransform(_scale, _scale);  
                 }
-                if (_gaussian != null)
+                if (_gaussianSource != null)
                 {
                     Point topLeftCornerGaussian = new Point();
                     topLeftCornerGaussian.X = this.Width / 2 - _gaussian.Width;

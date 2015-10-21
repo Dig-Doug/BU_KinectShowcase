@@ -1,0 +1,14 @@
+﻿<Window x:Class="KinectShowcaseGameTemplate.MainWindow"
+        xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        xmlns:local="clr-namespace:KinectShowcaseCommon.UI_Elements;assembly=KinectShowcaseCommon"
+        Title="MainWindow" Height="900" Width="1440" KeyDown="Window_KeyDown"
+    ResizeMode="NoResize" WindowState="Maximized" WindowStyle="None">
+
+    <Grid>
+        <local:SkeletonView x:Name="skeletonView" Panel.ZIndex="0" />
+        <local:KinectCursorView x:Name="cursorView" Panel.ZIndex="1"/>
+        <Frame x:Name="_mainFrame"/>
+        <TextBlock Name="stateMessage" Text="Connect the Kinect!" Foreground="Red" HorizontalAlignment="Center" VerticalAlignment="Bottom" FontSize="72" />
+    </Grid>
+</Window>
