@@ -176,7 +176,7 @@ namespace KinectShowcaseCommon.UI_Elements
                         //event handled
                         result = true;
 
-                        if (!_hasScrolled && KinectHandManager.DistanceBetweenPoint(aEvent.HandPosition, _clickBeganPoint) < MAX_CLICK_DELTA)
+                        if (!_hasScrolled && Point.Subtract(aEvent.HandPosition, _clickBeganPoint).Length < MAX_CLICK_DELTA)
                         {
                             int mouseX = (int)(System.Windows.SystemParameters.PrimaryScreenWidth * aEvent.HandPosition.X);
                             int mouseY = (int)(System.Windows.SystemParameters.PrimaryScreenHeight * aEvent.HandPosition.Y);
@@ -216,7 +216,7 @@ namespace KinectShowcaseCommon.UI_Elements
                 {
                     result = true;
 
-                    if (!_hasScrolled && KinectHandManager.DistanceBetweenPoint(aEvent.HandPosition, _clickBeganPoint) >= MAX_CLICK_DELTA)
+                    if (!_hasScrolled && Point.Subtract(aEvent.HandPosition, _clickBeganPoint).Length >= MAX_CLICK_DELTA)
                     {
                         _hasScrolled = true;
                         _lastScrollPoint = aEvent.HandPosition;
