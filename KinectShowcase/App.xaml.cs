@@ -48,6 +48,12 @@ namespace KinectShowcase
             }
         }
 
+        protected override void OnExit(ExitEventArgs e)
+        {
+            base.OnExit(e);
+            SystemWatchdog.Default.OnExit();
+        }
+
         private void GetConfig()
         {
             try

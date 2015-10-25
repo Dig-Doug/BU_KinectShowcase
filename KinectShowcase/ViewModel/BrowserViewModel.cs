@@ -2,6 +2,7 @@
 using GalaSoft.MvvmLight.CommandWpf;
 using System;
 using System.Collections.Generic;
+using System.Diagnostics;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
@@ -50,7 +51,7 @@ namespace KinectShowcase.ViewModel
 
         private void pageForward()
         {
-            
+            Debug.WriteLine("TODO - Browser");
         }
 
         private void pageBack()

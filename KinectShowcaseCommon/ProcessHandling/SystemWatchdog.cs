@@ -65,7 +65,7 @@ namespace KinectShowcaseCommon.ProcessHandling
             this.StartProgramManagement();
         }
 
-        ~SystemWatchdog()
+        public void OnExit()
         {
             if (_pipeServer != null)
             {
@@ -90,7 +90,7 @@ namespace KinectShowcaseCommon.ProcessHandling
 
         private void ProgramManagement_Main()
         {
-            while (_generalThread.IsAlive)
+            while (true)
             {
                 //only manage if we don't have a child process
                 if (this._childProcess == null)
@@ -104,6 +104,9 @@ namespace KinectShowcaseCommon.ProcessHandling
                         _lastInteractionTime = DateTime.Now;
                     }
                 }
+
+                //wait for a bit
+                Thread.Sleep(100);
             }
         }
 
