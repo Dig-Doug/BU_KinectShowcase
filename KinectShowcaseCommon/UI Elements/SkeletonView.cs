@@ -21,8 +21,6 @@ namespace KinectShowcaseCommon.UI_Elements
     //Adapted from the BodyBasics-WPF Demo for Kinect v2
     public class SkeletonView : LiveBackground, KinectManager.RawBodyDataListener
     {
-        private const string PLACEHOLDER_MESSAGE = "Skeletons will show here!";
-
         // Radius of drawn hand circles
         private const double HandSize = 30;
         // Thickness of drawn joint lines
@@ -64,6 +62,7 @@ namespace KinectShowcaseCommon.UI_Elements
         private Image _skeletonImage = null;
 
         public bool ShouldDrawHeadJoint { get; set; }
+        public bool ShouldDrawHandRect { get; set; }
 
         // Initializes a new instance of the MainWindow class.
         public SkeletonView()
@@ -71,6 +70,7 @@ namespace KinectShowcaseCommon.UI_Elements
             if (!DesignerProperties.GetIsInDesignMode(this))
             {
                 this.ShouldDrawHeadJoint = false;
+                this.ShouldDrawHandRect = false;
 
                 // Create the drawing group we'll use for drawing
                 this.drawingGroup = new DrawingGroup();
@@ -231,6 +231,17 @@ namespace KinectShowcaseCommon.UI_Elements
 
                         this.DrawHand(body.HandLeftState, jointPoints[JointType.HandLeft], dc);
                         this.DrawHand(body.HandRightState, jointPoints[JointType.HandRight], dc);
+
+                        //draw hand rect
+                        if (penIndex == 0 && this.ShouldDrawHandRect)
+                        {
+                            Rect handRect = this.kinectManager.HandManager.HandRect;
+                            handRect.X *= this.displayWidth;
+                            handRect.Y *= this.displayHeight;
+                            handRect.Width *= this.displayWidth;
+                            handRect.Height *= this.displayHeight;
+                            dc.DrawRectangle(this.trackedJointBrush, drawPen, handRect);
+                        }
                     }
                 }
 

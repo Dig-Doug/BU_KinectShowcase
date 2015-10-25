@@ -1,5 +1,6 @@
 using GalaSoft.MvvmLight;
 using GalaSoft.MvvmLight.CommandWpf;
+using KinectShowcaseCommon.ProcessHandling;
 using KinectShowcaseCommon.UI_Elements;
 using System;
 using System.Collections.Generic;
@@ -9,7 +10,7 @@ using System.Windows.Input;
 
 namespace KinectShowcase.ViewModel
 {
-    public class ApplicationViewModel : ViewModelBase
+    public class ApplicationViewModel : ViewModelBase, ISystemTimeoutListener
     {
         private IPageViewModel _currentPageViewModel;
         private List<IPageViewModel> _pageViewModels;
@@ -27,73 +28,70 @@ namespace KinectShowcase.ViewModel
 
         public ApplicationViewModel()
         {
-            ////if (IsInDesignMode)
-            ////{
-            ////    // Code runs in Blend --> create design time data.
-            ////}
-            ////else
-            ////{
-            ////    // Code runs "for real"
-            ////}
-
-
+            //Register for change view model messages
             MessengerInstance.Register<ChangePageMessage>(this, ChangeViewModelMessageRecieved);
 
-        // Add available pages
-        PageViewModels.Add(ViewModelLocator.Locator().HomeViewModel);
- 
-        // Set starting page
-        CurrentPageViewModel = PageViewModels[0];
+            // Add available pages
+            PageViewModels.Add(ViewModelLocator.Locator().HomeViewModel);
 
+            // Set starting page
+            CurrentPageViewModel = PageViewModels[0];
 
-    }
- 
-    #region Properties / Commands
-
-    public List<IPageViewModel> PageViewModels
-    {
-        get
-        {
-            if (_pageViewModels == null)
-                _pageViewModels = new List<IPageViewModel>();
- 
-            return _pageViewModels;
+            //Start the Application Watchdog
+            SystemWatchdog.Default.NavigationHandler = this;
         }
-    }
 
-    public IPageViewModel CurrentPageViewModel
-    {
-        get
+        #region Properties / Commands
+
+        public List<IPageViewModel> PageViewModels
         {
-            return _currentPageViewModel;
-        }
-        set
-        {
-            if (_currentPageViewModel != value)
+            get
             {
-                _currentPageViewModel = value;
-                RaisePropertyChanged("CurrentPageViewModel");
+                if (_pageViewModels == null)
+                    _pageViewModels = new List<IPageViewModel>();
+
+                return _pageViewModels;
             }
         }
-    }
- 
-    #endregion
- 
-    #region Methods
 
-    private void ChangeViewModel(IPageViewModel viewModel)
-    {
-        if (!PageViewModels.Contains(viewModel))
-            PageViewModels.Add(viewModel);
- 
-        CurrentPageViewModel = PageViewModels.FirstOrDefault(vm => vm == viewModel);
-    }
+        public IPageViewModel CurrentPageViewModel
+        {
+            get
+            {
+                return _currentPageViewModel;
+            }
+            set
+            {
+                if (_currentPageViewModel != value)
+                {
+                    _currentPageViewModel = value;
+                    RaisePropertyChanged("CurrentPageViewModel");
+                }
+            }
+        }
 
-    private void ChangeViewModelMessageRecieved(ChangePageMessage aMessage)
-    {
-        ChangeViewModel(aMessage.ViewModel);
-    }
- 
-    #endregion
+        #endregion
+
+        #region Methods
+
+        private void ChangeViewModel(IPageViewModel viewModel)
+        {
+            if (!PageViewModels.Contains(viewModel))
+                PageViewModels.Add(viewModel);
+
+            CurrentPageViewModel = PageViewModels.FirstOrDefault(vm => vm == viewModel);
+        }
+
+        private void ChangeViewModelMessageRecieved(ChangePageMessage aMessage)
+        {
+            ChangeViewModel(aMessage.ViewModel);
+        }
+
+        #endregion
+
+        public void Reset()
+        {
+            CurrentPageViewModel = PageViewModels[0];
+        }
     }
 }

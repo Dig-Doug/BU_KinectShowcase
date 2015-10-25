@@ -1,5 +1,4 @@
 ﻿using KinectShowcaseCommon.Kinect_Processing;
-using KinectShowcaseCommon.Navigation;
 using System;
 using System.Collections.Generic;
 using System.Diagnostics;
@@ -22,6 +21,7 @@ namespace KinectShowcaseCommon.ProcessHandling
         private static object _syncRoot = new Object();
 
         public ISystemProgressListener ProgessListener;
+        public ISystemTimeoutListener NavigationHandler;
 
         //holds the last time a user interacted with the system
         private DateTime _lastInteractionTime = DateTime.Now;
@@ -90,7 +90,7 @@ namespace KinectShowcaseCommon.ProcessHandling
 
         private void ProgramManagement_Main()
         {
-            while (!_generalThread.IsAlive)
+            while (_generalThread.IsAlive)
             {
                 //only manage if we don't have a child process
                 if (this._childProcess == null)
@@ -109,7 +109,14 @@ namespace KinectShowcaseCommon.ProcessHandling
 
         private void ProgramManagement_GoHome()
         {
-            NavigationHandler.Default.GoToRootPage();
+            if (this.NavigationHandler != null)
+            {
+                this.NavigationHandler.Reset();
+            }
+            else
+            {
+                Debug.WriteLine("No navigationhandler set!");
+            }
         }
 
         #endregion

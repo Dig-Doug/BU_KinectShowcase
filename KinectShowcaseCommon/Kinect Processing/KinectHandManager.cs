@@ -95,6 +95,7 @@ namespace KinectShowcaseCommon.Kinect_Processing
         public int MinimumOpenStatesAfterClose { get; set; }
         public bool ShouldAttachToControls { get; set; }
         public KinectCursorView Cursor { get; set; }
+        public Rect HandRect { get; private set; }
 
         private KinectManager _kinectManager;
         private CoordinateMapper _coordinateMapper;
@@ -104,8 +105,10 @@ namespace KinectShowcaseCommon.Kinect_Processing
         private HandState _lastConfirmedHandState = HandState.Open;
         private float _depthFrameWidth, _depthFrameHeight;
         private HandStateCounter _handStateCounter = new HandStateCounter();
+
+        private const float ASPECT_RATIO = 1920 / 1080.0f;
         private Point _handRectCenter = new Point(0.5, -0.5);
-        private Size _handRectSize = new Size(1.0, 1.0);
+        private Size _handRectSize = new Size(2.0, 2.0 / ASPECT_RATIO);
 
         #endregion
 
@@ -440,6 +443,9 @@ namespace KinectShowcaseCommon.Kinect_Processing
             double scaledX = (handPos.X - handRect.X) / handRect.Width;
             double scaledY = (handPos.Y - handRect.Y) / handRect.Height;
             Point result = new Point(scaledX, scaledY);
+
+            //set hand rect
+            this.HandRect = handRect;
 
             return result;
         }

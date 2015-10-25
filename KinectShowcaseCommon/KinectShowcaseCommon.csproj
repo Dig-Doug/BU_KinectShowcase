@@ -68,7 +68,7 @@
     <Compile Include="Kinect Processing\KinectGestureManager.cs" />
     <Compile Include="Kinect Processing\KinectHandManager.cs" />
     <Compile Include="Kinect Processing\KinectManager.cs" />
-    <Compile Include="Navigation\NavigationHandler.cs" />
+    <Compile Include="ProcessHandling\ISystemTimeoutListener.cs" />
     <Compile Include="ProcessHandling\ISystemInteractionListener.cs" />
     <Compile Include="ProcessHandling\ISystemProgressListener.cs" />
     <Compile Include="ProcessHandling\SystemCanary.cs" />
@@ -92,6 +92,9 @@
       <Generator>MSBuild:Compile</Generator>
       <SubType>Designer</SubType>
     </Page>
+  </ItemGroup>
+  <ItemGroup>
+    <Folder Include="Navigation\" />
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
   <!-- To modify your build process, add your task inside one of the targets below and uncomment it. 
