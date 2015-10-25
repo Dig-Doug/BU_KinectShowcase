@@ -33,7 +33,7 @@ namespace KinectShowcaseCommon.Kinect_Processing
 
         public interface SmoothBodyDataListener
         {
-            void KinectManagerDidGetUpdatedBodyData(KinectManager aManager, SmoothedBody<ExponentialSmoother>[] aBodies);
+            void KinectManagerDidGetUpdatedBodyData(KinectManager aManager, SmoothedBody<KalmanSmoother>[] aBodies);
         }
 
         #endregion
@@ -90,8 +90,8 @@ namespace KinectShowcaseCommon.Kinect_Processing
         private WeakCollection<StateListener> stateListeners = new WeakCollection<StateListener>();
         private WeakCollection<ActivelyTrackingListener> trackingListeners = new WeakCollection<ActivelyTrackingListener>();
 
-        private ExponentialSmoother _smoother = new ExponentialSmoother();
-        private SmoothedBody<ExponentialSmoother>[] _smoothedBodies;
+        private KalmanSmoother _smoother = new KalmanSmoother();
+        private SmoothedBody<KalmanSmoother>[] _smoothedBodies;
 
         public KinectSensor KinectSensor { get; private set; }
         public ulong CurrentlyTrackingId { get; private set; }
@@ -152,19 +152,12 @@ namespace KinectShowcaseCommon.Kinect_Processing
 
         private void InitBody()
         {
-            ExponentialSmoothingParameters smoothingParam = new ExponentialSmoothingParameters();
-            {
-                smoothingParam.Smoothing = 0.5f;
-                smoothingParam.Correction = 0.1f;
-                smoothingParam.Prediction = 0.5f;
-                smoothingParam.JitterRadius = 0.1f;
-                smoothingParam.MaxDeviationRadius = 0.1f;
-            };
+            KalmanSmoothingParameters smoothingParam = new KalmanSmoothingParameters();
 
-            _smoothedBodies = new SmoothedBody<ExponentialSmoother>[this.KinectSensor.BodyFrameSource.BodyCount];
+            _smoothedBodies = new SmoothedBody<KalmanSmoother>[this.KinectSensor.BodyFrameSource.BodyCount];
             for (int i = 0; i < this.KinectSensor.BodyFrameSource.BodyCount; i++)
             {
-                _smoothedBodies[i] = new SmoothedBody<ExponentialSmoother>(smoothingParam);
+                _smoothedBodies[i] = new SmoothedBody<KalmanSmoother>(smoothingParam);
             }
 
             // get the coordinate mapper

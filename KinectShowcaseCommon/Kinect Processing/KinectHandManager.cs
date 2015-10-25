@@ -139,9 +139,9 @@ namespace KinectShowcaseCommon.Kinect_Processing
 
         #region KinectManager.RawBodyDataListener Methods
 
-        public void KinectManagerDidGetUpdatedBodyData(KinectManager aManager, SmoothedBody<ExponentialSmoother>[] aBodies)
+        public void KinectManagerDidGetUpdatedBodyData(KinectManager aManager, SmoothedBody<KalmanSmoother>[] aBodies)
         {
-            SmoothedBody<ExponentialSmoother> tracked = aBodies.Where(b => b.TrackingId == this._kinectManager.CurrentlyTrackingId).FirstOrDefault();
+            SmoothedBody<KalmanSmoother> tracked = aBodies.Where(b => b.TrackingId == this._kinectManager.CurrentlyTrackingId).FirstOrDefault();
 
             if (tracked != null && tracked.TrackingId != 0)
             {
@@ -223,7 +223,7 @@ namespace KinectShowcaseCommon.Kinect_Processing
             return result;
         }
 
-        private void ProcessHandState(SmoothedBody<ExponentialSmoother> aTracked)
+        private void ProcessHandState(SmoothedBody<KalmanSmoother> aTracked)
         {
             HandState trackBodyHandState = (TrackingLeftHand ? aTracked.HandLeftState : aTracked.HandRightState);
 
@@ -367,7 +367,7 @@ namespace KinectShowcaseCommon.Kinect_Processing
 
         #region Helper Methods
 
-        private Dictionary<JointType, Point> ConvertJointsToDepthSpace(SmoothedBody<ExponentialSmoother> aBody)
+        private Dictionary<JointType, Point> ConvertJointsToDepthSpace(SmoothedBody<KalmanSmoother> aBody)
         {
             Dictionary<JointType, Point> jointPoints = new Dictionary<JointType, Point>();
 
