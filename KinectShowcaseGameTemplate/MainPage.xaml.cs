@@ -593,9 +593,9 @@ namespace KinectShowcaseGameTemplate
             bool moved = false;
 
             //eval board
-            int [] rowBotCount = new int[3], rowPlayerCount = new int[3];
+            int[] rowBotCount = new int[3], rowPlayerCount = new int[3];
             int[] colBotCount = new int[3], colPlayerCount = new int[3];
-            int[] rowEmpty = {-1, -1, -1}, colEmpty = {-1, -1, -1}, diagEmpty = {-1, -1};
+            int[] rowEmpty = { -1, -1, -1 }, colEmpty = { -1, -1, -1 }, diagEmpty = { -1, -1 };
             int[] diagBotCount = new int[2], diagPlayerCount = new int[2];
             for (int row = 0; row < 3; row++)
             {
@@ -626,7 +626,7 @@ namespace KinectShowcaseGameTemplate
 
             //1. Win
             //check for 2 in a row
-            for (int i = 0; i < 3; i++ )
+            for (int i = 0; i < 3; i++)
             {
                 // Check for 2 in a row
                 if (rowBotCount[i] == 2 && rowEmpty[i] != -1)
@@ -711,8 +711,8 @@ namespace KinectShowcaseGameTemplate
             //5. play center
             if (!moved && gridArray[1, 1] == 0)
             {
-                    gridArray[1, 1] = BOT_VALUE;
-                    moved = true;
+                gridArray[1, 1] = BOT_VALUE;
+                moved = true;
             }
 
             //6. play opposite corner
