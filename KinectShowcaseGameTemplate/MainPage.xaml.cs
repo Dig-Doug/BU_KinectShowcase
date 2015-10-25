@@ -286,6 +286,22 @@ namespace KinectShowcaseGameTemplate
             }
         }
 
+        private void updateGridColors()
+        {
+            for (int i = 0; i < GAME_GRID_ROWS_COUNT; i++)
+            {
+                for (int j = 0; j < GAME_GRID_COLUMNS_COUNT; j++)
+                {
+                    int playerNumber = gridArray[i, j];
+                    if (playerNumber == 1)
+                        rectArray[i, j].Fill = playerOneBrush;
+                    if (playerNumber == 2)
+                        rectArray[i, j].Fill = playerTwoBrush;
+                }
+            }
+            InvalidateVisual();
+        }
+
         void setPlayerColor(int playerNumber, Brush brush)
         {
             if (playerNumber == 1)
@@ -478,15 +494,15 @@ namespace KinectShowcaseGameTemplate
                 //Post - decrement delayFrames
                 delayFrames--;
 
-                //Function that has the Bot make a move
-                //You can edit the botMove function to make it more smarterer
-                botMove();
-                //Bot has moved, it's the players' turn
-                waitingOnBot = false;
-
                 //Checks if game is finished (ie. 3 in a row)
                 if (!isGameOver)
                 {
+                    //Function that has the Bot make a move
+                    //You can edit the botMove function to make it more smarterer
+                    botMove();
+                    //Bot has moved, it's the players' turn
+                    waitingOnBot = false;
+
                     //checkWinner() returns 1 or 2 if there is a winner or 0 if there is no winner. 
                     if (checkWinner() == 2) //Winner is player 2
                     {
@@ -551,25 +567,222 @@ namespace KinectShowcaseGameTemplate
 
         }
 
+        private const int PLAYER_VALUE = 1;
+        private const int BOT_VALUE = 2;
+
         // Call this function when you want the computer to make a move in the game
         private void botMove()
         {
-            for (int rr = 0; rr < GAME_GRID_ROWS_COUNT; rr++)
+            //Tic-Tac-Toe strategy (From Wikipedia)
+            //1. Win: If the player has two in a row, they can place a third to get three in a row.
+            //2. Block: If the opponent has two in a row, the player must play the third themselves to block the opponent.
+            //3. Fork: Create an opportunity where the player has two threats to win (two non-blocked lines of 2).
+            //4. Blocking an opponent's fork:
+            //    Option 1: The player should create two in a row to force the opponent into defending, 
+            //          as long as it doesn't result in them creating a fork. For example, if "X" has a /corner, 
+            //          "O" has the center, and "X" has the opposite corner as well, "O" must not play a corner 
+            //          in order to win. (Playing a corner in this scenario creates a fork for "X" to win.)
+            //   Option 2: If there is a configuration where the opponent can fork, the player should block that fork.
+            //5. Center: A player marks the center. (If it is the first move of the game, playing on a corner gives "O" 
+            //      more opportunities to make a mistake and may therefore be the better choice; however, 
+            //      it makes no difference between perfect players.)
+            //6. Opposite corner: If the opponent is in the corner, the player plays the opposite corner.
+            //7. Empty corner: The player plays in a corner square.
+            //8. Empty side: The player plays in a middle square on any of the 4 sides.
+
+            bool moved = false;
+
+            //eval board
+            int [] rowBotCount = new int[3], rowPlayerCount = new int[3];
+            int[] colBotCount = new int[3], colPlayerCount = new int[3];
+            int[] rowEmpty = {-1, -1, -1}, colEmpty = {-1, -1, -1}, diagEmpty = {-1, -1};
+            int[] diagBotCount = new int[2], diagPlayerCount = new int[2];
+            for (int row = 0; row < 3; row++)
             {
-                for (int cc = 0; cc < GAME_GRID_COLUMNS_COUNT; cc++)
+                for (int col = 0; col < 3; col++)
                 {
-                    //fills in first empty spot in grid
-                    if (gridArray[rr, cc] == 0)
+                    int value = gridArray[row, col];
+                    rowBotCount[row] += (value == BOT_VALUE ? 1 : 0);
+                    colBotCount[col] += (value == BOT_VALUE ? 1 : 0);
+                    rowPlayerCount[row] += (value == PLAYER_VALUE ? 1 : 0);
+                    colPlayerCount[col] += (value == PLAYER_VALUE ? 1 : 0);
+                    rowEmpty[row] = (value == 0 ? col : (rowEmpty[row] != -1 ? rowEmpty[row] : -1));
+                    colEmpty[col] = (value == 0 ? row : (colEmpty[col] != -1 ? colEmpty[col] : -1));
+
+                    if (row == col)
                     {
-                        gridArray[rr, cc] = 2;
-                        highlightGridLocation(rr, cc, 2);
-                        return;
+                        diagBotCount[0] += (value == BOT_VALUE ? 1 : 0);
+                        diagPlayerCount[0] += (value == PLAYER_VALUE ? 1 : 0);
+                        diagEmpty[0] = (value == 0 ? col : (diagEmpty[0] != -1 ? diagEmpty[0] : -1));
+                    }
+                    if (row == 2 - col)
+                    {
+                        diagBotCount[1] += (value == BOT_VALUE ? 1 : 0);
+                        diagPlayerCount[1] += (value == PLAYER_VALUE ? 1 : 0);
+                        diagEmpty[1] = (value == 0 ? col : (diagEmpty[1] != -1 ? diagEmpty[1] : -1));
                     }
                 }
             }
-            //if a bot has reached here the game is a TIE
-            isGameOver = true;
-            setText("TIE Game! (Close Hand to Reset)", Brushes.White);
+
+            //1. Win
+            //check for 2 in a row
+            for (int i = 0; i < 3; i++ )
+            {
+                // Check for 2 in a row
+                if (rowBotCount[i] == 2 && rowEmpty[i] != -1)
+                {
+                    //move here
+                    gridArray[i, rowEmpty[i]] = BOT_VALUE;
+                    moved = true;
+                }
+                else if (colBotCount[i] == 2 && colEmpty[i] != -1)
+                {
+                    //move here
+                    gridArray[colEmpty[i], i] = BOT_VALUE;
+                    moved = true;
+                }
+                if (moved)
+                    break;
+            }
+            //1. Win cont.
+            if (!moved)
+            {
+                //check diag
+                if (diagBotCount[0] == 2 && diagEmpty[0] != -1)
+                {
+                    //move here
+                    gridArray[diagEmpty[0], diagEmpty[0]] = BOT_VALUE;
+                    moved = true;
+                }
+                else if (diagBotCount[1] == 2 && diagEmpty[1] != -1)
+                {
+                    //move here
+                    gridArray[2 - diagEmpty[1], diagEmpty[1]] = BOT_VALUE;
+                    moved = true;
+                }
+            }
+
+
+            //2. Block
+            if (!moved)
+            {
+                for (int i = 0; i < 3; i++)
+                {
+                    if (rowPlayerCount[i] == 2 && rowEmpty[i] != -1)
+                    {
+                        //move here
+                        gridArray[i, rowEmpty[i]] = BOT_VALUE;
+                        moved = true;
+                    }
+                    else if (colPlayerCount[i] == 2 && colEmpty[i] != -1)
+                    {
+                        //move here
+                        gridArray[colEmpty[i], i] = BOT_VALUE;
+                        moved = true;
+                    }
+                    if (moved)
+                        break;
+                }
+
+                if (!moved)
+                {
+                    //check diag
+                    if (diagPlayerCount[0] == 2 && diagEmpty[0] != -1)
+                    {
+                        //move here
+                        gridArray[diagEmpty[0], diagEmpty[0]] = BOT_VALUE;
+                        moved = true;
+                    }
+                    else if (diagPlayerCount[1] == 2 && diagEmpty[1] != -1)
+                    {
+                        //move here
+                        gridArray[2 - diagEmpty[1], diagEmpty[1]] = BOT_VALUE;
+                        moved = true;
+                    }
+                }
+            }
+
+            if (!moved)
+            {
+                //3. fork
+                //4. block fork
+            }
+
+            //5. play center
+            if (!moved && gridArray[1, 1] == 0)
+            {
+                    gridArray[1, 1] = BOT_VALUE;
+                    moved = true;
+            }
+
+            //6. play opposite corner
+            if (!moved)
+            {
+                if (diagPlayerCount[0] == 1 && diagEmpty[0] != -1)
+                {
+                    //move here
+                    gridArray[diagEmpty[0], diagEmpty[0]] = BOT_VALUE;
+                    moved = true;
+                }
+                else if (diagPlayerCount[1] == 1 && diagEmpty[1] != -1)
+                {
+                    //move here
+                    gridArray[2 - diagEmpty[1], diagEmpty[1]] = BOT_VALUE;
+                    moved = true;
+                }
+            }
+
+            //7. play any corner
+            if (!moved)
+            {
+                if (diagEmpty[0] != -1)
+                {
+                    //move here
+                    gridArray[diagEmpty[0], diagEmpty[0]] = BOT_VALUE;
+                    moved = true;
+                }
+                else if (diagEmpty[1] != -1)
+                {
+                    //move here
+                    gridArray[2 - diagEmpty[1], diagEmpty[1]] = BOT_VALUE;
+                    moved = true;
+                }
+            }
+
+            //8. play empty side
+            if (!moved)
+            {
+                if (gridArray[0, 1] == 0)
+                {
+                    gridArray[0, 1] = BOT_VALUE;
+                    moved = true;
+                }
+                else if (gridArray[2, 1] == 0)
+                {
+                    gridArray[2, 1] = BOT_VALUE;
+                    moved = true;
+                }
+                else if (gridArray[1, 0] == 0)
+                {
+                    gridArray[1, 0] = BOT_VALUE;
+                    moved = true;
+                }
+                else if (gridArray[1, 2] == 0)
+                {
+                    gridArray[1, 2] = BOT_VALUE;
+                    moved = true;
+                }
+            }
+
+            //9. tie
+            if (!moved)
+            {
+                //if a bot has reached here the game is a TIE
+                isGameOver = true;
+                setText("TIE Game! (Close Hand to Reset)", Brushes.White);
+            }
+
+            updateGridColors();
         }
 
         // Call this function when you want to reset the game
