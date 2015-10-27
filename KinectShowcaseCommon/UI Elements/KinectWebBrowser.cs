@@ -18,10 +18,12 @@ using Microsoft.Kinect.Input;
 using System.Diagnostics;
 using KinectShowcaseCommon.Kinect_Processing;
 using System.Runtime.InteropServices;
+using MouseKeyboardLibrary;
+using CefSharp.Wpf;
 
 namespace KinectShowcaseCommon.UI_Elements
 {
-    public class KinectWebBrowser : UserControl, KinectHandManager.HandStateChangeListener, KinectHandManager.HandLocationListener
+    public class KinectWebBrowser : ChromiumWebBrowser, KinectHandManager.HandStateChangeListener, KinectHandManager.HandLocationListener
     {
         private const double SCROLL_SCALAR = 10000;
         private const double MAX_CLICK_DELTA = 0.05;
@@ -39,6 +41,7 @@ namespace KinectShowcaseCommon.UI_Elements
 
         public KinectWebBrowser()
         {
+            this.Address = "http://google.com";
             if (!DesignerProperties.GetIsInDesignMode(this))
             {
                 _kinectManager = KinectManager.Default;
@@ -120,32 +123,33 @@ namespace KinectShowcaseCommon.UI_Elements
 
         #endregion
 
-        private void SetPosition(int a, int b)
-        {
-            SetCursorPos(a, b);
-        }
-
-        [DllImport("User32.dll")]
-        private static extern bool SetCursorPos(int X, int Y);
-        [System.Runtime.InteropServices.DllImport("User32.dll")]
-        public static extern void mouse_event(int dwFlags, int dx, int dy, int cButtons, int dwExtraInfo);
-
-        public const int MOUSEEVENTF_LEFTDOWN = 0x02;
-        public const int MOUSEEVENTF_LEFTUP = 0x04;
-
-        //This simulates a left mouse click
-        public static void LeftMouseClick(int xpos, int ypos)
-        {
-            SetCursorPos(xpos, ypos);
-            mouse_event(MOUSEEVENTF_LEFTDOWN, xpos, ypos, 0, 0);
-            mouse_event(MOUSEEVENTF_LEFTUP, xpos, ypos, 0, 0);
-        }
-
         public void Click(int x, int y)
         {
-           // this.InjectMouseMove(x, y);
-            //this.InjectMouseDown(Awesomium.Core.MouseButton.Left);
-            //this.InjectMouseUp(Awesomium.Core.MouseButton.Left);
+            var browser = GetBrowser();
+            if (browser != null)
+            {
+                browser.GetHost().SendMouseClickEvent(x, y, CefSharp.MouseButtonType.Left, false, 1, CefSharp.CefEventFlags.LeftMouseButton);
+                browser.GetHost().SendMouseClickEvent(x, y, CefSharp.MouseButtonType.Left, true, 1, CefSharp.CefEventFlags.None);
+            }
+        }
+
+        public void MouseMoved(int x, int y)
+        {
+            var browser = GetBrowser();
+            if (browser != null)
+            {
+                browser.GetHost().SendMouseMoveEvent(x, y, false, CefSharp.CefEventFlags.LeftMouseButton);
+            }
+        }
+
+        public void MouseWheel(int aPosX, int aPosY, int aX, int aY)
+        {
+            var browser = GetBrowser();
+
+            if (browser != null)
+            {
+                browser.GetHost().SendMouseWheelEvent(aPosX, aPosY, deltaX: aX, deltaY: aY, modifiers: CefSharp.CefEventFlags.None);
+            }
         }
 
         public bool KinectHandManagerDidDetectHandStateChange(KinectHandManager aManager, KinectHandManager.HandStateChangeEvent aEvent)
@@ -208,7 +212,7 @@ namespace KinectShowcaseCommon.UI_Elements
                     int mouseY = (int)(System.Windows.SystemParameters.PrimaryScreenHeight * aEvent.HandPosition.Y);
                     Dispatcher.InvokeAsync((Action)delegate()
                     {
-                        //this.InjectMouseMove(mouseX, mouseY);
+                        MouseMoved(mouseX, mouseY);
                     });
                 }
 
@@ -232,9 +236,12 @@ namespace KinectShowcaseCommon.UI_Elements
                         int wheelX = (int)(xDistance * SCROLL_SCALAR);
                         int wheelY = -(int)(yDistance * SCROLL_SCALAR);
 
+                        int mouseX = (int)(System.Windows.SystemParameters.PrimaryScreenWidth * aEvent.HandPosition.X);
+                        int mouseY = (int)(System.Windows.SystemParameters.PrimaryScreenHeight * aEvent.HandPosition.Y);
+
                         Dispatcher.InvokeAsync((Action)delegate()
                         {
-                            //this.InjectMouseWheel(wheelY, wheelX);
+                            MouseWheel(mouseX, mouseY, wheelX, wheelY);
                         });
                         _lastScrollPoint = aEvent.HandPosition;
 

@@ -31,8 +31,8 @@
     </Window.Resources>
 
     <Grid Background="Black">
-        <ui:SkeletonView x:Name="skeletonView" Panel.ZIndex="0" Source="/KinectShowcase;component/Assets/background.png"/>
-        <ContentControl Content="{Binding CurrentPageViewModel}" />
-        <ui:KinectCursorView x:Name="cursorView" Panel.ZIndex="2"/>
+        <ui:SkeletonView x:Name="skeletonView" Canvas.ZIndex="0" Source="/KinectShowcase;component/Assets/background.png"/>
+        <ContentControl Content="{Binding CurrentPageViewModel}" Canvas.ZIndex="1" />
+        <ui:KinectCursorView x:Name="cursorView" Canvas.ZIndex="100000"/>
     </Grid>
 </Window>
