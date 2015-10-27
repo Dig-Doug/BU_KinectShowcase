@@ -88,7 +88,6 @@
     <Compile Include="Filters\HandStateCounter.cs" />
     <Compile Include="Helpers\FileAccessHelpers.cs" />
     <Compile Include="Helpers\ImageExtensions.cs" />
-    <Compile Include="Helpers\MouseSimulator.cs" />
     <Compile Include="Kinect Processing\KinectGestureManager.cs" />
     <Compile Include="Kinect Processing\KinectHandManager.cs" />
     <Compile Include="Kinect Processing\KinectManager.cs" />

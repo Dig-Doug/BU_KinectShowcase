@@ -25,6 +25,8 @@ namespace KinectShowcase.Views
         {
             InitializeComponent();
 
+            ViewModelLocator.Locator().BrowserViewModel.WebBrowser = webBrowser;
+
             //set the background to blur
             ViewModelLocator.Locator().ApplicationViewModel.SkeletonView.SetPercents(0.0f, 1.0f);
         }

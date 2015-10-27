@@ -1,4 +1,5 @@
-﻿using GalaSoft.MvvmLight;
+﻿using CefSharp.Wpf;
+using GalaSoft.MvvmLight;
 using GalaSoft.MvvmLight.CommandWpf;
 using System;
 using System.Collections.Generic;
@@ -24,12 +25,43 @@ namespace KinectShowcase.ViewModel
         public ICommand PageBackCommand { get; private set; }
         public ICommand OpenHomeViewCommand { get; private set; }
 
-        /*
+        private ChromiumWebBrowser _webBrowser;
+        public ChromiumWebBrowser WebBrowser
+        {
+            get
+            {
+                return _webBrowser;
+            }
+            set
+            {
+                if (_webBrowser != value)
+                {
+                    if (_webBrowser != null)
+                    {
+                        _webBrowser.MouseMove -= _webBrowser_MouseMove;
+                    }
+
+                    _webBrowser = value;
+
+                    if (_webBrowser != null)
+                    {
+                        _webBrowser.MouseMove +=_webBrowser_MouseMove;
+                    }
+
+                    RaisePropertyChanged("PageForwardButtonVisibility");
+                    RaisePropertyChanged("PageBackButtonVisibility");
+                }
+            }
+        }
+
         public Visibility PageForwardButtonVisibility
         {
             get
             {
-                return (_currentPage > 0 ? Visibility.Visible : Visibility.Hidden);
+                if (this.WebBrowser != null)
+                    return (WebBrowser.CanGoForward ? Visibility.Visible : Visibility.Hidden);
+                else
+                    return Visibility.Hidden;
             }
         }
 
@@ -37,10 +69,12 @@ namespace KinectShowcase.ViewModel
         {
             get
             {
-                return (_currentPage != _maxPages ? Visibility.Visible : Visibility.Hidden);
+                if (this.WebBrowser != null)
+                    return (WebBrowser.CanGoBack ? Visibility.Visible : Visibility.Hidden);
+                else
+                    return Visibility.Hidden;
             }
         }
-         * */
 
         public BrowserViewModel()
         {
@@ -51,12 +85,20 @@ namespace KinectShowcase.ViewModel
 
         private void pageForward()
         {
-            Debug.WriteLine("TODO - Browser");
+            if (WebBrowser.CanGoForward)
+                WebBrowser.GetBrowser().GoForward();
         }
 
         private void pageBack()
         {
-            
+            if (WebBrowser.CanGoBack)
+                WebBrowser.GetBrowser().GoBack();
+        }
+
+        private void _webBrowser_MouseMove(object sender, MouseEventArgs e)
+        {
+            RaisePropertyChanged("PageForwardButtonVisibility");
+            RaisePropertyChanged("PageBackButtonVisibility");
         }
 
         private void openHomeView()

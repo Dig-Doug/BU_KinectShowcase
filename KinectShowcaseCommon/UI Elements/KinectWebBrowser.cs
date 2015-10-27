@@ -18,7 +18,6 @@ using Microsoft.Kinect.Input;
 using System.Diagnostics;
 using KinectShowcaseCommon.Kinect_Processing;
 using System.Runtime.InteropServices;
-using MouseKeyboardLibrary;
 using CefSharp.Wpf;
 
 namespace KinectShowcaseCommon.UI_Elements
