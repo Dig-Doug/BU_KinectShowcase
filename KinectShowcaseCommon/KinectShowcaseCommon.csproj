@@ -83,6 +83,7 @@
     <Compile Include="UI Elements\LiveBackground.cs" />
     <Compile Include="UI Elements\PercentageConverter.cs" />
     <Compile Include="UI Elements\SkeletonView.cs" />
+    <Compile Include="ViewModel\IPageViewModel.cs" />
     <Compile Include="WeakList\SafeGCHandle.cs" />
     <Compile Include="WeakList\WeakCollection.cs" />
     <Compile Include="WeakList\WeakReference.cs" />
@@ -95,6 +96,9 @@
   </ItemGroup>
   <ItemGroup />
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
+  <PropertyGroup>
+    <PostBuildEvent>copy KinectShowcaseCommon.dll C:\KinectShowcase\</PostBuildEvent>
+  </PropertyGroup>
   <!-- To modify your build process, add your task inside one of the targets below and uncomment it. 
        Other similar extension points exist, see Microsoft.Common.targets.
   <Target Name="BeforeBuild">

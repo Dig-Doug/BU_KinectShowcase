@@ -58,6 +58,7 @@ namespace KinectShowcase
         {
             try
             {
+                /*
                 string fullName = System.Reflection.Assembly.GetExecutingAssembly().Location;
                 string exeName = System.Reflection.Assembly.GetExecutingAssembly().Location;
                 int index = 0;
@@ -67,6 +68,8 @@ namespace KinectShowcase
                     exeName = exeName.Substring(index + 1);
                 }
                 string manifestPath = fullName.Substring(0, fullName.IndexOf(exeName)) + CONFIG_FILE;
+                */
+                string manifestPath = "C:\\KinectShowcase\\showcase_config.txt";
                 if (File.Exists(manifestPath))
                 {
                     using (StreamReader manifestStream = new StreamReader(manifestPath))
