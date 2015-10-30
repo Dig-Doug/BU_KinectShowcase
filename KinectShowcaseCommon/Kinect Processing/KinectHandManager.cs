@@ -107,7 +107,7 @@ namespace KinectShowcaseCommon.Kinect_Processing
         private HandStateCounter _handStateCounter = new HandStateCounter();
 
         private const float ASPECT_RATIO = 1920 / 1080.0f;
-        private Point _handRectCenter = new Point(0.5, -0.5);
+        private Point _handRectCenter = new Point(1.0, -1.0/ ASPECT_RATIO);
         private Size _handRectSize = new Size(2.0, 2.0 / ASPECT_RATIO);
 
         #endregion

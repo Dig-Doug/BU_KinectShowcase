@@ -70,7 +70,7 @@ namespace KinectShowcaseCommon.UI_Elements
             if (!DesignerProperties.GetIsInDesignMode(this))
             {
                 this.ShouldDrawHeadJoint = false;
-                this.ShouldDrawHandRect = false;
+                this.ShouldDrawHandRect = false; //not quite right
 
                 // Create the drawing group we'll use for drawing
                 this.drawingGroup = new DrawingGroup();

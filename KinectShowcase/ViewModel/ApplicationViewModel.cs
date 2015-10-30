@@ -1,3 +1,4 @@
+using CefSharp;
 using GalaSoft.MvvmLight;
 using GalaSoft.MvvmLight.CommandWpf;
 using KinectShowcaseCommon.ProcessHandling;
@@ -39,6 +40,11 @@ namespace KinectShowcase.ViewModel
 
             //Start the Application Watchdog
             SystemWatchdog.Default.NavigationHandler = this;
+
+            //Set user agent
+            CefSettings settings = new CefSettings();
+            settings.UserAgent = "Mozilla/5.0 (iPhone; CPU iPhone OS 5_1 like Mac OS X) AppleWebKit/534.46 (KHTML, like Gecko) Version/5.1 Mobile/9B176 Safari/7534.48.3";
+            Cef.Initialize(settings);
         }
 
         #region Properties / Commands

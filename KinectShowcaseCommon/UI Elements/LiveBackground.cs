@@ -361,9 +361,7 @@ namespace KinectShowcaseCommon.UI_Elements
             {
                 // since we are displaying the image as a normalized grey scale image, we need to convert from
                 // the ushort data (as provided by the InfraredFrame) to a value from [InfraredOutputValueMinimum, InfraredOutputValueMaximum]
-                //backBuffer[i] = Math.Min(InfraredOutputValueMaximum, (((float)frameData[i] / InfraredSourceValueMaximum * InfraredSourceScale) * (1.0f - InfraredOutputValueMinimum)) + InfraredOutputValueMinimum);
-                int lower8 = frameData[i] & 0x00FF;
-                backBuffer[i] = lower8;
+                backBuffer[i] = Math.Min(InfraredOutputValueMaximum, (((float)frameData[i] / InfraredSourceValueMaximum * InfraredSourceScale) * (1.0f - InfraredOutputValueMinimum)) + InfraredOutputValueMinimum);
             }
 
             // mark the entire bitmap as needing to be drawn

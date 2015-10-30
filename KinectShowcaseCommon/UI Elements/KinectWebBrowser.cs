@@ -19,6 +19,7 @@ using System.Diagnostics;
 using KinectShowcaseCommon.Kinect_Processing;
 using System.Runtime.InteropServices;
 using CefSharp.Wpf;
+using CefSharp;
 
 namespace KinectShowcaseCommon.UI_Elements
 {
@@ -40,7 +41,7 @@ namespace KinectShowcaseCommon.UI_Elements
 
         public KinectWebBrowser()
         {
-            this.Address = "http://google.com";
+            this.Address = "http://bu.edu";
             if (!DesignerProperties.GetIsInDesignMode(this))
             {
                 _kinectManager = KinectManager.Default;
@@ -53,9 +54,6 @@ namespace KinectShowcaseCommon.UI_Elements
                 if (!hasInitUserAgent)
                 {
                     hasInitUserAgent = true;
-                    //WebConfig config = new WebConfig();
-                    //config.UserAgent = "Mozilla/5.0 (iPhone; CPU iPhone OS 5_1 like Mac OS X) AppleWebKit/534.46 (KHTML, like Gecko) Version/5.1 Mobile/9B176 Safari/7534.48.3";
-                    //WebCore.Initialize(config);
                 }
             }
         }
