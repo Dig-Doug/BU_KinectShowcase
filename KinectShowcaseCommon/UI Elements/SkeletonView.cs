@@ -15,11 +15,12 @@ using System.Windows.Shapes;
 using Microsoft.Kinect;
 using KinectShowcaseCommon.Kinect_Processing;
 using System.ComponentModel;
+using KinectEx.Smoothing;
 
 namespace KinectShowcaseCommon.UI_Elements
 {
     //Adapted from the BodyBasics-WPF Demo for Kinect v2
-    public class SkeletonView : LiveBackground, KinectManager.RawBodyDataListener
+    public class SkeletonView : LiveBackground, KinectManager.SmoothBodyDataListener
     {
         // Radius of drawn hand circles
         private const double HandSize = 30;
@@ -142,7 +143,7 @@ namespace KinectShowcaseCommon.UI_Elements
                 //this.bodyColors.Add(new Pen(Brushes.Indigo, 6 * _skeletonScaleX));
                 //this.bodyColors.Add(new Pen(Brushes.Violet, 6 * _skeletonScaleX));
 
-                this.kinectManager.AddRawBodyDataListener(this);
+                this.kinectManager.AddSmoothBodyDataListener(this);
             }
         }
 
@@ -150,7 +151,7 @@ namespace KinectShowcaseCommon.UI_Elements
         {
             if (this.kinectManager != null)
             {
-                this.kinectManager.RemoveRawBodyDataListener(this);
+                this.kinectManager.RemoveSmoothBodyDataListener(this);
                 this.kinectManager = null;
             }
         }
@@ -179,7 +180,7 @@ namespace KinectShowcaseCommon.UI_Elements
             }
         }
 
-        public void KinectManagerDidGetUpdatedBodyData(KinectManager aManager, Body[] aBodies)
+        public void KinectManagerDidGetUpdatedBodyData(KinectManager aManager, SmoothedBody<KalmanSmoother>[] aBodies)
         {
             //update on UI thread
             Dispatcher.InvokeAsync((Action)delegate()
@@ -188,7 +189,7 @@ namespace KinectShowcaseCommon.UI_Elements
             });
         }
 
-        private void DrawBodies(Body[] aBodies)
+        private void DrawBodies(SmoothedBody<KalmanSmoother>[] aBodies)
         {
             using (DrawingContext dc = this.drawingGroup.Open())
             {
@@ -196,7 +197,7 @@ namespace KinectShowcaseCommon.UI_Elements
                 dc.DrawRectangle(Brushes.Transparent, null, new Rect(0.0, 0.0, this.displayWidth, this.displayHeight));
 
                 int penIndex = 0;
-                foreach (Body body in aBodies)
+                foreach (SmoothedBody<KalmanSmoother> body in aBodies)
                 {
                     if (body.TrackingId == this.kinectManager.CurrentlyTrackingId)
                         penIndex = 0;
@@ -208,7 +209,7 @@ namespace KinectShowcaseCommon.UI_Elements
                     {
                         this.DrawClippedEdges(body, dc);
 
-                        IReadOnlyDictionary<JointType, Joint> joints = body.Joints;
+                        var joints = body.Joints;
 
                         // convert the joint points to depth (display) space
                         Dictionary<JointType, Point> jointPoints = new Dictionary<JointType, Point>();
@@ -251,7 +252,7 @@ namespace KinectShowcaseCommon.UI_Elements
         }
 
         /// Draws a body
-        private void DrawBody(IReadOnlyDictionary<JointType, Joint> joints, IDictionary<JointType, Point> jointPoints, DrawingContext drawingContext, Pen drawingPen)
+        private void DrawBody(IReadOnlyDictionary<JointType, KinectEx.IJoint> joints, IDictionary<JointType, Point> jointPoints, DrawingContext drawingContext, Pen drawingPen)
         {
             // Draw the bones
             foreach (var bone in this.bones)
@@ -291,10 +292,10 @@ namespace KinectShowcaseCommon.UI_Elements
         }
 
         /// Draws one bone of a body (joint to joint)
-        private void DrawBone(IReadOnlyDictionary<JointType, Joint> joints, IDictionary<JointType, Point> jointPoints, JointType jointType0, JointType jointType1, DrawingContext drawingContext, Pen drawingPen)
+        private void DrawBone(IReadOnlyDictionary<JointType, KinectEx.IJoint> joints, IDictionary<JointType, Point> jointPoints, JointType jointType0, JointType jointType1, DrawingContext drawingContext, Pen drawingPen)
         {
-            Joint joint0 = joints[jointType0];
-            Joint joint1 = joints[jointType1];
+            var joint0 = joints[jointType0];
+            var joint1 = joints[jointType1];
 
             // If we can't find either of these joints, exit
             if (joint0.TrackingState == TrackingState.NotTracked ||
@@ -333,7 +334,7 @@ namespace KinectShowcaseCommon.UI_Elements
         }
 
         /// Draws indicators to show which edges are clipping body data
-        private void DrawClippedEdges(Body body, DrawingContext drawingContext)
+        private void DrawClippedEdges(SmoothedBody<KalmanSmoother> body, DrawingContext drawingContext)
         {
             if (this.showClipping)
             {
