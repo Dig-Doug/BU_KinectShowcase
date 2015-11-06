@@ -153,8 +153,8 @@ namespace KinectShowcaseCommon.Kinect_Processing
         private void InitBody()
         {
             KalmanSmoothingParameters smoothingParam = new KalmanSmoothingParameters();
-            smoothingParam.JitterRadius = 0.03f;
-            smoothingParam.MeasurementUncertainty = 0.001f;
+            smoothingParam.JitterRadius = 0.1f;
+            smoothingParam.MeasurementUncertainty = 0.0001f;
 
             _smoothedBodies = new SmoothedBody<KalmanSmoother>[this.KinectSensor.BodyFrameSource.BodyCount];
             for (int i = 0; i < this.KinectSensor.BodyFrameSource.BodyCount; i++)

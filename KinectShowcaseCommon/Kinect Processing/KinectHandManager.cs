@@ -103,14 +103,14 @@ namespace KinectShowcaseCommon.Kinect_Processing
         private WeakCollection<HandLocationListener> _handLocationListeners = new WeakCollection<HandLocationListener>();
         //private Point _normalizedHandLocation;
         //private Point _rawScaledHandLocation, _filteredScaledHandLocation;
-        private PointFilter _scaledHandLocationFilter = new PointFilter(new RegressionValueFilter(0.1), new ValueFilter());
+        private PointFilter _scaledHandLocationFilter = new PointFilter(new RegressionValueFilter(0.1), new RegressionValueFilter(0.1));
         private HandState _lastConfirmedHandState = HandState.Open;
         private float _depthFrameWidth, _depthFrameHeight;
         private HandStateCounter _handStateCounter = new HandStateCounter();
 
         private const float ASPECT_RATIO = 1920 / 1080.0f;
-        private Point _handRectCenter = new Point(1.0, -1.0/ ASPECT_RATIO);
-        private Size _handRectSize = new Size(2.0, 2.0 / ASPECT_RATIO);
+        private Point _handRectCenter = new Point(2.0, -1.0);
+        private Size _handRectSize = new Size(2.0, 2.0);
 
 
         public float HandCoordRangeX { get; private set; }
@@ -262,12 +262,13 @@ namespace KinectShowcaseCommon.Kinect_Processing
             //scaled up hand location
             Point scaledHandLocation = new Point(normalizedHandLocation.X * this.HandCoordRangeX, normalizedHandLocation.Y * this.HandCoordRangeY);
 
-            //filter
-            Point filteredScaledHandLocation = _scaledHandLocationFilter.Next(scaledHandLocation);
-
+            Point filteredScaledHandLocation = scaledHandLocation;
             //check for valid location
-            if (!double.IsNaN(filteredScaledHandLocation.X) && !double.IsNaN(filteredScaledHandLocation.Y))
+            if (!double.IsNaN(scaledHandLocation.X) && !double.IsNaN(scaledHandLocation.Y))
             {
+                //filter
+                filteredScaledHandLocation = _scaledHandLocationFilter.Next(scaledHandLocation);
+
                 //send event
                 HandLocationEvent movedEvent = new HandLocationEvent(filteredScaledHandLocation);
                 this.NotifyHandLocationListenersOfEvent(movedEvent);
@@ -447,7 +448,8 @@ namespace KinectShowcaseCommon.Kinect_Processing
             double shoulderLengthScale = Point.Subtract(aJointPoints[JointType.ShoulderLeft], aJointPoints[JointType.ShoulderRight]).Length / 2;
 
             //choose the center of the rect (left shoulder for left hand, etc.)
-            Point rectCenter = (aShouldDoLeftHand ? aJointPoints[JointType.ShoulderLeft] : aJointPoints[JointType.ShoulderRight]);
+            Point rectCenter = (aShouldDoLeftHand ? aJointPoints[JointType.SpineShoulder] : aJointPoints[JointType.SpineShoulder]);
+            //(aShouldDoLeftHand ? aJointPoints[JointType.ShoulderLeft] : aJointPoints[JointType.ShoulderRight]);
 
             //increment the center by the offset (subtract for left side)
             rectCenter.X += _handRectCenter.X * shoulderLengthScale * (aShouldDoLeftHand ? -1 : 1);

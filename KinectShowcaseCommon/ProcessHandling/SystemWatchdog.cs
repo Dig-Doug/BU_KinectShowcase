@@ -36,6 +36,7 @@ namespace KinectShowcaseCommon.ProcessHandling
         private Object _childProcessLock = new Object();
         //threads for watching and talking with processes
         private Thread _watchThread, _readThread, _generalThread;
+        private bool _shouldQuit = false;
 
         //singleton watchdog
         public static SystemWatchdog Default
@@ -67,6 +68,8 @@ namespace KinectShowcaseCommon.ProcessHandling
 
         public void OnExit()
         {
+            _shouldQuit = true;
+
             if (_pipeServer != null)
             {
                 _pipeServer.DisposeLocalCopyOfClientHandle();
@@ -90,23 +93,31 @@ namespace KinectShowcaseCommon.ProcessHandling
 
         private void ProgramManagement_Main()
         {
-            while (true)
+            bool shouldQuit = false;
+            while (!shouldQuit && !_shouldQuit)
             {
-                //only manage if we don't have a child process
-                if (this._childProcess == null)
+                try
                 {
-                    //check if we've passed the timeout limit
-                    if ((DateTime.Now - _lastInteractionTime).TotalSeconds >= INTERACTION_TIME_THRESHOLD)
+                    //only manage if we don't have a child process
+                    if (this._childProcess == null)
                     {
-                        //reset to the home screen
-                        Debug.WriteLine("SystemWatchdog - LOG - System timed out, returning to the home screen");
-                        ProgramManagement_GoHome();
-                        _lastInteractionTime = DateTime.Now;
+                        //check if we've passed the timeout limit
+                        if ((DateTime.Now - _lastInteractionTime).TotalSeconds >= INTERACTION_TIME_THRESHOLD)
+                        {
+                            //reset to the home screen
+                            Debug.WriteLine("SystemWatchdog - LOG - System timed out, returning to the home screen");
+                            ProgramManagement_GoHome();
+                            _lastInteractionTime = DateTime.Now;
+                        }
                     }
-                }
 
-                //wait for a bit
-                Thread.Sleep(100);
+                    //wait for a bit
+                    Thread.Sleep(100);
+                }
+                catch (ThreadAbortException e)
+                {
+                    shouldQuit = true;
+                }
             }
         }
 

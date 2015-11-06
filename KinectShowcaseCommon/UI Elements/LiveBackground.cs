@@ -23,7 +23,7 @@ namespace KinectShowcaseCommon.UI_Elements
             BodyIndex = 2,
         }
         public static int BACKGROUND_MODE_COUNT = 3;
-        private const float BACKGROUND_SWITCH_TIME = 1.5f * 60.0f;
+        private const float BACKGROUND_SWITCH_TIME = 1000000000;//1.5f * 60.0f;
 
         private KinectManager _kinectManager = null;
 

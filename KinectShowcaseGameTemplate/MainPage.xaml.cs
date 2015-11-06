@@ -117,7 +117,7 @@ namespace KinectShowcaseGameTemplate
         {
             bool result = false;
 
-            Point pagePoint = new Point(aEvent.HandPosition.X * this.ActualWidth, aEvent.HandPosition.Y * this.ActualHeight);
+            Point pagePoint = new Point(aEvent.HandPosition.X * this.ActualWidth / _kinectManager.HandManager.HandCoordRangeX, aEvent.HandPosition.Y * this.ActualHeight / _kinectManager.HandManager.HandCoordRangeY);
             playerOneHandLocation = pagePoint;
 
             return result;
