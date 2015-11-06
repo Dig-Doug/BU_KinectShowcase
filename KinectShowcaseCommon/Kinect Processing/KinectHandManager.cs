@@ -101,7 +101,9 @@ namespace KinectShowcaseCommon.Kinect_Processing
         private CoordinateMapper _coordinateMapper;
         private WeakCollection<HandStateChangeListener> _handStateListeners = new WeakCollection<HandStateChangeListener>();
         private WeakCollection<HandLocationListener> _handLocationListeners = new WeakCollection<HandLocationListener>();
-        private Point _currentHandLocation;
+        //private Point _normalizedHandLocation;
+        //private Point _rawScaledHandLocation, _filteredScaledHandLocation;
+        private PointFilter _scaledHandLocationFilter = new PointFilter(new RegressionValueFilter(0.1), new ValueFilter());
         private HandState _lastConfirmedHandState = HandState.Open;
         private float _depthFrameWidth, _depthFrameHeight;
         private HandStateCounter _handStateCounter = new HandStateCounter();
@@ -109,6 +111,10 @@ namespace KinectShowcaseCommon.Kinect_Processing
         private const float ASPECT_RATIO = 1920 / 1080.0f;
         private Point _handRectCenter = new Point(1.0, -1.0/ ASPECT_RATIO);
         private Size _handRectSize = new Size(2.0, 2.0 / ASPECT_RATIO);
+
+
+        public float HandCoordRangeX { get; private set; }
+        public float HandCoordRangeY { get; private set; }
 
         #endregion
 
@@ -126,6 +132,9 @@ namespace KinectShowcaseCommon.Kinect_Processing
             FrameDescription frameDescription = _kinectManager.KinectSensor.DepthFrameSource.FrameDescription;
             _depthFrameWidth = frameDescription.Width;
             _depthFrameHeight = frameDescription.Height;
+
+            this.HandCoordRangeX = 1920;
+            this.HandCoordRangeY = 1080;
 
             this._kinectManager.AddSmoothBodyDataListener(this);
         }
@@ -151,26 +160,28 @@ namespace KinectShowcaseCommon.Kinect_Processing
                 Dictionary<JointType, Point> jointPoints = this._kinectManager.HandManager.ConvertJointsToDepthSpace(tracked);
 
                 //check if we are already tracking a hand
+                bool beganTracking = false;
                 if (this._lastConfirmedHandState == HandState.NotTracked || !HandIsInCorrectPosition(jointPoints, this.TrackingLeftHand))
                 {
                     if (this.ChooseHand(jointPoints))
                     {
-                        HandStateChangeEvent beganTrackingEvent = new HandStateChangeEvent(HandStateChangeType.BeganTracking, this._currentHandLocation);
-                        this.NotifyHandStateChangeListenersOfEvent(beganTrackingEvent);
-
+                        beganTracking = true;
                         _lastConfirmedHandState = HandState.Open;
                     }
                 }
 
-                _currentHandLocation = MapHandPosition(jointPoints, this.TrackingLeftHand);
-                if (!double.IsNaN(_currentHandLocation.X) && !double.IsNaN(_currentHandLocation.Y))
+                //Process hand loc
+                Point currentHandLoc = ProcessHandLocation(jointPoints);
+
+                //if began tracking, send out event
+                if (beganTracking)
                 {
-                    HandLocationEvent movedEvent = new HandLocationEvent(_currentHandLocation);
-                    this.NotifyHandLocationListenersOfEvent(movedEvent);
+                    HandStateChangeEvent beganTrackingEvent = new HandStateChangeEvent(HandStateChangeType.BeganTracking, currentHandLoc);
+                    this.NotifyHandStateChangeListenersOfEvent(beganTrackingEvent);
                 }
 
                 //Process Hand State
-                ProcessHandState(tracked);
+                ProcessHandState(tracked, currentHandLoc);
             }
             else
             {
@@ -226,7 +237,46 @@ namespace KinectShowcaseCommon.Kinect_Processing
             return result;
         }
 
-        private void ProcessHandState(SmoothedBody<KalmanSmoother> aTracked)
+        private Point NormalizeHandPosition(Dictionary<JointType, Point> aJointPoints, bool aShouldDoLeftHand)
+        {
+            //get the raw hand pos
+            Point handPos = GetRawHandPosition(aJointPoints, aShouldDoLeftHand);
+            //get the hand rect
+            Rect handRect = CalculateHandRect(aJointPoints, aShouldDoLeftHand);
+            //map the hand coord to the rect
+            double scaledX = (handPos.X - handRect.X) / handRect.Width;
+            double scaledY = (handPos.Y - handRect.Y) / handRect.Height;
+            Point result = new Point(scaledX, scaledY);
+
+            //set hand rect
+            this.HandRect = handRect;
+
+            return result;
+        }
+
+        private Point ProcessHandLocation(Dictionary<JointType, Point> aJoints)
+        {
+            //get normalized hand
+            Point normalizedHandLocation = NormalizeHandPosition(aJoints, this.TrackingLeftHand);
+
+            //scaled up hand location
+            Point scaledHandLocation = new Point(normalizedHandLocation.X * this.HandCoordRangeX, normalizedHandLocation.Y * this.HandCoordRangeY);
+
+            //filter
+            Point filteredScaledHandLocation = _scaledHandLocationFilter.Next(scaledHandLocation);
+
+            //check for valid location
+            if (!double.IsNaN(filteredScaledHandLocation.X) && !double.IsNaN(filteredScaledHandLocation.Y))
+            {
+                //send event
+                HandLocationEvent movedEvent = new HandLocationEvent(filteredScaledHandLocation);
+                this.NotifyHandLocationListenersOfEvent(movedEvent);
+            }
+
+            return filteredScaledHandLocation;
+        }
+
+        private void ProcessHandState(SmoothedBody<KalmanSmoother> aTracked, Point aHandLocation)
         {
             HandState trackBodyHandState = (TrackingLeftHand ? aTracked.HandLeftState : aTracked.HandRightState);
 
@@ -240,7 +290,7 @@ namespace KinectShowcaseCommon.Kinect_Processing
                 if (_handStateCounter.Count >= this.MinimumClosedStatesAfterOpen)
                 {
                     //if so, send out event message
-                    DidDetectHandStateChange(_lastConfirmedHandState, trackBodyHandState);
+                    DidDetectHandStateChange(_lastConfirmedHandState, trackBodyHandState, aHandLocation);
                     //set last confirmed state
                     _lastConfirmedHandState = HandState.Closed;
                 }
@@ -252,7 +302,7 @@ namespace KinectShowcaseCommon.Kinect_Processing
                 if (_handStateCounter.Count >= this.MinimumOpenStatesAfterClose)
                 {
                     //if so, send out event message
-                    DidDetectHandStateChange(_lastConfirmedHandState, trackBodyHandState);
+                    DidDetectHandStateChange(_lastConfirmedHandState, trackBodyHandState, aHandLocation);
                     //set last confirmed state
                     _lastConfirmedHandState = HandState.Open;
                 }
@@ -263,17 +313,17 @@ namespace KinectShowcaseCommon.Kinect_Processing
             }
         }
 
-        private void DidDetectHandStateChange(HandState aFromState, HandState aToState)
+        private void DidDetectHandStateChange(HandState aFromState, HandState aToState, Point aHandLocation)
         {
             HandStateChangeEvent handEvent = null;
 
             if (aToState == HandState.Open && aFromState != HandState.Open)
             {
-                handEvent = new HandStateChangeEvent(HandStateChangeType.CloseToOpen, _currentHandLocation);
+                handEvent = new HandStateChangeEvent(HandStateChangeType.CloseToOpen, aHandLocation);
             }
             else if (aToState == HandState.Closed && aFromState != HandState.Closed)
             {
-                handEvent = new HandStateChangeEvent(HandStateChangeType.OpenToClose, _currentHandLocation);
+                handEvent = new HandStateChangeEvent(HandStateChangeType.OpenToClose, aHandLocation);
             }
 
             if (handEvent != null)
@@ -433,40 +483,31 @@ namespace KinectShowcaseCommon.Kinect_Processing
             return result;
         }
 
-        private Point MapHandPosition(Dictionary<JointType, Point> aJointPoints, bool aShouldDoLeftHand)
-        {
-            //get the raw hand pos
-            Point handPos = GetRawHandPosition(aJointPoints, aShouldDoLeftHand);
-            //get the hand rect
-            Rect handRect = CalculateHandRect(aJointPoints, aShouldDoLeftHand);
-            //map the hand coord to the rect
-            double scaledX = (handPos.X - handRect.X) / handRect.Width;
-            double scaledY = (handPos.Y - handRect.Y) / handRect.Height;
-            Point result = new Point(scaledX, scaledY);
-
-            //set hand rect
-            this.HandRect = handRect;
-
-            return result;
-        }
-
         #endregion
 
         #region Debug Methods
 
         public void InjectHandLocation(Point aLocation)
         {
-            _currentHandLocation = aLocation;
-            _currentHandLocation.X = _currentHandLocation.X + 0.5f;
-            _currentHandLocation.Y = _currentHandLocation.Y + 0.5f;
-            HandLocationEvent movedEvent = new HandLocationEvent(_currentHandLocation);
-            this.NotifyHandLocationListenersOfEvent(movedEvent);
+            //scaled up hand location
+            Point scaledHandLocation = new Point(aLocation.X * this.HandCoordRangeX, aLocation.Y * this.HandCoordRangeY);
+
+            //filter
+            Point filteredScaledHandLocation = _scaledHandLocationFilter.Next(scaledHandLocation);
+
+            //check for valid location
+            if (!double.IsNaN(filteredScaledHandLocation.X) && !double.IsNaN(filteredScaledHandLocation.Y))
+            {
+                //send event
+                HandLocationEvent movedEvent = new HandLocationEvent(filteredScaledHandLocation);
+                this.NotifyHandLocationListenersOfEvent(movedEvent);
+            }
         }
 
         public void InjectHandStateChange(HandState aState)
         {
             //_currentHandState = aState;
-            DidDetectHandStateChange(_lastConfirmedHandState, aState);
+            DidDetectHandStateChange(_lastConfirmedHandState, aState, _scaledHandLocationFilter.Last);
             _lastConfirmedHandState = aState;
         }
 

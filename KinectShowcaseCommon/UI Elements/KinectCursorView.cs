@@ -15,6 +15,7 @@ using System.Windows.Navigation;
 using System.Windows.Shapes;
 using System.Windows.Media.Animation;
 using KinectShowcaseCommon.Helpers;
+using KinectShowcaseCommon.Kinect_Processing;
 
 namespace KinectShowcaseCommon.UI_Elements
 {
@@ -36,6 +37,7 @@ namespace KinectShowcaseCommon.UI_Elements
         private DrawingGroup _drawingGroup = null;
         private Storyboard _openToCloseHandAnimation, _closeToOpenHandAnimation;
         private Image[] _cursorImages = null;
+        private KinectManager _kinectManager;
 
         public KinectCursorView()
         {
@@ -148,6 +150,9 @@ namespace KinectShowcaseCommon.UI_Elements
 
         public void SetCursorPosition(PointF aLoc)
         {
+            if (_kinectManager == null)
+                _kinectManager = KinectManager.Default;
+
             this.SetCursorPosition(new Point(aLoc.X, aLoc.Y));
         }
 
@@ -165,9 +170,9 @@ namespace KinectShowcaseCommon.UI_Elements
                     _cursorPosition.X = 0;
                     handIsOffscreen = true;
                 }
-                else if (_cursorPosition.X > 1.0)
+                else if (_cursorPosition.X > _kinectManager.HandManager.HandCoordRangeX)
                 {
-                    _cursorPosition.X = 1.0f;
+                    _cursorPosition.X = _kinectManager.HandManager.HandCoordRangeX;
                     handIsOffscreen = true;
                 }
                 if (_cursorPosition.Y < 0)
@@ -175,9 +180,9 @@ namespace KinectShowcaseCommon.UI_Elements
                     _cursorPosition.Y = 0;
                     handIsOffscreen = true;
                 }
-                else if (_cursorPosition.Y > 1)
+                else if (_cursorPosition.Y > _kinectManager.HandManager.HandCoordRangeY)
                 {
-                    _cursorPosition.Y = 1;
+                    _cursorPosition.Y = _kinectManager.HandManager.HandCoordRangeY;
                     handIsOffscreen = true;
                 }
 
@@ -186,8 +191,8 @@ namespace KinectShowcaseCommon.UI_Elements
 
                 }
 
-                this._cursorPositionDraw.X = this.ActualWidth * this._cursorPosition.X;
-                this._cursorPositionDraw.Y = this.ActualHeight * this._cursorPosition.Y;
+                this._cursorPositionDraw.X = (this.ActualWidth / _kinectManager.HandManager.HandCoordRangeX) *this._cursorPosition.X;
+                this._cursorPositionDraw.Y = (this.ActualHeight / _kinectManager.HandManager.HandCoordRangeY) * this._cursorPosition.Y;
 
                 Point topLeftCorner = new Point(_cursorPositionDraw.X - _cursorImages[0].Width / 2, _cursorPositionDraw.Y - _cursorImages[0].Height / 2);
                 foreach (Image currentImage in _cursorImages)

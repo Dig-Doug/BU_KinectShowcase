@@ -96,6 +96,13 @@ namespace KinectShowcaseCommon.UI_Elements
                 topLeft.Y /= control.RenderSize.Height;
                 bottomRight.X /= control.RenderSize.Width;
                 bottomRight.Y /= control.RenderSize.Height;
+
+                //scale by range of hand manager coords
+                topLeft.X *= _kinectManager.HandManager.HandCoordRangeX;
+                bottomRight.X *= _kinectManager.HandManager.HandCoordRangeX;
+                topLeft.Y *= _kinectManager.HandManager.HandCoordRangeY;
+                bottomRight.Y *= _kinectManager.HandManager.HandCoordRangeY;
+
                 //these points now define the bounds of the button in kinect space
                 this._kinectSpaceBounds = new Rect(topLeft, bottomRight);
                 _attachBounds = new Rect(_kinectSpaceBounds.X + _kinectSpaceBounds.Width / 4, _kinectSpaceBounds.Y + _kinectSpaceBounds.Height / 4, _kinectSpaceBounds.Width / 2, _kinectSpaceBounds.Height / 2);
