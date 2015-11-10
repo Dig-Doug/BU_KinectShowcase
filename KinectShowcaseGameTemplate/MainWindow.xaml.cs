@@ -2,6 +2,7 @@
 using KinectShowcaseCommon.Kinect_Processing;
 using KinectShowcaseCommon.ProcessHandling;
 using KinectShowcaseCommon.UI_Elements;
+using Microsoft.Kinect;
 using System;
 using System.Collections.Generic;
 using System.Diagnostics;
@@ -27,6 +28,8 @@ namespace KinectShowcaseGameTemplate
     {
         public SkeletonView SkeletonView { get; private set; }
         private KinectManager kinectManager;
+        private Point DEBUG_currentKinectHandPos = new Point(0.5f, 0.5f);
+        private bool DEBUG_handIsOpen = true;
 
         public MainWindow()
         {
@@ -93,6 +96,40 @@ namespace KinectShowcaseGameTemplate
         private void Window_KeyDown(object sender, KeyEventArgs e)
         {
             SystemCanary.Default.SystemDidRecieveInteraction();
+
+            const float increment = 0.01f;
+            if (e.Key == Key.A) //left
+            {
+                DEBUG_currentKinectHandPos.X -= increment;
+                this.kinectManager.HandManager.InjectHandLocation(DEBUG_currentKinectHandPos);
+            }
+            else if (e.Key == Key.D) //right
+            {
+                DEBUG_currentKinectHandPos.X += increment;
+                this.kinectManager.HandManager.InjectHandLocation(DEBUG_currentKinectHandPos);
+            }
+            else if (e.Key == Key.W) //up
+            {
+                DEBUG_currentKinectHandPos.Y -= increment;
+                this.kinectManager.HandManager.InjectHandLocation(DEBUG_currentKinectHandPos);
+            }
+            else if (e.Key == Key.S) //down
+            {
+                DEBUG_currentKinectHandPos.Y += increment;
+                this.kinectManager.HandManager.InjectHandLocation(DEBUG_currentKinectHandPos);
+            }
+            else if (e.Key == Key.Space || e.Key == Key.Q) //toggle open close
+            {
+                DEBUG_handIsOpen = !DEBUG_handIsOpen;
+                HandState state = (DEBUG_handIsOpen ? HandState.Open : HandState.Closed);
+                this.kinectManager.HandManager.InjectHandStateChange(state);
+            }
+            else if (e.Key == Key.M)
+            {
+                Process currentProc = Process.GetCurrentProcess();
+                long memoryUsed = currentProc.PrivateMemorySize64;
+                Debug.WriteLine("Memory used: " + memoryUsed);
+            }
         }
 
         public void KinectManagerDidUpdateState(KinectManager aManager, bool aIsKinectActive)

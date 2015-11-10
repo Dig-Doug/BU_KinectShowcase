@@ -51,6 +51,8 @@ namespace KinectShowcaseGameTemplate
         // Holds if player 2's hand is closed
         private bool isPlayerTwoHandClosed = false;
 
+        private Point lastHoverTile;
+
         #endregion
 
         #region Game Init
@@ -119,6 +121,15 @@ namespace KinectShowcaseGameTemplate
 
             Point pagePoint = new Point(aEvent.HandPosition.X * this.ActualWidth / _kinectManager.HandManager.HandCoordRangeX, aEvent.HandPosition.Y * this.ActualHeight / _kinectManager.HandManager.HandCoordRangeY);
             playerOneHandLocation = pagePoint;
+
+            if (IsLocationInGrid(playerOneHandLocation))
+            {
+                hoverOverLocation(GetGridLocationForPoint(playerOneHandLocation));
+            }
+            else
+            {
+                hoverOverLocation(new Point(-1, -1));
+            }
 
             return result;
         }
@@ -256,6 +267,22 @@ namespace KinectShowcaseGameTemplate
         {
             textHere.Text = text;
             textHere.Foreground = brush;
+        }
+
+        private void hoverOverLocation(Point aLocation)
+        {
+            if (GridCoordinatesWithingBounds((int)lastHoverTile.X, (int)lastHoverTile.Y))
+            {
+                rectArray[(int)lastHoverTile.Y, (int)lastHoverTile.X].Stroke = gridCellStrokeColor;
+            }
+
+            lastHoverTile = aLocation;
+            if (GridCoordinatesWithingBounds((int)aLocation.X, (int)aLocation.Y))
+            {
+                rectArray[(int)lastHoverTile.Y, (int)lastHoverTile.X].Stroke = gridCellHoverColor;
+            }
+
+            InvalidateVisual();
         }
 
         void highlightGridLocationWithColor(int row, int col, Brush brush)
@@ -433,7 +460,8 @@ namespace KinectShowcaseGameTemplate
         private const int GAME_GRID_COLUMNS_COUNT = 3;
 
         // Color to outline the cells of the grid with
-        private Brush gridCellStrokeColor = Brushes.Red;
+        private Brush gridCellStrokeColor = Brushes.Gray;
+        private Brush gridCellHoverColor = Brushes.Red;
         // Color to fill the empty cells of the grid with
         private Brush gridCellFillColor = Brushes.White;
 
