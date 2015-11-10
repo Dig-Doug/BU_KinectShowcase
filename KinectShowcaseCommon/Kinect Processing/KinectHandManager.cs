@@ -16,6 +16,46 @@ namespace KinectShowcaseCommon.Kinect_Processing
 {
     public class KinectHandManager : KinectManager.SmoothBodyDataListener
     {
+        public enum FilterType
+        {
+            RecursiveFilter,
+            AverageFilter,
+            None
+        }
+
+        public static FilterType StringToFilterType(String aString)
+        {
+            FilterType result = FilterType.None;
+            if (aString == "recursive")
+            {
+                result = FilterType.RecursiveFilter;
+            }
+            else if (aString == "average")
+            {
+                result = FilterType.AverageFilter;
+            }
+            else if (aString == "none")
+            {
+                result = FilterType.None;
+            }
+            else
+            {
+                Debug.WriteLine("KinectHandManager - LOG - invalid string filter type");
+            }
+
+            return result;
+        }
+
+
+        public class Config
+        {
+            public FilterType XFilter = FilterType.RecursiveFilter, YFilter = FilterType.RecursiveFilter;
+            public float[] XFilterParams = {0.1f}, YFilterParams = {0.1f};
+            public Point HandRectCenter  = new Point(2.0, -1.0);
+            public Size HandRectSize = new Size(2.0, 2.0);
+        }
+
+
         #region HandStateChange
 
         public enum HandStateChangeType
@@ -96,31 +136,25 @@ namespace KinectShowcaseCommon.Kinect_Processing
         public bool ShouldAttachToControls { get; set; }
         public KinectCursorView Cursor { get; set; }
         public Rect HandRect { get; private set; }
+        public float HandCoordRangeX { get; private set; }
+        public float HandCoordRangeY { get; private set; }
 
         private KinectManager _kinectManager;
         private CoordinateMapper _coordinateMapper;
         private WeakCollection<HandStateChangeListener> _handStateListeners = new WeakCollection<HandStateChangeListener>();
         private WeakCollection<HandLocationListener> _handLocationListeners = new WeakCollection<HandLocationListener>();
-        //private Point _normalizedHandLocation;
-        //private Point _rawScaledHandLocation, _filteredScaledHandLocation;
-        private PointFilter _scaledHandLocationFilter = new PointFilter(new RegressionValueFilter(0.1), new RegressionValueFilter(0.1));
+        private PointFilter _scaledHandLocationFilter;
         private HandState _lastConfirmedHandState = HandState.Open;
         private float _depthFrameWidth, _depthFrameHeight;
         private HandStateCounter _handStateCounter = new HandStateCounter();
-
-        private const float ASPECT_RATIO = 1920 / 1080.0f;
-        private Point _handRectCenter = new Point(2.0, -1.0);
-        private Size _handRectSize = new Size(2.0, 2.0);
-
-
-        public float HandCoordRangeX { get; private set; }
-        public float HandCoordRangeY { get; private set; }
+        private Point _handRectCenter;
+        private Size _handRectSize;
 
         #endregion
 
         #region Lifecycle
 
-        public KinectHandManager(KinectManager aManager)
+        public KinectHandManager(KinectManager aManager, Config aConfig)
         {
             _kinectManager = aManager;
             _coordinateMapper = this._kinectManager.KinectSensor.CoordinateMapper;
@@ -136,7 +170,55 @@ namespace KinectShowcaseCommon.Kinect_Processing
             this.HandCoordRangeX = 1920;
             this.HandCoordRangeY = 1080;
 
+            this.LoadConfig(aConfig);
+
             this._kinectManager.AddSmoothBodyDataListener(this);
+        }
+
+        private void LoadConfig(Config aConfig)
+        {
+            ValueFilter xFilter = FilterFromeParams(aConfig.XFilter, aConfig.XFilterParams);
+            ValueFilter yFilter = FilterFromeParams(aConfig.YFilter, aConfig.YFilterParams);
+            _scaledHandLocationFilter = new PointFilter(xFilter, yFilter);
+            _handRectCenter = aConfig.HandRectCenter;
+            _handRectSize = aConfig.HandRectSize;
+        }
+
+        private ValueFilter FilterFromeParams(FilterType aType, float[] aParams)
+        {
+            ValueFilter result;
+            if (aType == FilterType.None)
+            {
+                result = new ValueFilter();
+            }
+            else if (aType == FilterType.RecursiveFilter)
+            {
+                if (aParams.Length >= 1)
+                {
+                    result = new RegressionValueFilter(aParams[0]);
+                }
+                else
+                {
+                    result = new RegressionValueFilter(0.1);
+                }
+            }
+            else if (aType == FilterType.AverageFilter)
+            {
+                if (aParams.Length >= 1)
+                {
+                    result = new AverageValueFilter((int)aParams[0]);
+                }
+                else
+                {
+                    result = new AverageValueFilter(3);
+                }
+            }
+            else
+            {
+                throw new NotImplementedException();
+            }
+
+            return result;
         }
 
         ~KinectHandManager()

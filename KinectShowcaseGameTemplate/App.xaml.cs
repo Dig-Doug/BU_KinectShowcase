@@ -20,8 +20,9 @@ namespace KinectShowcaseGameTemplate
         public App()
             : base()
         {
+            KinectManager.Config config = KinectManagerConfigReader.GetConfig();
             //init the kinect manager
-            KinectManager.Default.Init(SystemCanary.Default);
+            KinectManager.Default.Init(SystemCanary.Default, config);
         }
 
         void App_Startup(object sender, StartupEventArgs e)

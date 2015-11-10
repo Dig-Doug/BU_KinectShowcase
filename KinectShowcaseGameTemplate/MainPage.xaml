@@ -48,9 +48,9 @@
         <Grid x:Name="contentGrid" Margin="20">
 
             <Grid.RowDefinitions>
-                <RowDefinition Height="108" />
-                <RowDefinition Height="756" />
-                <RowDefinition Height="216" />
+                <RowDefinition Height="104" />
+                <RowDefinition Height="728" />
+                <RowDefinition Height="208" />
             </Grid.RowDefinitions>
 
             <Grid.ColumnDefinitions>

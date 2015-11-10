@@ -19,6 +19,13 @@ namespace KinectShowcaseCommon.Kinect_Processing
 {
     public sealed class KinectManager
     {
+        public class Config
+        {
+            public float KalmanJitterRadius = 0.1f;
+            public float KalmanMeasurementUncertainty = 0.0001f;
+            public KinectHandManager.Config HandConfig = new KinectHandManager.Config();
+        }
+
 
         #region RawBodyData
 
@@ -127,7 +134,7 @@ namespace KinectShowcaseCommon.Kinect_Processing
 
         }
 
-        public void Init(ISystemInteractionListener aListener)
+        public void Init(ISystemInteractionListener aListener, Config aConfig)
         {
             this.InteractionListener = aListener;
             this.ShouldSendEvents = true;
@@ -136,11 +143,11 @@ namespace KinectShowcaseCommon.Kinect_Processing
             // get the sensor
             this.KinectSensor = KinectSensor.GetDefault();
 
-            this.InitBody();
+            this.InitBody(aConfig.KalmanJitterRadius, aConfig.KalmanMeasurementUncertainty);
 
             this.InitColor();
 
-            this.HandManager = new KinectHandManager(this);
+            this.HandManager = new KinectHandManager(this, aConfig.HandConfig);
             //this.GestureManager = new KinectGestureManager(this);
 
             // set IsAvailableChanged event notifier
@@ -150,11 +157,11 @@ namespace KinectShowcaseCommon.Kinect_Processing
             this.KinectSensor.Open();
         }
 
-        private void InitBody()
+        private void InitBody(float aJitterRadius, float aMeasurementUncertainty)
         {
             KalmanSmoothingParameters smoothingParam = new KalmanSmoothingParameters();
-            smoothingParam.JitterRadius = 0.1f;
-            smoothingParam.MeasurementUncertainty = 0.0001f;
+            smoothingParam.JitterRadius = aJitterRadius;
+            smoothingParam.MeasurementUncertainty = aMeasurementUncertainty;
 
             _smoothedBodies = new SmoothedBody<KalmanSmoother>[this.KinectSensor.BodyFrameSource.BodyCount];
             for (int i = 0; i < this.KinectSensor.BodyFrameSource.BodyCount; i++)

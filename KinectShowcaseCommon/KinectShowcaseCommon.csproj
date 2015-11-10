@@ -95,6 +95,7 @@
     <Compile Include="Kinect Processing\KinectGestureManager.cs" />
     <Compile Include="Kinect Processing\KinectHandManager.cs" />
     <Compile Include="Kinect Processing\KinectManager.cs" />
+    <Compile Include="Kinect Processing\KinectManagerConfigReader.cs" />
     <Compile Include="ProcessHandling\ISystemTimeoutListener.cs" />
     <Compile Include="ProcessHandling\ISystemInteractionListener.cs" />
     <Compile Include="ProcessHandling\ISystemProgressListener.cs" />

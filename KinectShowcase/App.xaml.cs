@@ -34,8 +34,10 @@ namespace KinectShowcase
         {
             this.GetConfig();
 
+            KinectManager.Config config = KinectManagerConfigReader.GetConfig();
+
             //init the kinect manager
-            KinectManager.Default.Init(SystemWatchdog.Default);
+            KinectManager.Default.Init(SystemWatchdog.Default, config);
 
             if (_gameDirectory != null && Directory.Exists(_gameDirectory))
             {
@@ -67,7 +69,7 @@ namespace KinectShowcase
                     index = exeName.IndexOf("\\");
                     exeName = exeName.Substring(index + 1);
                 }
-                string manifestPath = fullName.Substring(0, fullName.IndexOf(exeName)) + CONFIG_FILE;
+                string configPath = fullName.Substring(0, fullName.IndexOf(exeName)) + CONFIG_FILE;
                 */
                 string manifestPath = "C:\\KinectShowcase\\showcase_config.txt";
                 if (File.Exists(manifestPath))
