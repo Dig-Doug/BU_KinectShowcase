@@ -530,7 +530,8 @@ namespace KinectShowcaseCommon.Kinect_Processing
             double shoulderLengthScale = Point.Subtract(aJointPoints[JointType.ShoulderLeft], aJointPoints[JointType.ShoulderRight]).Length / 2;
 
             //choose the center of the rect (left shoulder for left hand, etc.)
-            Point rectCenter = (aShouldDoLeftHand ? aJointPoints[JointType.SpineShoulder] : aJointPoints[JointType.SpineShoulder]);
+            Point rectCenter = GetBodyOrigin(aJointPoints, aShouldDoLeftHand);
+            //(aShouldDoLeftHand ? aJointPoints[JointType.SpineShoulder] : aJointPoints[JointType.SpineShoulder]);
             //(aShouldDoLeftHand ? aJointPoints[JointType.ShoulderLeft] : aJointPoints[JointType.ShoulderRight]);
 
             //increment the center by the offset (subtract for left side)
@@ -565,6 +566,56 @@ namespace KinectShowcaseCommon.Kinect_Processing
             result.Y /= divide;
 
             return result;
+        }
+
+        private Point GetBodyOrigin(Dictionary<JointType, Point> aJointPoints, bool aShouldDoLeftHand)
+        {
+            double[] xValues = { aJointPoints[JointType.Neck].X, 
+                                 aJointPoints[JointType.SpineShoulder].X,
+                                 aJointPoints[JointType.SpineMid].X,
+                                 aJointPoints[JointType.SpineBase].X };
+            double x = GetAverage(xValues);
+
+            double[] yValues = { aJointPoints[JointType.SpineShoulder].Y,
+                                 aJointPoints[JointType.SpineMid].Y,
+                                 aJointPoints[JointType.SpineBase].Y,
+                                 aJointPoints[JointType.HipLeft].Y,
+                                 aJointPoints[JointType.HipRight].Y};
+            double y = GetAverage(yValues);
+
+            Point result = new Point(x, y);
+            return result;
+        }
+
+        private static double GetMedian(double[] sourceNumbers)
+        {
+            //Framework 2.0 version of this method. there is an easier way in F4        
+            if (sourceNumbers == null || sourceNumbers.Length == 0)
+                throw new System.Exception("Median of empty array not defined.");
+
+            //make sure the list is sorted, but use a new array
+            double[] sortedPNumbers = (double[])sourceNumbers.Clone();
+            Array.Sort(sortedPNumbers);
+
+            //get the median
+            int size = sortedPNumbers.Length;
+            int mid = size / 2;
+            double median = (size % 2 != 0) ? (double)sortedPNumbers[mid] : ((double)sortedPNumbers[mid] + (double)sortedPNumbers[mid - 1]) / 2;
+            return median;
+        }
+
+        private static double GetAverage(double[] aValues)
+        {
+            if (aValues == null || aValues.Length == 0)
+                return 0;
+
+            double sum = 0;
+            foreach (double cur in aValues)
+            {
+                sum += cur;
+            }
+
+            return sum / aValues.Length;
         }
 
         #endregion
