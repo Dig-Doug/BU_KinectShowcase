@@ -38,6 +38,7 @@ namespace KinectShowcaseCommon.UI_Elements
         private Storyboard _openToCloseHandAnimation, _closeToOpenHandAnimation;
         private Image[] _cursorImages = null;
         private KinectManager _kinectManager;
+        private bool _animating = false;
 
         public KinectCursorView()
         {
@@ -130,6 +131,14 @@ namespace KinectShowcaseCommon.UI_Elements
                     _closeToOpenHandAnimation.Children.Add(afterAnimator);
                 }
             }
+
+            _openToCloseHandAnimation.Completed += HandAnimation_Completed;
+            _closeToOpenHandAnimation.Completed += HandAnimation_Completed;
+        }
+
+        private void HandAnimation_Completed(object sender, EventArgs e)
+        {
+            _animating = false;
         }
 
         protected override void OnRenderSizeChanged(SizeChangedInfo sizeInfo)
@@ -191,7 +200,7 @@ namespace KinectShowcaseCommon.UI_Elements
 
                 }
 
-                this._cursorPositionDraw.X = (this.ActualWidth / _kinectManager.HandManager.HandCoordRangeX) *this._cursorPosition.X;
+                this._cursorPositionDraw.X = (this.ActualWidth / _kinectManager.HandManager.HandCoordRangeX) * this._cursorPosition.X;
                 this._cursorPositionDraw.Y = (this.ActualHeight / _kinectManager.HandManager.HandCoordRangeY) * this._cursorPosition.Y;
 
                 Point topLeftCorner = new Point(_cursorPositionDraw.X - _cursorImages[0].Width / 2, _cursorPositionDraw.Y - _cursorImages[0].Height / 2);
@@ -209,17 +218,20 @@ namespace KinectShowcaseCommon.UI_Elements
             {
                 if (_cursorState != aState)
                 {
-                    if (_cursorState == CursorState.OpenHand)
-                    {
-                        _openToCloseHandAnimation.Begin();
+                        if (!_animating)
+                        {
+                            _animating = true;
+                            if (_cursorState == CursorState.OpenHand)
+                            {
+                                _openToCloseHandAnimation.Begin();
+                            }
+                            else
+                            {
+                                _closeToOpenHandAnimation.Begin();
+                            }
+                            _cursorState = aState;
+                        }
                     }
-                    else
-                    {
-                        _closeToOpenHandAnimation.Begin();
-                    }
-                }
-
-                _cursorState = aState;
             });
         }
 
