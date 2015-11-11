@@ -123,14 +123,17 @@ namespace KinectShowcaseGameTemplate
             Point pagePoint = new Point(aEvent.HandPosition.X * this.ActualWidth / _kinectManager.HandManager.HandCoordRangeX, aEvent.HandPosition.Y * this.ActualHeight / _kinectManager.HandManager.HandCoordRangeY);
             playerOneHandLocation = pagePoint;
 
-            if (IsLocationInGrid(playerOneHandLocation))
+            Dispatcher.InvokeAsync((Action)delegate ()
             {
-                hoverOverLocation(GetGridLocationForPoint(playerOneHandLocation));
-            }
-            else
-            {
-                hoverOverLocation(new Point(-1, -1));
-            }
+                if (IsLocationInGrid(playerOneHandLocation))
+                {
+                    hoverOverLocation(GetGridLocationForPoint(playerOneHandLocation));
+                }
+                else
+                {
+                    hoverOverLocation(new Point(-1, -1));
+                }
+            });
 
             return result;
         }
@@ -199,12 +202,12 @@ namespace KinectShowcaseGameTemplate
         {
             bool result = false;
 
-            //get the grid's rect
-            Rect gridRect = uniGrid.RenderTransform.TransformBounds(new Rect(uniGrid.RenderSize));// LayoutInformation.GetLayoutSlot(uniGrid);
-            if (gridRect.Contains(aLocation))
-            {
-                result = true;
-            }
+                //get the grid's rect
+                Rect gridRect = uniGrid.RenderTransform.TransformBounds(new Rect(uniGrid.RenderSize));// LayoutInformation.GetLayoutSlot(uniGrid);
+                if (gridRect.Contains(aLocation))
+                {
+                    result = true;
+                }
 
             return result;
         }
@@ -535,7 +538,7 @@ namespace KinectShowcaseGameTemplate
                     //checkWinner() returns 1 or 2 if there is a winner or 0 if there is no winner. 
                     if (checkWinner() == 2) //Winner is player 2
                     {
-                        setText("BOT Wins! (Close Hand to Reset)", Brushes.Red); //Changes the text on the screen
+                        setText("BOT Wins!", Brushes.Red); //Changes the text on the screen
                         isGameOver = true; //Changes this global variable so that the game ends
                     }
                 }
@@ -577,7 +580,7 @@ namespace KinectShowcaseGameTemplate
                                     //Check if we have a winnner
                                     if (checkWinner() == 1)
                                     {
-                                        setText("P1 Wins! (Close Hand to Reset)", Brushes.Green);
+                                        setText("P1 Wins!", Brushes.Green);
                                         isGameOver = true;
                                         delayFrames = 30;
                                     }
@@ -808,7 +811,7 @@ namespace KinectShowcaseGameTemplate
             {
                 //if a bot has reached here the game is a TIE
                 isGameOver = true;
-                setText("TIE Game! (Close Hand to Reset)", Brushes.White);
+                setText("TIE Game!", Brushes.White);
             }
 
             updateGridColors();

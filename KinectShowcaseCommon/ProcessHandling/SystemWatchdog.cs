@@ -93,10 +93,10 @@ namespace KinectShowcaseCommon.ProcessHandling
 
         private void ProgramManagement_Main()
         {
-            bool shouldQuit = false;
-            while (!shouldQuit && !_shouldQuit)
+            try
             {
-                try
+                bool shouldQuit = false;
+                while (!shouldQuit && !_shouldQuit)
                 {
                     //only manage if we don't have a child process
                     if (this._childProcess == null)
@@ -114,10 +114,10 @@ namespace KinectShowcaseCommon.ProcessHandling
                     //wait for a bit
                     Thread.Sleep(100);
                 }
-                catch (ThreadAbortException e)
-                {
-                    shouldQuit = true;
-                }
+            }
+            catch (Exception e)
+            {
+                Debug.WriteLine(e.Message);
             }
         }
 
@@ -181,32 +181,40 @@ namespace KinectShowcaseCommon.ProcessHandling
 
         private void WatchProcess()
         {
-            //_pipeServer.WaitForPipeDrain();
-
-            //wait until the server has connected to a client
-            while (!_pipeServer.IsConnected) ;
-
-            bool shouldQuit = false;
-            while (!shouldQuit)
+            try
             {
-                //lock the process
-                lock (_childProcessLock)
-                {
-                    //see if we should quit
-                    shouldQuit = _childProcess == null || _childProcess.HasExited || !_childProcess.Responding;
-                }
+                //_pipeServer.WaitForPipeDrain();
 
-                //check if we've passed the timeout limit
-                if ((DateTime.Now - _lastInteractionTime).TotalSeconds >= INTERACTION_TIME_THRESHOLD)
+                //wait until the server has connected to a client
+                while (!_pipeServer.IsConnected) ;
+
+                bool shouldQuit = false;
+                while (!shouldQuit)
                 {
-                    //lock and kill the process
+                    //lock the process
                     lock (_childProcessLock)
                     {
-                        _childProcess.Kill();
-                        _childProcess = null;
+                        //see if we should quit
+                        shouldQuit = _childProcess == null || _childProcess.HasExited || !_childProcess.Responding;
                     }
-                    break;
+
+                    //check if we've passed the timeout limit
+                    if ((DateTime.Now - _lastInteractionTime).TotalSeconds >= INTERACTION_TIME_THRESHOLD)
+                    {
+                        //lock and kill the process
+                        lock (_childProcessLock)
+                        {
+                            _childProcess.Kill();
+                            _childProcess = null;
+                        }
+                        break;
+                    }
                 }
+
+            }
+            catch (Exception e)
+            {
+                Debug.WriteLine(e.Message);
             }
 
             //tell the kinect manager we're all done

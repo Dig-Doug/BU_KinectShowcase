@@ -51,7 +51,7 @@ namespace KinectShowcaseCommon.Kinect_Processing
         {
             public FilterType XFilter = FilterType.RecursiveFilter, YFilter = FilterType.RecursiveFilter;
             public float[] XFilterParams = {0.1f}, YFilterParams = {0.1f};
-            public Point HandRectCenter  = new Point(2.0, -1.0);
+            public Point HandRectCenter  = new Point(2.0, -3);
             public Size HandRectSize = new Size(2.0, 2.0);
         }
 
@@ -527,7 +527,7 @@ namespace KinectShowcaseCommon.Kinect_Processing
         private Rect CalculateHandRect(Dictionary<JointType, Point> aJointPoints, bool aShouldDoLeftHand)
         {
             //calculate the shoulder length (from neck to shoulder)
-            double shoulderLengthScale = Point.Subtract(aJointPoints[JointType.ShoulderLeft], aJointPoints[JointType.ShoulderRight]).Length / 2;
+            double shoulderLengthScale = Point.Subtract(aJointPoints[JointType.SpineMid], aJointPoints[JointType.SpineBase]).Length / 2;
 
             //choose the center of the rect (left shoulder for left hand, etc.)
             Point rectCenter = GetBodyOrigin(aJointPoints, aShouldDoLeftHand);
