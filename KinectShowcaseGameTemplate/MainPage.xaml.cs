@@ -89,6 +89,7 @@ namespace KinectShowcaseGameTemplate
                 {
                     rectArray[rr, cc] = new Rectangle();
                     rectArray[rr, cc].Stroke = this.gridCellStrokeColor;
+                    rectArray[rr, cc].StrokeThickness = 3.0f;
                     rectArray[rr, cc].Fill = this.gridCellFillColor;
                     uniGrid.Children.Add(rectArray[rr, cc]);
                 }
