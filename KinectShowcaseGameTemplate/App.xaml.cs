@@ -1,5 +1,6 @@
 ﻿using KinectShowcaseCommon.Kinect_Processing;
 using KinectShowcaseCommon.ProcessHandling;
+using KinectShowcaseGameTemplate.ViewModel;
 using System;
 using System.Collections.Generic;
 using System.Configuration;
@@ -31,6 +32,12 @@ namespace KinectShowcaseGameTemplate
             {
                 SystemCanary.Default.DidStartWithStreamHandle(e.Args[0]);
             }
+        }
+
+        protected override void OnExit(ExitEventArgs e)
+        {
+            base.OnExit(e);
+            //ViewModelLocator.Cleanup();
         }
     }
 }

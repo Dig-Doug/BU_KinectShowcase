@@ -1,5 +1,6 @@
 ﻿using KinectShowcase.Models.Gallery;
 using KinectShowcase.Models.Games;
+using KinectShowcase.ViewModel;
 using KinectShowcaseCommon.Kinect_Processing;
 using KinectShowcaseCommon.ProcessHandling;
 using System;
@@ -53,6 +54,8 @@ namespace KinectShowcase
         protected override void OnExit(ExitEventArgs e)
         {
             base.OnExit(e);
+
+            ViewModelLocator.Cleanup();
             SystemWatchdog.Default.OnExit();
         }
 

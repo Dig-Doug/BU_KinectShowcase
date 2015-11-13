@@ -114,7 +114,27 @@ namespace KinectShowcase.ViewModel
         
         public static void Cleanup()
         {
-            // TODO Clear the ViewModels
+            // Clear the ViewModels
+            ViewModelLocator.Locator().ApplicationViewModel.Cleanup();
+            SimpleIoc.Default.Unregister<ApplicationViewModel>();
+
+            ViewModelLocator.Locator().HomeViewModel.Cleanup();
+            SimpleIoc.Default.Unregister<HomeViewModel>();
+
+            ViewModelLocator.Locator().GameListViewModel.Cleanup();
+            SimpleIoc.Default.Unregister<GameListViewModel>();
+
+            ViewModelLocator.Locator().GameDetailViewModel.Cleanup();
+            SimpleIoc.Default.Unregister<GameDetailViewModel>();
+
+            ViewModelLocator.Locator().GalleryViewModel.Cleanup();
+            SimpleIoc.Default.Unregister<GalleryViewModel>();
+
+            ViewModelLocator.Locator().GalleryDetailViewModel.Cleanup();
+            SimpleIoc.Default.Unregister<GalleryDetailViewModel>();
+
+            ViewModelLocator.Locator().BrowserViewModel.Cleanup();
+            SimpleIoc.Default.Unregister<BrowserViewModel>();
         }
     }
 }

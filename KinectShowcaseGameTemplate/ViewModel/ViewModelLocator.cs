@@ -70,6 +70,8 @@ namespace KinectShowcaseGameTemplate.ViewModel
         public static void Cleanup()
         {
             // TODO Clear the ViewModels
+            SimpleIoc.Default.Unregister<ApplicationViewModel>();
+            SimpleIoc.Default.Unregister<MainViewModel>();
         }
     }
 }

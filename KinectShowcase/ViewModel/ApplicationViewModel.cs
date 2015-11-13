@@ -27,6 +27,13 @@ namespace KinectShowcase.ViewModel
             }
         }
 
+        public class ShutdownMessage
+        {
+            public ShutdownMessage()
+            {
+            }
+        }
+
         public ApplicationViewModel()
         {
             //Register for change view model messages
@@ -91,6 +98,14 @@ namespace KinectShowcase.ViewModel
         private void ChangeViewModelMessageRecieved(ChangePageMessage aMessage)
         {
             ChangeViewModel(aMessage.ViewModel);
+        }
+
+
+        public override void Cleanup()
+        {
+            base.Cleanup();
+
+            Cef.Shutdown();
         }
 
         #endregion
