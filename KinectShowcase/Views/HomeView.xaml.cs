@@ -27,6 +27,7 @@ namespace KinectShowcase.Views
 
             //set the background to blur
             ViewModelLocator.Locator().ApplicationViewModel.SkeletonView.SetPercents(0.0f, 0.25f);
+            ViewModelLocator.Locator().ApplicationViewModel.SkeletonView.DarkenAmount = 1.0f;
         }
     }
 }

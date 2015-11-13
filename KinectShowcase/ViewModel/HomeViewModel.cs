@@ -70,12 +70,18 @@ namespace KinectShowcase.ViewModel
         {
             _isInteracting = true;
             RaisePropertyChanged("ControlVisibility");
+
+            //set the background to blur
+            ViewModelLocator.Locator().ApplicationViewModel.SkeletonView.SetPercents(0.0f, 0.25f);
         }
 
         public void KinectManagerDidFinishTracking(KinectManager aManager)
         {
             _isInteracting = false;
             RaisePropertyChanged("ControlVisibility");
+
+            //set the background to blur
+            ViewModelLocator.Locator().ApplicationViewModel.SkeletonView.SetPercents(0.0f, 0.0f);
         }
     }
 }

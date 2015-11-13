@@ -1,4 +1,5 @@
-﻿using System;
+﻿using KinectShowcaseCommon.Helpers;
+using System;
 using System.Collections.Generic;
 using System.ComponentModel;
 using System.Linq;
@@ -25,6 +26,8 @@ namespace KinectShowcaseCommon.UI_Elements
         protected double _scale = 1.0f, _scaleGaussian = 1.0f;
         protected float _percentStart;
         protected float _percentEnd;
+
+        public float DarkenAmount { get; set; }
 
         public float PercentStart
         {
@@ -114,6 +117,7 @@ namespace KinectShowcaseCommon.UI_Elements
             this.Children.Add(_nonGaussian);
             _gaussian = new Image();
             this.Children.Add(_gaussian);
+            this.DarkenAmount = 1.0f;
 
             /*
             //apply the blur affect to the image
@@ -220,7 +224,7 @@ namespace KinectShowcaseCommon.UI_Elements
             {
                 //set the source
                 _nonGaussian.Source = _source;
-                _gaussian.Source = _gaussianSource;
+                _gaussian.Source = _gaussianSource.Darken(this.DarkenAmount);
             }
         }
     }

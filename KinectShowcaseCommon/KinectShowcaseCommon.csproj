@@ -90,6 +90,7 @@
     <Compile Include="Filters\PointFilter.cs" />
     <Compile Include="Filters\RegressionValueFilter.cs" />
     <Compile Include="Filters\ValueFilter.cs" />
+    <Compile Include="Helpers\WriteableBitmapDarkenExtension.cs" />
     <Compile Include="Helpers\FileAccessHelpers.cs" />
     <Compile Include="Helpers\ImageExtensions.cs" />
     <Compile Include="Kinect Processing\KinectGestureManager.cs" />
