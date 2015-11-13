@@ -25,8 +25,8 @@ namespace KinectShowcaseCommon.UI_Elements
 {
     public class KinectWebBrowser : ChromiumWebBrowser, KinectHandManager.HandStateChangeListener, KinectHandManager.HandLocationListener
     {
-        private const double SCROLL_SCALAR = 10000;
-        private const double MAX_CLICK_DELTA = 0.05;
+        private const double SCROLL_SCALAR = 10;
+        private const double MAX_CLICK_DELTA = 50;
 
         private static bool hasInitUserAgent = false;
 
@@ -186,8 +186,8 @@ namespace KinectShowcaseCommon.UI_Elements
 
                         if (!_hasScrolled && Point.Subtract(aEvent.HandPosition, _clickBeganPoint).Length < MAX_CLICK_DELTA)
                         {
-                            int mouseX = (int)(System.Windows.SystemParameters.PrimaryScreenWidth * aEvent.HandPosition.X);
-                            int mouseY = (int)(System.Windows.SystemParameters.PrimaryScreenHeight * aEvent.HandPosition.Y);
+                            int mouseX = (int)(System.Windows.SystemParameters.PrimaryScreenWidth * aEvent.HandPosition.X / _kinectManager.HandManager.HandCoordRangeX);
+                            int mouseY = (int)(System.Windows.SystemParameters.PrimaryScreenHeight * aEvent.HandPosition.Y / _kinectManager.HandManager.HandCoordRangeY);
                             Dispatcher.InvokeAsync((Action)delegate()
                             {
                                 this.Click(mouseX, mouseY);
@@ -212,8 +212,8 @@ namespace KinectShowcaseCommon.UI_Elements
                 if (this._kinectSpaceBounds.Contains(aEvent.HandPosition))
                 {
                     //always move mouse so is under hand
-                    int mouseX = (int)(System.Windows.SystemParameters.PrimaryScreenWidth * aEvent.HandPosition.X);
-                    int mouseY = (int)(System.Windows.SystemParameters.PrimaryScreenHeight * aEvent.HandPosition.Y);
+                    int mouseX = (int)(System.Windows.SystemParameters.PrimaryScreenWidth * aEvent.HandPosition.X / _kinectManager.HandManager.HandCoordRangeX);
+                    int mouseY = (int)(System.Windows.SystemParameters.PrimaryScreenHeight * aEvent.HandPosition.Y / _kinectManager.HandManager.HandCoordRangeY);
                     Dispatcher.InvokeAsync((Action)delegate()
                     {
                         MouseMoved(mouseX, mouseY);
@@ -240,8 +240,8 @@ namespace KinectShowcaseCommon.UI_Elements
                         int wheelX = (int)(xDistance * SCROLL_SCALAR);
                         int wheelY = -(int)(yDistance * SCROLL_SCALAR);
 
-                        int mouseX = (int)(System.Windows.SystemParameters.PrimaryScreenWidth * aEvent.HandPosition.X);
-                        int mouseY = (int)(System.Windows.SystemParameters.PrimaryScreenHeight * aEvent.HandPosition.Y);
+                        int mouseX = (int)(System.Windows.SystemParameters.PrimaryScreenWidth * aEvent.HandPosition.X / _kinectManager.HandManager.HandCoordRangeX);
+                        int mouseY = (int)(System.Windows.SystemParameters.PrimaryScreenHeight * aEvent.HandPosition.Y / _kinectManager.HandManager.HandCoordRangeY);
 
                         Dispatcher.InvokeAsync((Action)delegate()
                         {
