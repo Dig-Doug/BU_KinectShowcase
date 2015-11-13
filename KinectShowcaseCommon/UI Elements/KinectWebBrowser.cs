@@ -25,8 +25,8 @@ namespace KinectShowcaseCommon.UI_Elements
 {
     public class KinectWebBrowser : ChromiumWebBrowser, KinectHandManager.HandStateChangeListener, KinectHandManager.HandLocationListener
     {
-        private const double SCROLL_SCALAR = 10;
-        private const double MAX_CLICK_DELTA = 50;
+        private const double SCROLL_SCALAR = 5;
+        private const double MAX_CLICK_DELTA = 150;
 
         private static bool hasInitUserAgent = false;
 
@@ -238,7 +238,7 @@ namespace KinectShowcaseCommon.UI_Elements
                         double yDistance = aEvent.HandPosition.Y - _lastScrollPoint.Y;
 
                         int wheelX = (int)(xDistance * SCROLL_SCALAR);
-                        int wheelY = -(int)(yDistance * SCROLL_SCALAR);
+                        int wheelY = (int)(yDistance * SCROLL_SCALAR);
 
                         int mouseX = (int)(System.Windows.SystemParameters.PrimaryScreenWidth * aEvent.HandPosition.X / _kinectManager.HandManager.HandCoordRangeX);
                         int mouseY = (int)(System.Windows.SystemParameters.PrimaryScreenHeight * aEvent.HandPosition.Y / _kinectManager.HandManager.HandCoordRangeY);
@@ -249,7 +249,7 @@ namespace KinectShowcaseCommon.UI_Elements
                         });
                         _lastScrollPoint = aEvent.HandPosition;
 
-                        Debug.WriteLine("X: " + wheelX + " Y: " + wheelY);
+                        //Debug.WriteLine("X: " + wheelX + " Y: " + wheelY);
                     }
 
                 }
