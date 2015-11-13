@@ -536,7 +536,7 @@ namespace KinectShowcaseCommon.Kinect_Processing
 
             //increment the center by the offset (subtract for left side)
             rectCenter.X += _handRectCenter.X * shoulderLengthScale * (aShouldDoLeftHand ? -1 : 1);
-            rectCenter.Y += _handRectCenter.Y * shoulderLengthScale * (aShouldDoLeftHand ? -1 : 1);
+            rectCenter.Y += _handRectCenter.Y * shoulderLengthScale;
 
             //calculate rect dimensions
             double rectX = rectCenter.X - _handRectSize.Width * shoulderLengthScale / 2;
