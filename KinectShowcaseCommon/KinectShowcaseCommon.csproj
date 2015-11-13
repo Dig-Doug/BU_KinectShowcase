@@ -88,7 +88,7 @@
     <Compile Include="Filters\AverageValueFilter.cs" />
     <Compile Include="Filters\HandStateCounter.cs" />
     <Compile Include="Filters\PointFilter.cs" />
-    <Compile Include="Filters\RegressionValueFilter.cs" />
+    <Compile Include="Filters\RecursiveValueFilter.cs" />
     <Compile Include="Filters\ValueFilter.cs" />
     <Compile Include="Helpers\WriteableBitmapDarkenExtension.cs" />
     <Compile Include="Helpers\FileAccessHelpers.cs" />

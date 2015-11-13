@@ -6,11 +6,11 @@ using System.Threading.Tasks;
 
 namespace KinectShowcaseCommon.Filters
 {
-    public class RegressionValueFilter : ValueFilter
+    public class RecursiveValueFilter : ValueFilter
     {
         private double _alpha;
 
-        public RegressionValueFilter(double aAlpha)
+        public RecursiveValueFilter(double aAlpha)
         {
             _alpha = aAlpha;
         }

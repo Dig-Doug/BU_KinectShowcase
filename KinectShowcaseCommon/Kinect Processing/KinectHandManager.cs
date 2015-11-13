@@ -195,11 +195,11 @@ namespace KinectShowcaseCommon.Kinect_Processing
             {
                 if (aParams.Length >= 1)
                 {
-                    result = new RegressionValueFilter(aParams[0]);
+                    result = new RecursiveValueFilter(aParams[0]);
                 }
                 else
                 {
-                    result = new RegressionValueFilter(0.1);
+                    result = new RecursiveValueFilter(0.1);
                 }
             }
             else if (aType == FilterType.AverageFilter)
