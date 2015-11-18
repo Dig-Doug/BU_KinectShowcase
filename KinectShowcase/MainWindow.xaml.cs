@@ -101,22 +101,22 @@ namespace KinectShowcase
             if (e.Key == Key.A) //left
             {
                 DEBUG_currentKinectHandPos.X -= increment;
-                this.kinectManager.HandManager.InjectHandLocation(DEBUG_currentKinectHandPos);
+                this.kinectManager.HandManager.InjectNormalizedHandLocation(DEBUG_currentKinectHandPos);
             }
             else if (e.Key == Key.D) //right
             {
                 DEBUG_currentKinectHandPos.X += increment;
-                this.kinectManager.HandManager.InjectHandLocation(DEBUG_currentKinectHandPos);
+                this.kinectManager.HandManager.InjectNormalizedHandLocation(DEBUG_currentKinectHandPos);
             }
             else if (e.Key == Key.W) //up
             {
                 DEBUG_currentKinectHandPos.Y -= increment;
-                this.kinectManager.HandManager.InjectHandLocation(DEBUG_currentKinectHandPos);
+                this.kinectManager.HandManager.InjectNormalizedHandLocation(DEBUG_currentKinectHandPos);
             }
             else if (e.Key == Key.S) //down
             {
                 DEBUG_currentKinectHandPos.Y += increment;
-                this.kinectManager.HandManager.InjectHandLocation(DEBUG_currentKinectHandPos);
+                this.kinectManager.HandManager.InjectNormalizedHandLocation(DEBUG_currentKinectHandPos);
             }
             else if (e.Key == Key.Space || e.Key == Key.Q) //toggle open close
             {

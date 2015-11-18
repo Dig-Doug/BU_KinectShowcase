@@ -134,10 +134,32 @@ namespace KinectShowcaseCommon.Kinect_Processing
         public int MinimumClosedStatesAfterOpen { get; set; }
         public int MinimumOpenStatesAfterClose { get; set; }
         public bool ShouldAttachToControls { get; set; }
-        public KinectCursorView Cursor { get; set; }
+        private KinectCursorView _cursor;
+        public KinectCursorView Cursor
+        {
+            get
+            {
+                return _cursor;
+            }
+            set
+            {
+                _cursor = value;
+                if (_cursor != null)
+                {
+                    _cursor.SetCursorPosition(_scaledHandLocationFilter.Last);
+                }
+            }
+        }
         public Rect HandRect { get; private set; }
         public float HandCoordRangeX { get; private set; }
         public float HandCoordRangeY { get; private set; }
+        public Point HandPosition
+        {
+            get
+            {
+                return _scaledHandLocationFilter.Last;
+            }
+        }
 
         private KinectManager _kinectManager;
         private CoordinateMapper _coordinateMapper;
@@ -456,7 +478,10 @@ namespace KinectShowcaseCommon.Kinect_Processing
         public void AddHandLocationListener(HandLocationListener aListener)
         {
             if (!this._handLocationListeners.Contains(aListener))
+            {
                 this._handLocationListeners.Add(aListener);
+                aListener.KinectHandManagerDidGetHandLocation(this, new HandLocationEvent(this.HandPosition));
+            }
         }
 
         private void NotifyHandLocationListenersOfEvent(HandLocationEvent aEvent)
@@ -622,13 +647,27 @@ namespace KinectShowcaseCommon.Kinect_Processing
 
         #region Debug Methods
 
-        public void InjectHandLocation(Point aLocation)
+        public void InjectNormalizedHandLocation(Point aLocation)
         {
             //scaled up hand location
             Point scaledHandLocation = new Point(aLocation.X * this.HandCoordRangeX, aLocation.Y * this.HandCoordRangeY);
 
             //filter
             Point filteredScaledHandLocation = _scaledHandLocationFilter.Next(scaledHandLocation);
+
+            //check for valid location
+            if (!double.IsNaN(filteredScaledHandLocation.X) && !double.IsNaN(filteredScaledHandLocation.Y))
+            {
+                //send event
+                HandLocationEvent movedEvent = new HandLocationEvent(filteredScaledHandLocation);
+                this.NotifyHandLocationListenersOfEvent(movedEvent);
+            }
+        }
+
+        public void InjectScaledHandLocation(Point aLocation)
+        {
+            //filter
+            Point filteredScaledHandLocation = _scaledHandLocationFilter.Next(aLocation);
 
             //check for valid location
             if (!double.IsNaN(filteredScaledHandLocation.X) && !double.IsNaN(filteredScaledHandLocation.Y))

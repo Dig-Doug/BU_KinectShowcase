@@ -1,4 +1,5 @@
 ﻿using KinectShowcaseCommon.Kinect_Processing;
+using Microsoft.Kinect;
 using System;
 using System.Collections.Generic;
 using System.Diagnostics;
@@ -163,7 +164,12 @@ namespace KinectShowcaseCommon.ProcessHandling
             _childProcess = new Process();
             _childProcess.StartInfo.FileName = aExecutablePath;
             _childProcess.StartInfo.UseShellExecute = false;
-            _childProcess.StartInfo.Arguments = _pipeServer.GetClientHandleAsString();
+
+            CameraSpacePoint trackedLoc = KinectManager.Default.GetTrackedLocation();
+            string args = _pipeServer.GetClientHandleAsString() + " " + KinectManager.Default.HandManager.HandPosition.X + " " + KinectManager.Default.HandManager.HandPosition.Y;
+            args += " " + trackedLoc.X + " " + trackedLoc.Y + " " + trackedLoc.Z;
+
+            _childProcess.StartInfo.Arguments = args;
             _childProcess.Start();
 
             //create a thread to watch the child process

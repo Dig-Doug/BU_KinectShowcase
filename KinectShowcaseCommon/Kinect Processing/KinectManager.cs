@@ -100,6 +100,9 @@ namespace KinectShowcaseCommon.Kinect_Processing
         private KalmanSmoother _smoother = new KalmanSmoother();
         private SmoothedBody<KalmanSmoother>[] _smoothedBodies;
 
+        private bool _hasFavorPoint = false;
+        private CameraSpacePoint _favorPoint;
+
         public KinectSensor KinectSensor { get; private set; }
         public ulong CurrentlyTrackingId { get; private set; }
         public Body CurrentlyTrackingBody { get; private set; }
@@ -283,17 +286,41 @@ namespace KinectShowcaseCommon.Kinect_Processing
                 if (this.CurrentlyTrackingId == 0 || this.CurrentlyTrackingBody == null || !IsBodyInControlRegion(this.CurrentlyTrackingBody))
                 {
                     Body closestValid = null;
-                    float depth = 9999999;
-                    //enumerate though, find the closest one in the control region
-                    foreach (Body currentBody in bodies)
+                    if (_hasFavorPoint)
                     {
-                        if (currentBody != null && currentBody.IsTracked && IsBodyInControlRegion(currentBody))
+                        float bestDistance = 999999999999;
+                        //enumerate though, find the closest one to the favor point
+                        foreach (Body currentBody in bodies)
                         {
-                            CameraSpacePoint spineLoc = currentBody.Joints[JointType.SpineBase].Position;
-                            if (depth > spineLoc.Z)
+                            if (currentBody != null && currentBody.IsTracked && IsBodyInControlRegion(currentBody))
                             {
-                                closestValid = currentBody;
-                                depth = spineLoc.Z;
+                                CameraSpacePoint loc = AverageLocationOfBody(currentBody);
+                                float distance = (float)Math.Sqrt(Math.Pow(loc.X - _favorPoint.X, 2) + Math.Pow(loc.Y - _favorPoint.Y, 2) + Math.Pow(loc.Z - _favorPoint.Z, 2));
+                                if (distance < bestDistance)
+                                {
+                                    closestValid = currentBody;
+                                    bestDistance = distance;
+                                    _hasFavorPoint = false;
+                                }
+                            }
+                        }
+                    }
+                    
+                    if (closestValid == null)
+                    {
+                        float depth = 9999999;
+                        //enumerate though, find the closest one in the control region
+                        foreach (Body currentBody in bodies)
+                        {
+                            if (currentBody != null && currentBody.IsTracked && IsBodyInControlRegion(currentBody))
+                            {
+                                CameraSpacePoint spineLoc = currentBody.Joints[JointType.SpineBase].Position;
+                                if (depth > spineLoc.Z)
+                                {
+                                    closestValid = currentBody;
+                                    depth = spineLoc.Z;
+                                    _hasFavorPoint = false;
+                                }
                             }
                         }
                     }
@@ -550,5 +577,40 @@ namespace KinectShowcaseCommon.Kinect_Processing
         }
 
         #endregion
+
+        public CameraSpacePoint GetTrackedLocation()
+        {
+            CameraSpacePoint result = new CameraSpacePoint();
+            result.X = -1; result.Y = -1; result.Z = -1;
+            if (this.CurrentlyTrackingBody != null)
+            {
+                result = AverageLocationOfBody(this.CurrentlyTrackingBody);
+            }
+            return result;
+        }
+
+        public void FavorNearest(float aX, float aY, float aZ)
+        {
+            _hasFavorPoint = true;
+            _favorPoint.X = aX;
+            _favorPoint.Y = aY;
+            _favorPoint.Z = aZ;
+        }
+
+        private CameraSpacePoint AverageLocationOfBody(Body aBody)
+        {
+            CameraSpacePoint result = new CameraSpacePoint();
+            foreach (JointType type in this.CurrentlyTrackingBody.Joints.Keys)
+            {
+                result.X += this.CurrentlyTrackingBody.Joints[type].Position.X;
+                result.Y += this.CurrentlyTrackingBody.Joints[type].Position.Y;
+                result.Z += this.CurrentlyTrackingBody.Joints[type].Position.Z;
+            }
+
+            result.X /= this.CurrentlyTrackingBody.Joints.Keys.Count();
+            result.Y /= this.CurrentlyTrackingBody.Joints.Keys.Count();
+            result.Z /= this.CurrentlyTrackingBody.Joints.Keys.Count();
+            return result;
+        }
     }
 }
