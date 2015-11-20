@@ -38,6 +38,17 @@
         </StackPanel>
 
         <Image x:Name="Logo_BU" Source="/KinectShowcase;component/Assets/Logos/logo_bu.png" HorizontalAlignment="Left" VerticalAlignment="Top" Grid.Row="2" Visibility="{Binding ControlVisibility}" />
-        <Image x:Name="Logo_UROP" Source="/KinectShowcase;component/Assets/Logos/logo_urop.png" HorizontalAlignment="Right" VerticalAlignment="Top" Grid.Row="2" Visibility="{Binding ControlVisibility}" />
+        
+        
+        <!--<Image x:Name="Logo_UROP" Source="/KinectShowcase;component/Assets/Logos/logo_urop.png" HorizontalAlignment="Right" VerticalAlignment="Top" Grid.Row="2" Visibility="{Binding ControlVisibility}" />-->
+
+
+        <ui:KinectButton HorizontalAlignment="Right"  Grid.Row="2" Command="{Binding OpenAuthorView}" Height="104" Width="202" Style="{DynamicResource Button_NoHighlight}" Visibility="{Binding ControlVisibility}" Margin="0" >
+            <ui:KinectButton.Background>
+                <ImageBrush ImageSource="/KinectShowcase;component/Assets/Logos/logo_urop.png"/>
+            </ui:KinectButton.Background>
+        </ui:KinectButton>
+
+
     </Grid>
 </UserControl>

@@ -28,6 +28,9 @@
         <DataTemplate DataType="{x:Type vms:BrowserViewModel}">
             <views:BrowserView />
         </DataTemplate>
+        <DataTemplate DataType="{x:Type vms:AuthorViewModel}">
+            <views:AuthorView />
+        </DataTemplate>
     </Window.Resources>
 
     <Grid Background="Black">

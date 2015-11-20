@@ -1,4 +1,5 @@
-﻿using System;
+﻿using KinectShowcase.ViewModel;
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
@@ -12,16 +13,15 @@ using System.Windows.Media;
 using System.Windows.Media.Imaging;
 using System.Windows.Navigation;
 using System.Windows.Shapes;
-using KinectShowcase.ViewModel;
 
 namespace KinectShowcase.Views
 {
     /// <summary>
-    /// Interaction logic for GameDetailView.xaml
+    /// Interaction logic for HomeView.xaml
     /// </summary>
-    public partial class GameDetailView : UserControl
+    public partial class AuthorView : UserControl
     {
-        public GameDetailView()
+        public AuthorView()
         {
             InitializeComponent();
 

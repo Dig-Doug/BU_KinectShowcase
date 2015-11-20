@@ -26,7 +26,9 @@ namespace KinectShowcase.Views
             InitializeComponent();
 
             //set the background to blur
-            ViewModelLocator.Locator().ApplicationViewModel.SkeletonView.SetPercents(0.0f, 1.0f);
+            ViewModelLocator.Locator().ApplicationViewModel.SkeletonView.SetPercents(0.0f, 0.0f);
+            ViewModelLocator.Locator().ApplicationViewModel.SkeletonView.ChangeRandomly = false;
+            ViewModelLocator.Locator().ApplicationViewModel.SkeletonView.SetMode(KinectShowcaseCommon.UI_Elements.LiveBackground.BackgroundMode.BodyIndex);
         }
     }
 }

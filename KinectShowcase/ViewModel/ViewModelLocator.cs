@@ -54,6 +54,7 @@ namespace KinectShowcase.ViewModel
             SimpleIoc.Default.Register<GalleryViewModel>();
             SimpleIoc.Default.Register<GalleryDetailViewModel>();
             SimpleIoc.Default.Register<BrowserViewModel>();
+            SimpleIoc.Default.Register<AuthorViewModel>();
         }
 
         public ApplicationViewModel ApplicationViewModel
@@ -111,7 +112,15 @@ namespace KinectShowcase.ViewModel
                 return ServiceLocator.Current.GetInstance<BrowserViewModel>();
             }
         }
-        
+
+        public AuthorViewModel AuthorViewModel
+        {
+            get
+            {
+                return ServiceLocator.Current.GetInstance<AuthorViewModel>();
+            }
+        }
+
         public static void Cleanup()
         {
             // Clear the ViewModels
@@ -135,6 +144,9 @@ namespace KinectShowcase.ViewModel
 
             ViewModelLocator.Locator().BrowserViewModel.Cleanup();
             SimpleIoc.Default.Unregister<BrowserViewModel>();
+
+            ViewModelLocator.Locator().AuthorViewModel.Cleanup();
+            SimpleIoc.Default.Unregister<AuthorViewModel>();
         }
     }
 }

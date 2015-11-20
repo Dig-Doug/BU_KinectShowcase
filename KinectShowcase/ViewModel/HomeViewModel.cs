@@ -22,6 +22,7 @@ namespace KinectShowcase.ViewModel
         public ICommand OpenGameListView { get; private set; }
         public ICommand OpenGalleryView { get; private set; }
         public ICommand OpenBrowserView { get; private set; }
+        public ICommand OpenAuthorView { get; private set; }
 
         private bool _isInteracting = false;
         public Visibility ControlVisibility
@@ -37,6 +38,7 @@ namespace KinectShowcase.ViewModel
             OpenGameListView = new RelayCommand(openGameListView);
             OpenGalleryView = new RelayCommand(openGalleryView);
             OpenBrowserView = new RelayCommand(openBrowserView);
+            OpenAuthorView = new RelayCommand(openAuthorView);
             KinectManager.Default.AddTrackingListener(this);
         }
 
@@ -64,6 +66,12 @@ namespace KinectShowcase.ViewModel
         {
             IPageViewModel browserView = ViewModelLocator.Locator().BrowserViewModel;
             MessengerInstance.Send<ApplicationViewModel.ChangePageMessage>(new ApplicationViewModel.ChangePageMessage(browserView));
+        }
+
+        private void openAuthorView()
+        {
+            IPageViewModel authorView = ViewModelLocator.Locator().AuthorViewModel;
+            MessengerInstance.Send<ApplicationViewModel.ChangePageMessage>(new ApplicationViewModel.ChangePageMessage(authorView));
         }
 
         public void KinectManagerDidBeginTracking(KinectManager aManager)

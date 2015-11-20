@@ -16,6 +16,8 @@ using System.Windows.Shapes;
 using System.Windows.Media.Animation;
 using KinectShowcaseCommon.Helpers;
 using KinectShowcaseCommon.Kinect_Processing;
+using System.Collections.Concurrent;
+using System.Windows.Threading;
 
 namespace KinectShowcaseCommon.UI_Elements
 {
@@ -39,6 +41,8 @@ namespace KinectShowcaseCommon.UI_Elements
         private Image[] _cursorImages = null;
         private KinectManager _kinectManager;
         private bool _animating = false;
+        private ConcurrentQueue<CursorState> _animQueue = new ConcurrentQueue<CursorState>();
+        private DispatcherTimer _animTimer;
 
         public KinectCursorView()
         {
@@ -66,6 +70,7 @@ namespace KinectShowcaseCommon.UI_Elements
             }
 
             this.CreateAnimations();
+            this.StartAnimTimer();
         }
 
         private void CreateAnimations()
@@ -141,6 +146,40 @@ namespace KinectShowcaseCommon.UI_Elements
             _animating = false;
         }
 
+        private void StartAnimTimer()
+        {
+            _animTimer = new System.Windows.Threading.DispatcherTimer();
+            _animTimer.Tick += AnimTimer_Tick;
+            _animTimer.Interval = new TimeSpan(0, 0, 0, 0, 10);
+            _animTimer.Start();
+        }
+
+        private void AnimTimer_Tick(object sender, EventArgs e)
+        {
+            if (!_animating && _animQueue.Count > 0)
+            {
+                CursorState nextState = CursorState.ClosedHand, tryState;
+                while (_animQueue.TryDequeue(out tryState))
+                {
+                    nextState = tryState;
+                }
+
+                if (nextState != _cursorState)
+                {
+                    _animating = true;
+                    if (_cursorState == CursorState.OpenHand)
+                    {
+                        _openToCloseHandAnimation.Begin();
+                    }
+                    else
+                    {
+                        _closeToOpenHandAnimation.Begin();
+                    }
+                    _cursorState = nextState;
+                }
+            }
+        }
+
         protected override void OnRenderSizeChanged(SizeChangedInfo sizeInfo)
         {
             base.OnRenderSizeChanged(sizeInfo);
@@ -214,25 +253,7 @@ namespace KinectShowcaseCommon.UI_Elements
 
         public void SetCursorState(CursorState aState)
         {
-            Dispatcher.InvokeAsync((Action)delegate()
-            {
-                if (_cursorState != aState)
-                {
-                        if (!_animating)
-                        {
-                            _animating = true;
-                            if (_cursorState == CursorState.OpenHand)
-                            {
-                                _openToCloseHandAnimation.Begin();
-                            }
-                            else
-                            {
-                                _closeToOpenHandAnimation.Begin();
-                            }
-                            _cursorState = aState;
-                        }
-                    }
-            });
+            _animQueue.Enqueue(aState);
         }
 
         public void SetSelectionAmount(float aPercent)
