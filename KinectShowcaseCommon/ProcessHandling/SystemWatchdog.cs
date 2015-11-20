@@ -1,18 +1,12 @@
 ﻿using KinectShowcaseCommon.Kinect_Processing;
 using Microsoft.Kinect;
 using System;
-using System.Collections.Generic;
 using System.Diagnostics;
-using System.IO;
-using System.IO.Pipes;
-using System.Linq;
-using System.Text;
 using System.Threading;
-using System.Threading.Tasks;
 
 namespace KinectShowcaseCommon.ProcessHandling
 {
-    public sealed class SystemWatchdog : ISystemInteractionListener
+    public sealed class SystemWatchdog : ISystemInteractionListener, IPCReceiver.MessageReceiver
     {
         //max timeout for child processes, if interaction time get larger than this, the child is killed
         private const float INTERACTION_TIME_THRESHOLD = 0.25f * 60.0f;
@@ -27,17 +21,15 @@ namespace KinectShowcaseCommon.ProcessHandling
         //holds the last time a user interacted with the system
         private DateTime _lastInteractionTime = DateTime.Now;
 
-        //server child process connect to to send progress updates
-        private AnonymousPipeServerStream _pipeServer;
-        //stream reader for messages from the processes
-        private StreamReader _streamReader;
         //reference to the currently running child process
         private Process _childProcess;
         //lock for the child process object
         private Object _childProcessLock = new Object();
         //threads for watching and talking with processes
-        private Thread _watchThread, _readThread, _generalThread;
-        private bool _shouldQuit = false;
+        private Thread _watchThread, _generalThread;
+
+        private IPCSender _sender;
+        private IPCReceiver _receiver;
 
         //singleton watchdog
         public static SystemWatchdog Default
@@ -59,45 +51,44 @@ namespace KinectShowcaseCommon.ProcessHandling
 
         private SystemWatchdog()
         {
-            //create the server that client processes will connect to
-            _pipeServer = new AnonymousPipeServerStream(PipeDirection.In, HandleInheritability.Inheritable);
-            //create a stream reader that will read the bytes from the stream
-            _streamReader = new StreamReader(_pipeServer);
+            _receiver = new IPCReceiver();
+            _receiver.Receiver = this;
+            _receiver.Start();
+
+            Debug.WriteLine("Pipe server handle: " + _receiver.GetPipeServerClientHandle());
+
+            _sender = new IPCSender();
+
             //start the general managing thread
-            this.StartProgramManagement();
+            _generalThread = new Thread(new ThreadStart(ProgramManagement_Main));
+            _generalThread.Start();
         }
 
         public void OnExit()
         {
-            _shouldQuit = true;
+            _receiver.Close();
 
-            if (_pipeServer != null)
-            {
-                _pipeServer.DisposeLocalCopyOfClientHandle();
-                _pipeServer.Close();
-                _pipeServer = null;
-            }
-
-            if (this._generalThread != null && this._generalThread.IsAlive)
+            if (this._generalThread != null)
             {
                 this._generalThread.Abort();
+                this._generalThread.Join();
+            }
+
+            if (this._watchThread != null)
+            {
+                this._watchThread.Abort();
+                this._watchThread.Join();
             }
         }
 
         #region Program Management
-
-        private void StartProgramManagement()
-        {
-            _generalThread = new Thread(new ThreadStart(ProgramManagement_Main));
-            _generalThread.Start();
-        }
 
         private void ProgramManagement_Main()
         {
             try
             {
                 bool shouldQuit = false;
-                while (!shouldQuit && !_shouldQuit)
+                while (!shouldQuit)
                 {
                     //only manage if we don't have a child process
                     if (this._childProcess == null)
@@ -151,13 +142,10 @@ namespace KinectShowcaseCommon.ProcessHandling
                     this._childProcess.Kill();
                 }
             }
-            if (this._watchThread != null && this._watchThread.IsAlive)
+            if (this._watchThread != null)
             {
                 this._watchThread.Abort();
-            }
-            if (this._readThread != null && this._readThread.IsAlive)
-            {
-                this._readThread.Abort();
+                this._watchThread.Join();
             }
 
             //create the new child process
@@ -166,7 +154,7 @@ namespace KinectShowcaseCommon.ProcessHandling
             _childProcess.StartInfo.UseShellExecute = false;
 
             CameraSpacePoint trackedLoc = KinectManager.Default.GetTrackedLocation();
-            string args = _pipeServer.GetClientHandleAsString() + " " + KinectManager.Default.HandManager.HandPosition.X + " " + KinectManager.Default.HandManager.HandPosition.Y;
+            string args = _receiver.GetPipeServerClientHandle() + " " + KinectManager.Default.HandManager.HandPosition.X + " " + KinectManager.Default.HandManager.HandPosition.Y;
             args += " " + trackedLoc.X + " " + trackedLoc.Y + " " + trackedLoc.Z;
 
             _childProcess.StartInfo.Arguments = args;
@@ -175,9 +163,6 @@ namespace KinectShowcaseCommon.ProcessHandling
             //create a thread to watch the child process
             _watchThread = new Thread(new ThreadStart(WatchProcess));
             _watchThread.Start();
-            //create a thread to receiver messages from the client
-            _readThread = new Thread(new ThreadStart(ReceiveMessages));
-            _readThread.Start();
             //set our interaction time
             _lastInteractionTime = DateTime.Now;
 
@@ -187,50 +172,8 @@ namespace KinectShowcaseCommon.ProcessHandling
 
         private void WatchProcess()
         {
-            try
-            {
-                //_pipeServer.WaitForPipeDrain();
-
-                //wait until the server has connected to a client
-                while (!_pipeServer.IsConnected) ;
-
-                bool shouldQuit = false;
-                while (!shouldQuit)
-                {
-                    //lock the process
-                    lock (_childProcessLock)
-                    {
-                        //see if we should quit
-                        shouldQuit = _childProcess == null || _childProcess.HasExited || !_childProcess.Responding;
-                    }
-
-                    //check if we've passed the timeout limit
-                    if ((DateTime.Now - _lastInteractionTime).TotalSeconds >= INTERACTION_TIME_THRESHOLD)
-                    {
-                        //lock and kill the process
-                        lock (_childProcessLock)
-                        {
-                            _childProcess.Kill();
-                            _childProcess = null;
-                        }
-                        break;
-                    }
-                }
-
-            }
-            catch (Exception e)
-            {
-                Debug.WriteLine(e.Message);
-            }
-
-            //tell the kinect manager we're all done
-            KinectManager.Default.ShouldSendEvents = true;
-        }
-
-        private void ReceiveMessages()
-        {
             //wait until the server has connected to a client
-            while (!_pipeServer.IsConnected) ;
+            while (!_receiver.IsConnected()) ;
 
             bool shouldQuit = false;
             while (!shouldQuit)
@@ -242,26 +185,21 @@ namespace KinectShowcaseCommon.ProcessHandling
                     shouldQuit = _childProcess == null || _childProcess.HasExited || !_childProcess.Responding;
                 }
 
-                if (!shouldQuit)
+                //check if we've passed the timeout limit
+                if ((DateTime.Now - _lastInteractionTime).TotalSeconds >= INTERACTION_TIME_THRESHOLD)
                 {
-                    try
+                    //lock and kill the process
+                    lock (_childProcessLock)
                     {
-                        string temp;
-                        //see if we can read any lines from the stream
-                        if ((temp = _streamReader.ReadLine()) != null)
-                        {
-                            //process the message
-                            SystemMessage message = SystemMessage.MessageFromString(temp);
-                            this.DidGetMessage(message);
-                        }
+                        _childProcess.Kill();
+                        _childProcess = null;
                     }
-                    catch (ThreadAbortException e)
-                    {
-                        Debug.WriteLine("SystemWatchdog - WARN - Receiving thread was aborted");
-                        shouldQuit = true;
-                    }
+                    break;
                 }
             }
+
+            //tell the kinect manager we're all done
+            KinectManager.Default.ShouldSendEvents = true;
         }
 
         public void SystemDidRecieveInteraction()
@@ -269,7 +207,7 @@ namespace KinectShowcaseCommon.ProcessHandling
             this._lastInteractionTime = DateTime.Now;
         }
 
-        public void DidGetMessage(SystemMessage aMessage)
+        public void ReceivedMessage(SystemMessage aMessage)
         {
             if (aMessage.Type == SystemMessage.MessageType.Interaction)
             {

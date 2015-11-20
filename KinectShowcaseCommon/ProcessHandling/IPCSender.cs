@@ -1,11 +1,7 @@
 ﻿using System;
-using System.Collections.Generic;
 using System.Diagnostics;
 using System.IO;
 using System.IO.Pipes;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 
 namespace KinectShowcaseCommon.ProcessHandling
 {
@@ -22,23 +18,25 @@ namespace KinectShowcaseCommon.ProcessHandling
 
         public void ConnectWithStreamHandle(string aHandle)
         {
-            if (!this.Connected)
+            if (this.Connected)
             {
-                try
-                {
-                    _pipeStream = new AnonymousPipeClientStream(PipeDirection.Out, aHandle);
-                    _streamWriter = new StreamWriter(_pipeStream);
-                    _streamWriter.AutoFlush = true;
+                this.Close();
+            }
 
-                    SystemMessage pingMes = new SystemMessage(SystemMessage.MessageType.Ping, DateTime.Now.ToString());
-                    this._streamWriter.WriteLine(pingMes.String());
+            try
+            {
+                _pipeStream = new AnonymousPipeClientStream(PipeDirection.Out, aHandle);
+                _streamWriter = new StreamWriter(_pipeStream);
+                _streamWriter.AutoFlush = true;
 
-                    this.Connected = true;
-                }
-                catch (TimeoutException e)
-                {
-                    Debug.WriteLine("Couldn't connect to handle");
-                }
+                SystemMessage pingMes = new SystemMessage(SystemMessage.MessageType.Ping, DateTime.Now.ToString());
+                this._streamWriter.WriteLine(pingMes.String());
+
+                this.Connected = true;
+            }
+            catch (TimeoutException e)
+            {
+                Debug.WriteLine("Couldn't connect to handle");
             }
         }
 

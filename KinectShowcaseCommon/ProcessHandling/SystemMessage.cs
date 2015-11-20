@@ -13,6 +13,7 @@ namespace KinectShowcaseCommon.ProcessHandling
         private const string MES_TYPE_PING = "MES_TYPE_PING";
         private const string MES_TYPE_INTERACT = "MES_TYPE_INTERACT";
         private const string MES_TYPE_KILL = "MES_TYPE_KILL";
+        private const string MES_TYPE_PIPE_HANDLE = "MES_TYPE_PIPE_HANDLE";
 
         public enum MessageType
         {
@@ -20,6 +21,7 @@ namespace KinectShowcaseCommon.ProcessHandling
             Ping,
             Interaction,
             Kill,
+            ServerHandle,
         }
 
         public MessageType Type;
@@ -66,6 +68,10 @@ namespace KinectShowcaseCommon.ProcessHandling
             {
                 result = MES_TYPE_KILL;
             }
+            else if (aType == MessageType.ServerHandle)
+            {
+                result = MES_TYPE_PIPE_HANDLE;
+            }
 
             return result;
         }
@@ -84,6 +90,10 @@ namespace KinectShowcaseCommon.ProcessHandling
             else if (aType.Equals(MES_TYPE_KILL))
             {
                 result = MessageType.Kill;
+            }
+            else if (aType.Equals(MES_TYPE_PIPE_HANDLE))
+            {
+                result = MessageType.ServerHandle;
             }
 
             return result;

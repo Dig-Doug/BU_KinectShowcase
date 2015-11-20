@@ -29,6 +29,11 @@ namespace KinectShowcaseCommon.ProcessHandling
 
         public IPCReceiver()
         {
+
+        }
+
+        public void Start()
+        {
             //create the server that client processes will connect to
             _pipeServer = new AnonymousPipeServerStream(PipeDirection.In, HandleInheritability.Inheritable);
             //create a stream reader that will read the bytes from the stream
@@ -37,6 +42,16 @@ namespace KinectShowcaseCommon.ProcessHandling
             //create a thread to receiver messages from the client
             _readThread = new Thread(new ThreadStart(ReceiveMessages));
             _readThread.Start();
+        }
+
+        public string GetPipeServerClientHandle()
+        {
+            return _pipeServer.GetClientHandleAsString();
+        }
+
+        public bool IsConnected()
+        {
+            return _pipeServer.IsConnected;
         }
 
         public void Close()

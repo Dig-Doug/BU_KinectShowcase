@@ -24,9 +24,7 @@ namespace KinectShowcaseCommon.ProcessHandling
 
         public ISystemProgressListener ProgessListener;
 
-        public bool Connected { get; private set; }
-        private AnonymousPipeClientStream _pipeStream = null;
-        private StreamWriter _streamWriter;
+        private IPCSender _sender;
 
         public static SystemCanary Default
         {
@@ -47,56 +45,34 @@ namespace KinectShowcaseCommon.ProcessHandling
 
         private SystemCanary()
         {
-            this.Connected = false;
+            _sender = new IPCSender();
         }
 
         ~SystemCanary()
         {
-            if (this.Connected)
-            {
-                this._streamWriter.Close();
-                this._streamWriter = null;
-                this.Connected = false;
-            }
+            _sender.Close();
         }
 
         public void DidStartWithStreamHandle(string aHandle)
         {
-            if (!this.Connected)
-            {
-                try
-                {
-                    _pipeStream = new AnonymousPipeClientStream(PipeDirection.Out, aHandle);
-                    _streamWriter = new StreamWriter(_pipeStream);
-                    _streamWriter.AutoFlush = true;
-
-                    SystemMessage pingMes = new SystemMessage(SystemMessage.MessageType.Ping, DateTime.Now.ToString());
-                    this._streamWriter.WriteLine(pingMes.String());
-
-                    this.Connected = true;
-                }
-                catch (TimeoutException e)
-                {
-                    Debug.WriteLine("SystemCanary - WARN - Couldn't connect to watch dog");
-                }
-            }
+            _sender.ConnectWithStreamHandle(aHandle);
         }
 
         public void SystemDidRecieveInteraction()
         {
-            if (this.Connected)
+            if (_sender.Connected)
             {
                 SystemMessage interactMes = new SystemMessage(SystemMessage.MessageType.Interaction, DateTime.Now.ToString());
-                this._streamWriter.WriteLine(interactMes.String());
+                _sender.SendMessage(interactMes);
             }
         }
 
         public void AskForKill()
         {
-            if (this.Connected)
+            if (_sender.Connected)
             {
                 SystemMessage killMe = new SystemMessage(SystemMessage.MessageType.Kill, DateTime.Now.ToString());
-                this._streamWriter.WriteLine(killMe.String());
+                _sender.SendMessage(killMe);
             }
             else
             {
