@@ -26,5 +26,12 @@ namespace KinectShowcaseCommon.Filters
             this.Last = new Point(x, y);
             return this.Last;
         }
+
+        public virtual void Set(Point aPoint)
+        {
+            _xFilter.Set(aPoint.X);
+            _yFilter.Set(aPoint.Y);
+            this.Last = aPoint;
+        }
     }
 }

@@ -13,6 +13,7 @@ using System.Security.Principal;
 using System.Windows;
 using KinectShowcaseCommon.Kinect_Processing;
 using log4net;
+using Microsoft.Kinect;
 
 namespace KinectShowcaseCommon.ProcessHandling
 {
@@ -49,6 +50,7 @@ namespace KinectShowcaseCommon.ProcessHandling
         private SystemCanary()
         {
             _client = new IPCClient();
+            _client.Receiver = this;
         }
 
         ~SystemCanary()
@@ -72,6 +74,16 @@ namespace KinectShowcaseCommon.ProcessHandling
 
         public void AskForKill()
         {
+            //send state
+            string handLoc = KinectManager.Default.HandManager.HandPosition.X + " " + KinectManager.Default.HandManager.HandPosition.Y;
+            SystemMessage syncHand = new SystemMessage(SystemMessage.MessageType.SyncHand, handLoc);
+            _client.SendMessage(syncHand);
+
+            CameraSpacePoint trackedLoc = KinectManager.Default.GetTrackedLocation();
+            string tracked = "" + trackedLoc.X + " " + trackedLoc.Y + " " + trackedLoc.Z;
+            SystemMessage syncTracked = new SystemMessage(SystemMessage.MessageType.SyncTracked, tracked);
+            _client.SendMessage(syncTracked);
+
             if (_client.CanSend())
             {
                 SystemMessage killMe = new SystemMessage(SystemMessage.MessageType.Kill, DateTime.Now.ToString());
@@ -100,8 +112,7 @@ namespace KinectShowcaseCommon.ProcessHandling
                         {
                             float x = float.Parse(point[0]);
                             float y = float.Parse(point[1]);
-                            for (int i = 0; i < 10; i++)
-                                KinectManager.Default.HandManager.InjectScaledHandLocation(new Point(x, y));
+                            KinectManager.Default.HandManager.SetScaledHandLocation(new Point(x, y));
                         }
                         else
                         {
@@ -131,7 +142,7 @@ namespace KinectShowcaseCommon.ProcessHandling
 
                 default:
                     {
-                        Debug.WriteLine("SystemWatchdog - LOG - Did receive message of type: " + aMessage.Type.ToString() + " data: " + aMessage.Data);
+                        Debug.WriteLine("SystemCanary - LOG - Did receive message of type: " + aMessage.Type.ToString() + " data: " + aMessage.Data);
                         break;
                     }
             }

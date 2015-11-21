@@ -55,9 +55,6 @@ namespace KinectShowcaseGameTemplate
             this.kinectManager.AddStateListener(this);
             //this.kinectRegion.KinectSensor = this.kinectManager.KinectSensor;
 
-            Point center = new Point(0.5f, 0.5f);
-            this.cursorView.SetCursorPosition(center);
-
             this.SkeletonView = skeletonView;
             this.SkeletonView.ShouldDrawHeadJoint = false;
 

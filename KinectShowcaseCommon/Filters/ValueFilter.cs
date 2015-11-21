@@ -20,5 +20,10 @@ namespace KinectShowcaseCommon.Filters
             this.Last = aCurrent;
             return aCurrent;
         }
+
+        public virtual void Set(double aVal)
+        {
+            this.Last = aVal;
+        }
     }
 }

@@ -645,6 +645,19 @@ namespace KinectShowcaseCommon.Kinect_Processing
 
         #endregion
 
+        public void SetNormalizedHandLocation(Point aLocation)
+        {
+            //scaled up hand location
+            Point scaledHandLocation = new Point(aLocation.X * this.HandCoordRangeX, aLocation.Y * this.HandCoordRangeY);
+            SetScaledHandLocation(scaledHandLocation);
+        }
+
+        public void SetScaledHandLocation(Point aLocation)
+        {
+            _scaledHandLocationFilter.Set(aLocation);
+            this.InjectScaledHandLocation(aLocation);
+        }
+
         #region Debug Methods
 
         public void InjectNormalizedHandLocation(Point aLocation)

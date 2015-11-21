@@ -39,7 +39,6 @@ namespace KinectShowcaseCommon.UI_Elements
         private DrawingGroup _drawingGroup = null;
         private Storyboard _openToCloseHandAnimation, _closeToOpenHandAnimation;
         private Image[] _cursorImages = null;
-        private KinectManager _kinectManager;
         private bool _animating = false;
         private ConcurrentQueue<CursorState> _animQueue = new ConcurrentQueue<CursorState>();
         private DispatcherTimer _animTimer;
@@ -47,8 +46,6 @@ namespace KinectShowcaseCommon.UI_Elements
         public KinectCursorView()
         {
             _drawingGroup = new DrawingGroup();
-
-            this.SetCursorPosition(new Microsoft.Kinect.PointF());
             this.SetCursorState(CursorState.OpenHand);
         }
 
@@ -198,9 +195,6 @@ namespace KinectShowcaseCommon.UI_Elements
 
         public void SetCursorPosition(PointF aLoc)
         {
-            if (_kinectManager == null)
-                _kinectManager = KinectManager.Default;
-
             this.SetCursorPosition(new Point(aLoc.X, aLoc.Y));
         }
 
@@ -218,9 +212,9 @@ namespace KinectShowcaseCommon.UI_Elements
                     _cursorPosition.X = 0;
                     handIsOffscreen = true;
                 }
-                else if (_cursorPosition.X > _kinectManager.HandManager.HandCoordRangeX)
+                else if (_cursorPosition.X > KinectManager.Default.HandManager.HandCoordRangeX)
                 {
-                    _cursorPosition.X = _kinectManager.HandManager.HandCoordRangeX;
+                    _cursorPosition.X = KinectManager.Default.HandManager.HandCoordRangeX;
                     handIsOffscreen = true;
                 }
                 if (_cursorPosition.Y < 0)
@@ -228,9 +222,9 @@ namespace KinectShowcaseCommon.UI_Elements
                     _cursorPosition.Y = 0;
                     handIsOffscreen = true;
                 }
-                else if (_cursorPosition.Y > _kinectManager.HandManager.HandCoordRangeY)
+                else if (_cursorPosition.Y > KinectManager.Default.HandManager.HandCoordRangeY)
                 {
-                    _cursorPosition.Y = _kinectManager.HandManager.HandCoordRangeY;
+                    _cursorPosition.Y = KinectManager.Default.HandManager.HandCoordRangeY;
                     handIsOffscreen = true;
                 }
 
@@ -239,8 +233,8 @@ namespace KinectShowcaseCommon.UI_Elements
 
                 }
 
-                this._cursorPositionDraw.X = (this.ActualWidth / _kinectManager.HandManager.HandCoordRangeX) * this._cursorPosition.X;
-                this._cursorPositionDraw.Y = (this.ActualHeight / _kinectManager.HandManager.HandCoordRangeY) * this._cursorPosition.Y;
+                this._cursorPositionDraw.X = (this.ActualWidth / KinectManager.Default.HandManager.HandCoordRangeX) * this._cursorPosition.X;
+                this._cursorPositionDraw.Y = (this.ActualHeight / KinectManager.Default.HandManager.HandCoordRangeY) * this._cursorPosition.Y;
 
                 Point topLeftCorner = new Point(_cursorPositionDraw.X - _cursorImages[0].Width / 2, _cursorPositionDraw.Y - _cursorImages[0].Height / 2);
                 foreach (Image currentImage in _cursorImages)

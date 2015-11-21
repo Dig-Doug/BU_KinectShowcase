@@ -45,5 +45,13 @@ namespace KinectShowcaseCommon.Filters
             return average;
         }
 
+        public override void Set(double aVal)
+        {
+            base.Set(aVal);
+            for (int i = 0; i < _buffer.Length; i++)
+                _buffer[i] = aVal;
+            _bufferIndex = 0;
+        }
+
     }
 }

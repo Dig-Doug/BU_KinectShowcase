@@ -33,7 +33,7 @@ namespace KinectShowcaseCommon.ProcessHandling
             {
                 string messageTypeString = aString.Substring(0, separatorIndex);
                 MessageType type = (MessageType)Enum.Parse(typeof(MessageType), messageTypeString);
-                string data = aString.Substring(separatorIndex + SEPARATOR.Length - 1, aString.Length - (separatorIndex + SEPARATOR.Length - 1));
+                string data = aString.Substring(separatorIndex + SEPARATOR.Length, aString.Length - (separatorIndex + SEPARATOR.Length));
                 result = new SystemMessage(type, data);
             }
 

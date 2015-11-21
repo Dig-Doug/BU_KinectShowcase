@@ -56,9 +56,6 @@ namespace KinectShowcase
             this.kinectManager.AddStateListener(this);
             //this.kinectRegion.KinectSensor = this.kinectManager.KinectSensor;
 
-            Point center = new Point(0.5f, 0.5f);
-            this.cursorView.SetCursorPosition(center);
-
             ViewModelLocator.Locator().ApplicationViewModel.SkeletonView = this.skeletonView;
         }
 
