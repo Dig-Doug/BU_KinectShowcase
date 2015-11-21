@@ -87,7 +87,7 @@ namespace KinectShowcaseCommon.ProcessHandling
 
         private void ProgramManagement_Main()
         {
-            while (_shouldStop)
+            while (!_shouldStop)
             {
                 //only manage if we don't have a child process
                 if (this._childProcess == null)
