@@ -33,6 +33,8 @@ namespace KinectShowcase
         public App()
             : base()
         {
+            log4net.Config.XmlConfigurator.Configure();
+
             this.GetConfig();
 
             KinectManager.Config config = KinectManagerConfigReader.GetConfig();
@@ -49,6 +51,12 @@ namespace KinectShowcase
                 GalleryItemManager.Default.FolderIconPath = _folderIconPath;
                 GalleryItemManager.Default.RootFolder = _pictureDirectory;
             }
+        }
+
+        protected override void OnStartup(StartupEventArgs e)
+        {
+            //Log.Info("Hello World");
+            base.OnStartup(e);
         }
 
         protected override void OnExit(ExitEventArgs e)

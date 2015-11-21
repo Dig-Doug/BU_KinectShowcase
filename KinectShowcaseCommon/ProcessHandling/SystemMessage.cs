@@ -8,20 +8,18 @@ namespace KinectShowcaseCommon.ProcessHandling
 {
     public class SystemMessage
     {
-        private const string SEPARATOR = ", ";
-        private const string MES_TYPE_UNKNOWN = "MES_TYPE_UNKNOWN";
-        private const string MES_TYPE_PING = "MES_TYPE_PING";
-        private const string MES_TYPE_INTERACT = "MES_TYPE_INTERACT";
-        private const string MES_TYPE_KILL = "MES_TYPE_KILL";
-        private const string MES_TYPE_PIPE_HANDLE = "MES_TYPE_PIPE_HANDLE";
+        private const string SEPARATOR = "~~~";
 
         public enum MessageType
         {
             Unknown,
             Ping,
+            Ack,
             Interaction,
             Kill,
             ServerHandle,
+            SyncHand,
+            SyncTracked
         }
 
         public MessageType Type;
@@ -34,7 +32,7 @@ namespace KinectShowcaseCommon.ProcessHandling
             if (separatorIndex != -1)
             {
                 string messageTypeString = aString.Substring(0, separatorIndex);
-                MessageType type = SystemMessage.MessageTypeFromString(messageTypeString);
+                MessageType type = (MessageType)Enum.Parse(typeof(MessageType), messageTypeString);
                 string data = aString.Substring(separatorIndex + SEPARATOR.Length - 1, aString.Length - (separatorIndex + SEPARATOR.Length - 1));
                 result = new SystemMessage(type, data);
             }
@@ -50,53 +48,7 @@ namespace KinectShowcaseCommon.ProcessHandling
 
         public string String()
         {
-            return SystemMessage.MessageTypeToString(this.Type) + SEPARATOR + this.Data;
-        }
-
-        public static string MessageTypeToString(MessageType aType)
-        {
-            string result = MES_TYPE_UNKNOWN;
-            if (aType == MessageType.Ping)
-            {
-                result = MES_TYPE_PING;
-            }
-            else if (aType == MessageType.Interaction)
-            {
-                result = MES_TYPE_INTERACT;
-            }
-            else if (aType == MessageType.Kill)
-            {
-                result = MES_TYPE_KILL;
-            }
-            else if (aType == MessageType.ServerHandle)
-            {
-                result = MES_TYPE_PIPE_HANDLE;
-            }
-
-            return result;
-        }
-
-        public static MessageType MessageTypeFromString(string aType)
-        {
-            MessageType result = MessageType.Unknown;
-            if (aType.Equals(MES_TYPE_PING))
-            {
-                result = MessageType.Ping;
-            }
-            else if (aType.Equals(MES_TYPE_INTERACT))
-            {
-                result = MessageType.Interaction;
-            }
-            else if (aType.Equals(MES_TYPE_KILL))
-            {
-                result = MessageType.Kill;
-            }
-            else if (aType.Equals(MES_TYPE_PIPE_HANDLE))
-            {
-                result = MessageType.ServerHandle;
-            }
-
-            return result;
+            return this.Type.ToString() + SEPARATOR + this.Data;
         }
     }
 }

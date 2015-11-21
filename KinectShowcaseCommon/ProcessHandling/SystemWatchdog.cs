@@ -1,15 +1,19 @@
 ﻿using KinectShowcaseCommon.Kinect_Processing;
+using log4net;
 using Microsoft.Kinect;
 using System;
 using System.Diagnostics;
 using System.Threading;
+using System.Windows;
 
 namespace KinectShowcaseCommon.ProcessHandling
 {
-    public sealed class SystemWatchdog : ISystemInteractionListener, IPCReceiver.MessageReceiver
+    public sealed class SystemWatchdog : ISystemInteractionListener, IPCHandler.MessageReceiver
     {
+        private static readonly ILog log = LogManager.GetLogger(System.Reflection.MethodBase.GetCurrentMethod().DeclaringType);
+
         //max timeout for child processes, if interaction time get larger than this, the child is killed
-        private const float INTERACTION_TIME_THRESHOLD = 0.25f * 60.0f;
+        private const float INTERACTION_TIME_THRESHOLD = 99999999;//0.25f * 60.0f;
 
         //singleton stuffs
         private static volatile SystemWatchdog _instance;
@@ -28,8 +32,8 @@ namespace KinectShowcaseCommon.ProcessHandling
         //threads for watching and talking with processes
         private Thread _watchThread, _generalThread;
 
-        private IPCSender _sender;
-        private IPCReceiver _receiver;
+        private IPCServer _server;
+        private volatile bool _shouldStop = false;
 
         //singleton watchdog
         public static SystemWatchdog Default
@@ -51,13 +55,9 @@ namespace KinectShowcaseCommon.ProcessHandling
 
         private SystemWatchdog()
         {
-            _receiver = new IPCReceiver();
-            _receiver.Receiver = this;
-            _receiver.Start();
-
-            Debug.WriteLine("Pipe server handle: " + _receiver.GetPipeServerClientHandle());
-
-            _sender = new IPCSender();
+            _server = new IPCServer();
+            _server.Receiver = this;
+            _server.Start();
 
             //start the general managing thread
             _generalThread = new Thread(new ThreadStart(ProgramManagement_Main));
@@ -66,7 +66,9 @@ namespace KinectShowcaseCommon.ProcessHandling
 
         public void OnExit()
         {
-            _receiver.Close();
+            _shouldStop = true;
+
+            _server.Close();
 
             if (this._generalThread != null)
             {
@@ -85,31 +87,23 @@ namespace KinectShowcaseCommon.ProcessHandling
 
         private void ProgramManagement_Main()
         {
-            try
+            while (_shouldStop)
             {
-                bool shouldQuit = false;
-                while (!shouldQuit)
+                //only manage if we don't have a child process
+                if (this._childProcess == null)
                 {
-                    //only manage if we don't have a child process
-                    if (this._childProcess == null)
+                    //check if we've passed the timeout limit
+                    if ((DateTime.Now - _lastInteractionTime).TotalSeconds >= INTERACTION_TIME_THRESHOLD)
                     {
-                        //check if we've passed the timeout limit
-                        if ((DateTime.Now - _lastInteractionTime).TotalSeconds >= INTERACTION_TIME_THRESHOLD)
-                        {
-                            //reset to the home screen
-                            Debug.WriteLine("SystemWatchdog - LOG - System timed out, returning to the home screen");
-                            ProgramManagement_GoHome();
-                            _lastInteractionTime = DateTime.Now;
-                        }
+                        //reset to the home screen
+                        Debug.WriteLine("SystemWatchdog - LOG - System timed out, returning to the home screen");
+                        ProgramManagement_GoHome();
+                        _lastInteractionTime = DateTime.Now;
                     }
-
-                    //wait for a bit
-                    Thread.Sleep(100);
                 }
-            }
-            catch (Exception e)
-            {
-                Debug.WriteLine(e.Message);
+
+                //wait for a bit
+                Thread.Sleep(100);
             }
         }
 
@@ -153,11 +147,7 @@ namespace KinectShowcaseCommon.ProcessHandling
             _childProcess.StartInfo.FileName = aExecutablePath;
             _childProcess.StartInfo.UseShellExecute = false;
 
-            CameraSpacePoint trackedLoc = KinectManager.Default.GetTrackedLocation();
-            string args = _receiver.GetPipeServerClientHandle() + " " + KinectManager.Default.HandManager.HandPosition.X + " " + KinectManager.Default.HandManager.HandPosition.Y;
-            args += " " + trackedLoc.X + " " + trackedLoc.Y + " " + trackedLoc.Z;
-
-            _childProcess.StartInfo.Arguments = args;
+            _childProcess.StartInfo.Arguments = _server.GetOutServerClientHandle() + " " + _server.GetInServerClientHandle();
             _childProcess.Start();
 
             //create a thread to watch the child process
@@ -173,10 +163,10 @@ namespace KinectShowcaseCommon.ProcessHandling
         private void WatchProcess()
         {
             //wait until the server has connected to a client
-            while (!_receiver.IsConnected()) ;
+            while (!_server.IsConnected()) ;
 
             bool shouldQuit = false;
-            while (!shouldQuit)
+            while (!_shouldStop && !shouldQuit)
             {
                 //lock the process
                 lock (_childProcessLock)
@@ -209,28 +199,82 @@ namespace KinectShowcaseCommon.ProcessHandling
 
         public void ReceivedMessage(SystemMessage aMessage)
         {
-            if (aMessage.Type == SystemMessage.MessageType.Interaction)
+            switch (aMessage.Type)
             {
-                Debug.WriteLine("SystemWatchdog - LOG - received interaction from client");
-                _lastInteractionTime = DateTime.Now;
-            }
-            else if (aMessage.Type == SystemMessage.MessageType.Ping)
-            {
-                Debug.WriteLine("SystemWatchdog - LOG - received ping from client");
-            }
-            else if (aMessage.Type == SystemMessage.MessageType.Kill)
-            {
-                Debug.WriteLine("SystemWatchdog - LOG - received kill command from client");
+                case SystemMessage.MessageType.Interaction:
+                    {
+                        Debug.WriteLine("SystemWatchdog - LOG - received interaction from client");
+                        _lastInteractionTime = DateTime.Now;
+                        break;
+                    }
 
-                lock (_childProcessLock)
-                {
-                    _childProcess.Kill();
-                    _childProcess = null;
-                }
-            }
-            else
-            {
-                Debug.WriteLine("SystemWatchdog - LOG - Did receive message of type: " + SystemMessage.MessageTypeToString(aMessage.Type) + " data: " + aMessage.Data);
+                case SystemMessage.MessageType.Ack:
+                    {
+                        Debug.WriteLine("SystemWatchdog - LOG - received ACK from client");
+                        SystemMessage pingMes = new SystemMessage(SystemMessage.MessageType.Ping, DateTime.Now.ToString());
+                        _server.SendMessage(pingMes);
+                        break;
+                    }
+
+                case SystemMessage.MessageType.Ping:
+                    {
+                        Debug.WriteLine("SystemWatchdog - LOG - received ping from client");
+                        break;
+                    }
+
+                case SystemMessage.MessageType.Kill:
+                    {
+                        Debug.WriteLine("SystemWatchdog - LOG - received kill command from client");
+
+                        lock (_childProcessLock)
+                        {
+                            _childProcess.Kill();
+                            _childProcess = null;
+                        }
+                        break;
+                    }
+
+                case SystemMessage.MessageType.SyncHand:
+                    {
+                        string[] point = aMessage.Data.Split(' ');
+                        if (point.Length >= 2)
+                        {
+                            float x = float.Parse(point[0]);
+                            float y = float.Parse(point[1]);
+                            for (int i = 0; i < 10; i++)
+                                KinectManager.Default.HandManager.InjectScaledHandLocation(new Point(x, y));
+                        }
+                        else
+                        {
+                            log.Error("Invalid hand sync point");
+                        }
+
+                        break;
+                    }
+
+                case SystemMessage.MessageType.SyncTracked:
+                    {
+                        string[] point = aMessage.Data.Split(' ');
+                        if (point.Length >= 3)
+                        {
+                            float x = float.Parse(point[0]);
+                            float y = float.Parse(point[1]);
+                            float z = float.Parse(point[2]);
+                            KinectManager.Default.FavorNearest(x, y, z);
+                        }
+                        else
+                        {
+                            log.Error("Invalid favor point");
+                        }
+
+                        break;
+                    }
+
+                default:
+                    {
+                        Debug.WriteLine("SystemWatchdog - LOG - Did receive message of type: " + aMessage.Type.ToString() + " data: " + aMessage.Data);
+                        break;
+                    }
             }
         }
 

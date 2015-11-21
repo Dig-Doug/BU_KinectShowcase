@@ -11,20 +11,23 @@ using System.Threading;
 using System.Windows.Threading;
 using System.Security.Principal;
 using System.Windows;
+using KinectShowcaseCommon.Kinect_Processing;
+using log4net;
 
 namespace KinectShowcaseCommon.ProcessHandling
 {
-
     // Canaries were brought into mineshafts to detect posionus gases
     // This one detects when the program is done :)
-    public class SystemCanary : ISystemInteractionListener
+    public class SystemCanary : ISystemInteractionListener, IPCHandler.MessageReceiver
     {
+        private static readonly ILog log = LogManager.GetLogger(System.Reflection.MethodBase.GetCurrentMethod().DeclaringType);
+
         private static volatile SystemCanary _instance;
         private static object _syncRoot = new Object();
 
         public ISystemProgressListener ProgessListener;
 
-        private IPCSender _sender;
+        private IPCClient _client;
 
         public static SystemCanary Default
         {
@@ -45,38 +48,92 @@ namespace KinectShowcaseCommon.ProcessHandling
 
         private SystemCanary()
         {
-            _sender = new IPCSender();
+            _client = new IPCClient();
         }
 
         ~SystemCanary()
         {
-            _sender.Close();
+            _client.Close();
         }
 
-        public void DidStartWithStreamHandle(string aHandle)
+        public void DidStartWithStreamHandles(string aInHandle, string aOutHandle)
         {
-            _sender.ConnectWithStreamHandle(aHandle);
+            _client.ConnectWithStreamHandles(aInHandle, aOutHandle);
+
+            SystemMessage pingMes = new SystemMessage(SystemMessage.MessageType.Ack, DateTime.Now.ToString());
+            _client.SendMessage(pingMes);
         }
 
         public void SystemDidRecieveInteraction()
         {
-            if (_sender.Connected)
-            {
-                SystemMessage interactMes = new SystemMessage(SystemMessage.MessageType.Interaction, DateTime.Now.ToString());
-                _sender.SendMessage(interactMes);
-            }
+            SystemMessage interactMes = new SystemMessage(SystemMessage.MessageType.Interaction, DateTime.Now.ToString());
+            _client.SendMessage(interactMes);
         }
 
         public void AskForKill()
         {
-            if (_sender.Connected)
+            if (_client.CanSend())
             {
                 SystemMessage killMe = new SystemMessage(SystemMessage.MessageType.Kill, DateTime.Now.ToString());
-                _sender.SendMessage(killMe);
+                _client.SendMessage(killMe);
             }
             else
             {
                 Application.Current.Shutdown();
+            }
+        }
+
+        public void ReceivedMessage(SystemMessage aMessage)
+        {
+            switch (aMessage.Type)
+            {
+                case SystemMessage.MessageType.Ping:
+                    {
+                        Debug.WriteLine("SystemCanary - LOG - received ping from client");
+                        break;
+                    }
+
+                case SystemMessage.MessageType.SyncHand:
+                    {
+                        string[] point = aMessage.Data.Split(' ');
+                        if (point.Length >= 2)
+                        {
+                            float x = float.Parse(point[0]);
+                            float y = float.Parse(point[1]);
+                            for (int i = 0; i < 10; i++)
+                                KinectManager.Default.HandManager.InjectScaledHandLocation(new Point(x, y));
+                        }
+                        else
+                        {
+                            log.Error("Invalid hand sync point");
+                        }
+
+                        break;
+                    }
+
+                case SystemMessage.MessageType.SyncTracked:
+                    {
+                        string[] point = aMessage.Data.Split(' ');
+                        if (point.Length >= 3)
+                        {
+                            float x = float.Parse(point[0]);
+                            float y = float.Parse(point[1]);
+                            float z = float.Parse(point[2]);
+                            KinectManager.Default.FavorNearest(x, y, z);
+                        }
+                        else
+                        {
+                            log.Error("Invalid favor point");
+                        }
+
+                        break;
+                    }
+
+                default:
+                    {
+                        Debug.WriteLine("SystemWatchdog - LOG - Did receive message of type: " + aMessage.Type.ToString() + " data: " + aMessage.Data);
+                        break;
+                    }
             }
         }
     }

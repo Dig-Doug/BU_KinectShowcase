@@ -1,12 +1,14 @@
 ﻿using KinectShowcaseCommon.Kinect_Processing;
 using KinectShowcaseCommon.ProcessHandling;
 using KinectShowcaseGameTemplate.ViewModel;
+using log4net;
 using System;
 using System.Collections.Generic;
 using System.Configuration;
 using System.Data;
 using System.Diagnostics;
 using System.Linq;
+using System.Threading;
 using System.Threading.Tasks;
 using System.Windows;
 
@@ -17,10 +19,13 @@ namespace KinectShowcaseGameTemplate
     /// </summary>
     public partial class App : Application
     {
+        private static readonly ILog log = LogManager.GetLogger(System.Reflection.MethodBase.GetCurrentMethod().DeclaringType);
 
         public App()
             : base()
         {
+            log4net.Config.XmlConfigurator.Configure();
+
             //init the kinect manager
             KinectManager.Config config = KinectManagerConfigReader.GetConfig();
             KinectManager.Default.Init(SystemCanary.Default, config);
@@ -28,26 +33,15 @@ namespace KinectShowcaseGameTemplate
 
         void App_Startup(object sender, StartupEventArgs e)
         {
-            string handX = "500", handY = "500";
-            string trackedX = "-1", trackedY = "-1", trackedZ = "1";
-            if (e.Args.Length > 0)
+            log.Debug("starting...");
+            if (e.Args.Length > 1)
             {
-                SystemCanary.Default.DidStartWithStreamHandle(e.Args[0]);
-
-                if (e.Args.Length > 2)
-                {
-                     handX = e.Args[1];
-                     handY = e.Args[2];
-                }
-
-                if (e.Args.Length > 4)
-                {
-                    trackedX = e.Args[3];
-                    trackedY = e.Args[4];
-                    trackedZ = e.Args[5];
-                }
+                Thread.Sleep(15000);
+                log.Debug("Received IN: " + e.Args[0] + " OUT: " + e.Args[1]);
+                SystemCanary.Default.DidStartWithStreamHandles(e.Args[0], e.Args[1]);
             }
 
+            /*
             System.Threading.Timer timer = null;
             timer = new System.Threading.Timer((obj) =>
             {
@@ -71,6 +65,7 @@ namespace KinectShowcaseGameTemplate
                     KinectManager.Default.FavorNearest(favorX, favorY, favorZ);
             },
             null, 1500, System.Threading.Timeout.Infinite);
+            */
         }
 
         protected override void OnExit(ExitEventArgs e)
