@@ -85,7 +85,7 @@ namespace KinectShowcase.ViewModel
         {
             get
             {
-                return 3;
+                return 5;
             }
         }
 

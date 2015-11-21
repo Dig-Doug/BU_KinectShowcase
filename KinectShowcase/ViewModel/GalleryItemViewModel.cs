@@ -17,6 +17,8 @@ namespace KinectShowcase.ViewModel
 {
     public class GalleryItemViewModel : ViewModelBase
     {
+        private const int MAX_TITLE_LENGTH = 16;
+        private const string MAX_TITLE_END = "...";
         private const int THUMBNAIL_SIZE = 200;
 
         private GalleryItem _model;
@@ -29,7 +31,7 @@ namespace KinectShowcase.ViewModel
         {
             get
             {
-                return _model.Title;
+                return (_model.Title.Length > MAX_TITLE_LENGTH ? _model.Title.Substring(0, MAX_TITLE_LENGTH - MAX_TITLE_END.Length) + MAX_TITLE_END : _model.Title);
             }
         }
         public string Description
