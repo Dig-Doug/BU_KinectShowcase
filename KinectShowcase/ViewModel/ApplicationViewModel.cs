@@ -3,6 +3,7 @@ using GalaSoft.MvvmLight;
 using GalaSoft.MvvmLight.CommandWpf;
 using KinectShowcaseCommon.ProcessHandling;
 using KinectShowcaseCommon.UI_Elements;
+using log4net;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -13,6 +14,8 @@ namespace KinectShowcase.ViewModel
 {
     public class ApplicationViewModel : ViewModelBase, ISystemTimeoutListener
     {
+        private static readonly ILog log = LogManager.GetLogger(System.Reflection.MethodBase.GetCurrentMethod().DeclaringType);
+
         private IPageViewModel _currentPageViewModel;
         private List<IPageViewModel> _pageViewModels;
 
@@ -89,6 +92,8 @@ namespace KinectShowcase.ViewModel
 
         private void ChangeViewModel(IPageViewModel viewModel)
         {
+            log.Info("Changing to view model: " + viewModel.Name);
+
             if (!PageViewModels.Contains(viewModel))
                 PageViewModels.Add(viewModel);
 
@@ -112,6 +117,8 @@ namespace KinectShowcase.ViewModel
 
         public void Reset()
         {
+            log.Info("Resetting.");
+
             CurrentPageViewModel = PageViewModels[0];
         }
     }

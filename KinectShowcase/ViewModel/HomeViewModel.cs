@@ -1,6 +1,7 @@
 ﻿using GalaSoft.MvvmLight;
 using GalaSoft.MvvmLight.CommandWpf;
 using KinectShowcaseCommon.Kinect_Processing;
+using log4net;
 using System;
 using System.Collections.Generic;
 using System.Diagnostics;
@@ -14,6 +15,8 @@ namespace KinectShowcase.ViewModel
 {
     public class HomeViewModel : ViewModelBase, IPageViewModel, KinectManager.ActivelyTrackingListener
     {
+        private static readonly ILog log = LogManager.GetLogger(System.Reflection.MethodBase.GetCurrentMethod().DeclaringType);
+
         public string Name
         {
             get { return "HomeViewModel"; }
@@ -52,36 +55,42 @@ namespace KinectShowcase.ViewModel
 
         private void openGameListView()
         {
+            log.Info("Opening game view");
             IPageViewModel gameListView = ViewModelLocator.Locator().GameListViewModel;
             MessengerInstance.Send<ApplicationViewModel.ChangePageMessage>(new ApplicationViewModel.ChangePageMessage(gameListView));
         }
 
         private void openGalleryView()
         {
+            log.Info("Opening gallery view");
             IPageViewModel galleryView = ViewModelLocator.Locator().GalleryViewModel;
             MessengerInstance.Send<ApplicationViewModel.ChangePageMessage>(new ApplicationViewModel.ChangePageMessage(galleryView));
         }
 
         private void openBrowserView()
         {
+            log.Info("Opening browser view");
             IPageViewModel browserView = ViewModelLocator.Locator().BrowserViewModel;
             MessengerInstance.Send<ApplicationViewModel.ChangePageMessage>(new ApplicationViewModel.ChangePageMessage(browserView));
         }
 
         private void openAuthorView()
         {
+            log.Info("Opening author view");
             IPageViewModel authorView = ViewModelLocator.Locator().AuthorViewModel;
             MessengerInstance.Send<ApplicationViewModel.ChangePageMessage>(new ApplicationViewModel.ChangePageMessage(authorView));
         }
 
         public void KinectManagerDidBeginTracking(KinectManager aManager)
         {
+            log.Info("Kinect did begin tracking");
             _isInteracting = true;
             RaisePropertyChanged("ControlVisibility");
         }
 
         public void KinectManagerDidFinishTracking(KinectManager aManager)
         {
+            log.Info("Kinect did finish tracking");
             _isInteracting = false;
             RaisePropertyChanged("ControlVisibility");
         }

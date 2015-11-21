@@ -1,6 +1,7 @@
 ﻿using GalaSoft.MvvmLight;
 using GalaSoft.MvvmLight.CommandWpf;
 using KinectShowcase.Models.Gallery;
+using log4net;
 using System;
 using System.Collections.Generic;
 using System.Collections.ObjectModel;
@@ -15,6 +16,8 @@ namespace KinectShowcase.ViewModel
 {
     public class GalleryViewModel : ViewModelBase, IPageViewModel
     {
+        private static readonly ILog log = LogManager.GetLogger(System.Reflection.MethodBase.GetCurrentMethod().DeclaringType);
+
         public string Name
         {
             get { return "GalleryViewModel"; }
@@ -139,12 +142,14 @@ namespace KinectShowcase.ViewModel
         {
             if (GalleryItemManager.Default.CanGoBack())
             {
+                log.Info("Going back a folder");
                 GalleryItemManager.Default.GoBack();
                 _currentPage = -1;
                 CurrentPage = 0;
             }
             else
             {
+                log.Info("Going home");
                 IPageViewModel homeView = ViewModelLocator.Locator().HomeViewModel;
                 MessengerInstance.Send<ApplicationViewModel.ChangePageMessage>(new ApplicationViewModel.ChangePageMessage(homeView));
             }
@@ -173,6 +178,8 @@ namespace KinectShowcase.ViewModel
 
         private void PopulateGrid()
         {
+            log.Info("Updating grid");
+
             int startIndex = _currentPage * (GalleryGridRowCount * GalleryGridColumnCount);
             int endIndex = startIndex + (GalleryGridRowCount * GalleryGridColumnCount);
 
@@ -189,7 +196,7 @@ namespace KinectShowcase.ViewModel
         {
             if (aItem != null)
             {
-                Debug.WriteLine("GalleryItemClicked: " + aItem.Title);
+                log.Info("GalleryItemClicked: " + aItem.Title);
                 if (aItem.Type == GalleryItem.GalleryItemType.GalleryMediaTypeFolder)
                 {
                     GalleryItemManager.Default.GoInFolder(aItem);

@@ -3,6 +3,7 @@ using KinectShowcase.Models.Games;
 using KinectShowcase.ViewModel;
 using KinectShowcaseCommon.Kinect_Processing;
 using KinectShowcaseCommon.ProcessHandling;
+using log4net;
 using System;
 using System.Collections.Generic;
 using System.Configuration;
@@ -20,6 +21,8 @@ namespace KinectShowcase
     /// </summary>
     public partial class App : Application
     {
+        private static readonly ILog log = LogManager.GetLogger(System.Reflection.MethodBase.GetCurrentMethod().DeclaringType);
+
         private const string CONFIG_FILE = "showcase_config.txt";
         private const string CONFIG_SKIP = "#";
         private const string CONFIG_GAMES_PATH = "game=";
@@ -37,17 +40,23 @@ namespace KinectShowcase
 
             this.GetConfig();
 
+            log.Info("Getting kinect manager config");
+
             KinectManager.Config config = KinectManagerConfigReader.GetConfig();
 
+            log.Info("Initializing kinect");
             //init the kinect manager
             KinectManager.Default.Init(SystemWatchdog.Default, config);
 
             if (_gameDirectory != null && Directory.Exists(_gameDirectory))
             {
+                log.Info("Games dir: " + _gameDirectory);
                 GamesDatabase.Default.GamesRootFolder = this._gameDirectory;   
             }
             if (_pictureDirectory != null && Directory.Exists(_pictureDirectory))
             {
+                log.Info("Folder icon: " + _folderIconPath);
+                log.Info("Gallery folder: " + _pictureDirectory);
                 GalleryItemManager.Default.FolderIconPath = _folderIconPath;
                 GalleryItemManager.Default.RootFolder = _pictureDirectory;
             }

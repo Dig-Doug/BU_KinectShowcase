@@ -1,6 +1,7 @@
 ﻿using KinectEx.Smoothing;
 using KinectShowcaseCommon.Filters;
 using KinectShowcaseCommon.UI_Elements;
+using log4net;
 using Microsoft.Kinect;
 using Nito.KitchenSink;
 using System;
@@ -16,6 +17,8 @@ namespace KinectShowcaseCommon.Kinect_Processing
 {
     public class KinectHandManager : KinectManager.SmoothBodyDataListener
     {
+        private static readonly ILog log = LogManager.GetLogger(System.Reflection.MethodBase.GetCurrentMethod().DeclaringType);
+
         public enum FilterType
         {
             RecursiveFilter,

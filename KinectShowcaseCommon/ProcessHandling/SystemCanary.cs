@@ -60,6 +60,7 @@ namespace KinectShowcaseCommon.ProcessHandling
 
         public void DidStartWithStreamHandles(string aInHandle, string aOutHandle)
         {
+            log.Info("Starting with handles IN: " + aInHandle + " OUT: " + aOutHandle);
             _client.ConnectWithStreamHandles(aInHandle, aOutHandle);
 
             SystemMessage pingMes = new SystemMessage(SystemMessage.MessageType.Ack, DateTime.Now.ToString());
@@ -74,6 +75,7 @@ namespace KinectShowcaseCommon.ProcessHandling
 
         public void AskForKill()
         {
+            log.Info("Asking for kill");
             //send state
             string handLoc = KinectManager.Default.HandManager.HandPosition.X + " " + KinectManager.Default.HandManager.HandPosition.Y;
             SystemMessage syncHand = new SystemMessage(SystemMessage.MessageType.SyncHand, handLoc);
@@ -101,7 +103,7 @@ namespace KinectShowcaseCommon.ProcessHandling
             {
                 case SystemMessage.MessageType.Ping:
                     {
-                        Debug.WriteLine("SystemCanary - LOG - received ping from client");
+                        log.Info("Received ping from client");
                         break;
                     }
 
@@ -112,6 +114,7 @@ namespace KinectShowcaseCommon.ProcessHandling
                         {
                             float x = float.Parse(point[0]);
                             float y = float.Parse(point[1]);
+                            log.Info("Received hand sync X: " + x + " Y: " + y);
                             KinectManager.Default.HandManager.SetScaledHandLocation(new Point(x, y));
                         }
                         else
@@ -130,6 +133,7 @@ namespace KinectShowcaseCommon.ProcessHandling
                             float x = float.Parse(point[0]);
                             float y = float.Parse(point[1]);
                             float z = float.Parse(point[2]);
+                            log.Info("Received tracked sync X: " + x + " Y: " + y + " Z: " + z);
                             KinectManager.Default.FavorNearest(x, y, z);
                         }
                         else
@@ -142,7 +146,7 @@ namespace KinectShowcaseCommon.ProcessHandling
 
                 default:
                     {
-                        Debug.WriteLine("SystemCanary - LOG - Did receive message of type: " + aMessage.Type.ToString() + " data: " + aMessage.Data);
+                        log.Info("Did receive message of type: " + aMessage.Type.ToString() + " data: " + aMessage.Data);
                         break;
                     }
             }

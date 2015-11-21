@@ -1,6 +1,7 @@
 ﻿using GalaSoft.MvvmLight;
 using GalaSoft.MvvmLight.CommandWpf;
 using KinectShowcase.Models.Games;
+using log4net;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -12,6 +13,8 @@ namespace KinectShowcase.ViewModel
 {
     public class GameViewModel : ViewModelBase
     {
+        private static readonly ILog log = LogManager.GetLogger(System.Reflection.MethodBase.GetCurrentMethod().DeclaringType);
+
         private GameDataModel _model;
         private Action<GameDataModel> _onClick;
 

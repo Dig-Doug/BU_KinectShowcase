@@ -2,6 +2,7 @@
 using CefSharp.Wpf;
 using GalaSoft.MvvmLight;
 using GalaSoft.MvvmLight.CommandWpf;
+using log4net;
 using System;
 using System.Collections.Generic;
 using System.Diagnostics;
@@ -15,6 +16,8 @@ namespace KinectShowcase.ViewModel
 {
     public class BrowserViewModel : ViewModelBase, IPageViewModel, CefSharp.IRequestHandler
     {
+        private static readonly ILog log = LogManager.GetLogger(System.Reflection.MethodBase.GetCurrentMethod().DeclaringType);
+
         private const string USER_AGENT = "User-Agent: Mobile \r\n";
 
         public string Name
@@ -86,6 +89,8 @@ namespace KinectShowcase.ViewModel
 
         private void pageForward()
         {
+            log.Info("Browser forward");
+
             if (WebBrowser.CanGoForward)
                 WebBrowser.GetBrowser().GoForward();
 
@@ -94,6 +99,8 @@ namespace KinectShowcase.ViewModel
 
         private void pageBack()
         {
+            log.Info("Browser back");
+
             if (WebBrowser.CanGoBack)
                 WebBrowser.GetBrowser().GoBack();
 
@@ -114,6 +121,8 @@ namespace KinectShowcase.ViewModel
 
         private void openHomeView()
         {
+            log.Info("Going home");
+
             IPageViewModel homeView = ViewModelLocator.Locator().HomeViewModel;
             MessengerInstance.Send<ApplicationViewModel.ChangePageMessage>(new ApplicationViewModel.ChangePageMessage(homeView));
         }

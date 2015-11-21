@@ -96,7 +96,7 @@ namespace KinectShowcaseCommon.ProcessHandling
                     if ((DateTime.Now - _lastInteractionTime).TotalSeconds >= INTERACTION_TIME_THRESHOLD)
                     {
                         //reset to the home screen
-                        Debug.WriteLine("SystemWatchdog - LOG - System timed out, returning to the home screen");
+                        log.Info("System timed out, returning to the home screen");
                         ProgramManagement_GoHome();
                         _lastInteractionTime = DateTime.Now;
                     }
@@ -115,7 +115,7 @@ namespace KinectShowcaseCommon.ProcessHandling
             }
             else
             {
-                Debug.WriteLine("No navigationhandler set!");
+                log.Warn("No navigationhandler set!");
             }
         }
 
@@ -125,14 +125,14 @@ namespace KinectShowcaseCommon.ProcessHandling
 
         public void StartChildProcess(string aExecutablePath)
         {
-            Debug.WriteLine("SystemWatchdog - LOG - Staring process exe: " + aExecutablePath);
+            log.Info("Staring process exe: " + aExecutablePath);
 
             //clean up any other child processes if there are any
             if (this._childProcess != null)
             {
                 if (!_childProcess.HasExited)
                 {
-                    Debug.WriteLine("SystemWatchdog - LOG - Already a child process running... killing");
+                    log.Warn("Already a child process running... killing");
                     this._childProcess.Kill();
                 }
             }
@@ -181,6 +181,7 @@ namespace KinectShowcaseCommon.ProcessHandling
                     //lock and kill the process
                     lock (_childProcessLock)
                     {
+                        log.Info("Timeout - Killing process");
                         _childProcess.Kill();
                         _childProcess = null;
                     }
@@ -203,14 +204,14 @@ namespace KinectShowcaseCommon.ProcessHandling
             {
                 case SystemMessage.MessageType.Interaction:
                     {
-                        Debug.WriteLine("SystemWatchdog - LOG - received interaction from client");
+                        log.Debug("Received interaction from client");
                         _lastInteractionTime = DateTime.Now;
                         break;
                     }
 
                 case SystemMessage.MessageType.Ack:
                     {
-                        Debug.WriteLine("SystemWatchdog - LOG - received ACK from client");
+                        log.Info("received ACK from client");
                         SystemMessage pingMes = new SystemMessage(SystemMessage.MessageType.Ping, DateTime.Now.ToString());
                         _server.SendMessage(pingMes);
 
@@ -229,13 +230,13 @@ namespace KinectShowcaseCommon.ProcessHandling
 
                 case SystemMessage.MessageType.Ping:
                     {
-                        Debug.WriteLine("SystemWatchdog - LOG - received ping from client");
+                        log.Info("received ping from client");
                         break;
                     }
 
                 case SystemMessage.MessageType.Kill:
                     {
-                        Debug.WriteLine("SystemWatchdog - LOG - received kill command from client");
+                        log.Info("received kill command from client");
 
                         lock (_childProcessLock)
                         {
@@ -252,6 +253,7 @@ namespace KinectShowcaseCommon.ProcessHandling
                         {
                             float x = float.Parse(point[0]);
                             float y = float.Parse(point[1]);
+                            log.Info("Received hand sync X: " + x + " Y: " + y);
                             KinectManager.Default.HandManager.SetScaledHandLocation(new Point(x, y));
                         }
                         else
@@ -270,6 +272,7 @@ namespace KinectShowcaseCommon.ProcessHandling
                             float x = float.Parse(point[0]);
                             float y = float.Parse(point[1]);
                             float z = float.Parse(point[2]);
+                            log.Info("Received tracked sync X: " + x + " Y: " + y + " Z: " + z);
                             KinectManager.Default.FavorNearest(x, y, z);
                         }
                         else
@@ -282,7 +285,7 @@ namespace KinectShowcaseCommon.ProcessHandling
 
                 default:
                     {
-                        Debug.WriteLine("SystemWatchdog - LOG - Did receive message of type: " + aMessage.Type.ToString() + " data: " + aMessage.Data);
+                        log.Info("Did receive message of type: " + aMessage.Type.ToString() + " data: " + aMessage.Data);
                         break;
                     }
             }

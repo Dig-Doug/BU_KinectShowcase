@@ -1,6 +1,7 @@
 ﻿using GalaSoft.MvvmLight;
 using GalaSoft.MvvmLight.CommandWpf;
 using KinectShowcase.Models.Games;
+using log4net;
 using System;
 using System.Collections.Generic;
 using System.Collections.ObjectModel;
@@ -15,6 +16,8 @@ namespace KinectShowcase.ViewModel
 {
     public class GameListViewModel : ViewModelBase, IPageViewModel
     {
+        private static readonly ILog log = LogManager.GetLogger(System.Reflection.MethodBase.GetCurrentMethod().DeclaringType);
+
         public string Name
         {
             get { return "GameListViewModel"; }
@@ -128,6 +131,7 @@ namespace KinectShowcase.ViewModel
 
         private void openHomeView()
         {
+            log.Info("Going home");
             IPageViewModel homeView = ViewModelLocator.Locator().HomeViewModel;
             MessengerInstance.Send<ApplicationViewModel.ChangePageMessage>(new ApplicationViewModel.ChangePageMessage(homeView));
         }
@@ -169,6 +173,7 @@ namespace KinectShowcase.ViewModel
 
         private void GameWasClicked(GameDataModel aGame)
         {
+            log.Info("Selected game: " + aGame.Title);
             GameDetailViewModel gameDetailView = ViewModelLocator.Locator().GameDetailViewModel;
             gameDetailView.Game = aGame;
             MessengerInstance.Send<ApplicationViewModel.ChangePageMessage>(new ApplicationViewModel.ChangePageMessage(gameDetailView));

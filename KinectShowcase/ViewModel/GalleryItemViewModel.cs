@@ -1,6 +1,7 @@
 ﻿using GalaSoft.MvvmLight;
 using GalaSoft.MvvmLight.CommandWpf;
 using KinectShowcase.Models.Gallery;
+using log4net;
 using System;
 using System.Collections.Generic;
 using System.Drawing;
@@ -17,6 +18,8 @@ namespace KinectShowcase.ViewModel
 {
     public class GalleryItemViewModel : ViewModelBase
     {
+        private static readonly ILog log = LogManager.GetLogger(System.Reflection.MethodBase.GetCurrentMethod().DeclaringType);
+
         private const int MAX_TITLE_LENGTH = 16;
         private const string MAX_TITLE_END = "...";
         private const int THUMBNAIL_SIZE = 200;

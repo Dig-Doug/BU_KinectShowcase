@@ -2,6 +2,7 @@
 using GalaSoft.MvvmLight.Command;
 using KinectShowcase.Models.Gallery;
 using KinectShowcaseCommon.Helpers;
+using log4net;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -16,6 +17,8 @@ namespace KinectShowcase.ViewModel
 {
     public class GalleryDetailViewModel : ViewModelBase, IPageViewModel
     {
+        private static readonly ILog log = LogManager.GetLogger(System.Reflection.MethodBase.GetCurrentMethod().DeclaringType);
+
         private const int MAX_WIDTH_IMAGE = 1400;
         private const int MAX_HEIGHT_IMAGE = 700;
         private const int MAX_WIDTH_BLUR = 140;
@@ -139,16 +142,19 @@ namespace KinectShowcase.ViewModel
 
         private void pageLeft()
         {
+            log.Info("Previous item");
             CurrentIndex--;
         }
 
         private void pageRight()
         {
+            log.Info("Next item");
             CurrentIndex++;
         }
 
         private void openGalleryView()
         {
+            log.Info("Going back to gallery");
             IPageViewModel galleryView = ViewModelLocator.Locator().GalleryViewModel;
             MessengerInstance.Send<ApplicationViewModel.ChangePageMessage>(new ApplicationViewModel.ChangePageMessage(galleryView));
         }
@@ -157,6 +163,8 @@ namespace KinectShowcase.ViewModel
         {
             if (e.PropertyName == "Item")
             {
+                log.Info("Changing gallery detail source");
+
                 _source = ImageSourceFromFile(_model.MediaPath, MAX_WIDTH_IMAGE, MAX_WIDTH_BLUR);
                 //blur a lot
                 //TODO try other kernels

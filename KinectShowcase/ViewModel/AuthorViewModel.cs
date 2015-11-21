@@ -2,6 +2,7 @@
 using GalaSoft.MvvmLight.CommandWpf;
 using KinectShowcaseCommon.Helpers;
 using KinectShowcaseCommon.Kinect_Processing;
+using log4net;
 using System;
 using System.Collections.Generic;
 using System.Diagnostics;
@@ -15,6 +16,8 @@ namespace KinectShowcase.ViewModel
 {
     public class AuthorViewModel : ViewModelBase, IPageViewModel
     {
+        private static readonly ILog log = LogManager.GetLogger(System.Reflection.MethodBase.GetCurrentMethod().DeclaringType);
+
         public string Name
         {
             get { return "AuthorViewModel"; }
@@ -48,6 +51,8 @@ namespace KinectShowcase.ViewModel
 
         private void closeButtonClicked()
         {
+            log.Info("Closing author view");
+
             IPageViewModel homeView = ViewModelLocator.Locator().HomeViewModel;
             MessengerInstance.Send<ApplicationViewModel.ChangePageMessage>(new ApplicationViewModel.ChangePageMessage(homeView));
         }

@@ -14,11 +14,14 @@ using System.Windows;
 using System.Drawing;
 using Nito.KitchenSink;
 using KinectEx.Smoothing;
+using log4net;
 
 namespace KinectShowcaseCommon.Kinect_Processing
 {
     public sealed class KinectManager
     {
+        private static readonly ILog log = LogManager.GetLogger(System.Reflection.MethodBase.GetCurrentMethod().DeclaringType);
+
         public class Config
         {
             public float KalmanJitterRadius = 0.1f;
@@ -139,6 +142,11 @@ namespace KinectShowcaseCommon.Kinect_Processing
 
         public void Init(ISystemInteractionListener aListener, Config aConfig)
         {
+            log.Info("Initializing...");
+            log.Info("Config:");
+            log.Info(" KalmanJitterRadius: " + aConfig.KalmanJitterRadius);
+            log.Info(" KalmanMeasurementUncertainty: " + aConfig.KalmanMeasurementUncertainty);
+
             this.InteractionListener = aListener;
             this.ShouldSendEvents = true;
             this.CurrentlyTrackingId = 0;
@@ -156,12 +164,16 @@ namespace KinectShowcaseCommon.Kinect_Processing
             // set IsAvailableChanged event notifier
             this.KinectSensor.IsAvailableChanged += this.Sensor_IsAvailableChanged;
 
+            log.Info("Opening sensor");
+
             // open the sensor
             this.KinectSensor.Open();
         }
 
         private void InitBody(float aJitterRadius, float aMeasurementUncertainty)
         {
+            log.Info("InitBody");
+
             KalmanSmoothingParameters smoothingParam = new KalmanSmoothingParameters();
             smoothingParam.JitterRadius = aJitterRadius;
             smoothingParam.MeasurementUncertainty = aMeasurementUncertainty;
@@ -190,6 +202,8 @@ namespace KinectShowcaseCommon.Kinect_Processing
 
         private void InitColor()
         {
+            log.Info("InitColor");
+
             // open the reader for the color frames
             this.colorFrameReader = this.KinectSensor.ColorFrameSource.OpenReader();
 
@@ -591,6 +605,7 @@ namespace KinectShowcaseCommon.Kinect_Processing
 
         public void FavorNearest(float aX, float aY, float aZ)
         {
+            log.Info("Got favor point - X: " + aX + " Y: " + aY + " Z: " + aZ);
             _hasFavorPoint = true;
             _favorPoint.X = aX;
             _favorPoint.Y = aY;

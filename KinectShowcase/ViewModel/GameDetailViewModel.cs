@@ -3,6 +3,7 @@ using GalaSoft.MvvmLight.CommandWpf;
 using KinectShowcase.Models.Games;
 using KinectShowcaseCommon.Helpers;
 using KinectShowcaseCommon.ProcessHandling;
+using log4net;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -14,6 +15,8 @@ namespace KinectShowcase.ViewModel
 {
     public class GameDetailViewModel : ViewModelBase, IPageViewModel
     {
+        private static readonly ILog log = LogManager.GetLogger(System.Reflection.MethodBase.GetCurrentMethod().DeclaringType);
+
         private const string DESCRIPTION_NONE = "No description available.";
 
         public string Name
@@ -83,11 +86,13 @@ namespace KinectShowcase.ViewModel
 
         private void playGame()
         {
+            log.Info("Opening game: " + _model.RootPath + "\\" + _model.ExecutablePath);
             SystemWatchdog.Default.StartChildProcess(_model.RootPath + "\\" + _model.ExecutablePath);
         }
 
         private void openGameListView()
         {
+            log.Info("Going to game list");
             IPageViewModel gameListView = ViewModelLocator.Locator().GameListViewModel;
             MessengerInstance.Send<ApplicationViewModel.ChangePageMessage>(new ApplicationViewModel.ChangePageMessage(gameListView));
         }
