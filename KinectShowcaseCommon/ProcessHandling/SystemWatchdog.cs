@@ -13,7 +13,7 @@ namespace KinectShowcaseCommon.ProcessHandling
         private static readonly ILog log = LogManager.GetLogger(System.Reflection.MethodBase.GetCurrentMethod().DeclaringType);
 
         //max timeout for child processes, if interaction time get larger than this, the child is killed
-        private const float INTERACTION_TIME_THRESHOLD = 99999999;//0.25f * 60.0f;
+        private const float INTERACTION_TIME_THRESHOLD = 0.25f * 60.0f;
 
         //singleton stuffs
         private static volatile SystemWatchdog _instance;
