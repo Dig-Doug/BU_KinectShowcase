@@ -215,10 +215,14 @@ namespace KinectShowcaseCommon.ProcessHandling
                         SystemMessage pingMes = new SystemMessage(SystemMessage.MessageType.Ping, DateTime.Now.ToString());
                         _server.SendMessage(pingMes);
 
+                        Thread.Sleep(100);
+
                         //send state
                         string handLoc = KinectManager.Default.HandManager.HandPosition.X + " " + KinectManager.Default.HandManager.HandPosition.Y;
                         SystemMessage syncHand = new SystemMessage(SystemMessage.MessageType.SyncHand, handLoc);
                         _server.SendMessage(syncHand);
+
+                        Thread.Sleep(100);
 
                         CameraSpacePoint trackedLoc = KinectManager.Default.GetTrackedLocation();
                         string tracked = "" + trackedLoc.X + " " + trackedLoc.Y + " " + trackedLoc.Z;
@@ -240,8 +244,11 @@ namespace KinectShowcaseCommon.ProcessHandling
 
                         lock (_childProcessLock)
                         {
-                            _childProcess.Kill();
-                            _childProcess = null;
+                            if (_childProcess != null)
+                            {
+                                _childProcess.Kill();
+                                _childProcess = null;
+                            }
                         }
                         break;
                     }

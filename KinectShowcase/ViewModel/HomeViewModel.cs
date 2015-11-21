@@ -90,7 +90,6 @@ namespace KinectShowcase.ViewModel
 
         public void KinectManagerDidFinishTracking(KinectManager aManager)
         {
-            log.Info("Kinect did finish tracking");
             _isInteracting = false;
             RaisePropertyChanged("ControlVisibility");
         }

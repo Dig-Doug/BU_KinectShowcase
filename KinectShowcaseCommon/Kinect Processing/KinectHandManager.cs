@@ -168,6 +168,8 @@ namespace KinectShowcaseCommon.Kinect_Processing
         private CoordinateMapper _coordinateMapper;
         private WeakCollection<HandStateChangeListener> _handStateListeners = new WeakCollection<HandStateChangeListener>();
         private WeakCollection<HandLocationListener> _handLocationListeners = new WeakCollection<HandLocationListener>();
+        private Object _handStateListenerLock = new object();
+        private Object _handLocationListenerLock = new object();
         private PointFilter _scaledHandLocationFilter;
         private HandState _lastConfirmedHandState = HandState.Open;
         private float _depthFrameWidth, _depthFrameHeight;
@@ -446,8 +448,11 @@ namespace KinectShowcaseCommon.Kinect_Processing
 
         public void AddHandStateChangeListener(HandStateChangeListener aListener)
         {
-            if (!this._handStateListeners.Contains(aListener))
-                this._handStateListeners.Add(aListener);
+            lock (_handStateListenerLock)
+            {
+                if (!this._handStateListeners.Contains(aListener))
+                    this._handStateListeners.Add(aListener);
+            }
         }
 
         private void NotifyHandStateChangeListenersOfEvent(HandStateChangeEvent aEvent)
@@ -455,7 +460,9 @@ namespace KinectShowcaseCommon.Kinect_Processing
             //notify the system listener of an interaction
             this._kinectManager.InteractionListener.SystemDidRecieveInteraction();
 
-            foreach (HandStateChangeListener currentListener in this._handStateListeners)
+            lock (_handStateListenerLock)
+            {
+                foreach (HandStateChangeListener currentListener in this._handStateListeners)
             {
                 bool result = currentListener.KinectHandManagerDidDetectHandStateChange(this, aEvent);
                 //skip if the event was handled
@@ -464,6 +471,7 @@ namespace KinectShowcaseCommon.Kinect_Processing
                     break;
                 }
             }
+        }
 
             if (this.Cursor != null)
             {
@@ -474,16 +482,22 @@ namespace KinectShowcaseCommon.Kinect_Processing
 
         public void RemoveHandStateChangeListener(HandStateChangeListener aListener)
         {
-            if (this._handStateListeners.Contains(aListener))
-                this._handStateListeners.Remove(aListener);
+            lock (_handStateListenerLock)
+            {
+                if (this._handStateListeners.Contains(aListener))
+                    this._handStateListeners.Remove(aListener);
+            }
         }
 
         public void AddHandLocationListener(HandLocationListener aListener)
         {
-            if (!this._handLocationListeners.Contains(aListener))
+            lock (_handLocationListenerLock)
             {
-                this._handLocationListeners.Add(aListener);
-                aListener.KinectHandManagerDidGetHandLocation(this, new HandLocationEvent(this.HandPosition));
+                if (!this._handLocationListeners.Contains(aListener))
+                {
+                    this._handLocationListeners.Add(aListener);
+                    aListener.KinectHandManagerDidGetHandLocation(this, new HandLocationEvent(this.HandPosition));
+                }
             }
         }
 
@@ -493,15 +507,18 @@ namespace KinectShowcaseCommon.Kinect_Processing
             this._kinectManager.InteractionListener.SystemDidRecieveInteraction();
             Point attachPoint = new Point();
             bool isAttaching = false;
-            foreach (HandLocationListener currentListener in this._handLocationListeners)
+            lock (_handLocationListenerLock)
             {
-                bool result = currentListener.KinectHandManagerDidGetHandLocation(this, aEvent);
-                if (this.ShouldAttachToControls && result)
+                foreach (HandLocationListener currentListener in this._handLocationListeners)
                 {
-                    if (currentListener.HandShouldAttach())
+                    bool result = currentListener.KinectHandManagerDidGetHandLocation(this, aEvent);
+                    if (this.ShouldAttachToControls && result)
                     {
-                        attachPoint = currentListener.AttachLocation();
-                        isAttaching = true;
+                        if (currentListener.HandShouldAttach())
+                        {
+                            attachPoint = currentListener.AttachLocation();
+                            isAttaching = true;
+                        }
                     }
                 }
             }
@@ -523,8 +540,11 @@ namespace KinectShowcaseCommon.Kinect_Processing
 
         public void RemoveHandLocationListener(HandLocationListener aListener)
         {
-            if (this._handLocationListeners.Contains(aListener))
-                this._handLocationListeners.Remove(aListener);
+            lock (_handLocationListenerLock)
+            {
+                if (this._handLocationListeners.Contains(aListener))
+                    this._handLocationListeners.Remove(aListener);
+            }
         }
 
         #endregion

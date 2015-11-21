@@ -105,8 +105,6 @@ namespace KinectShowcaseCommon.ProcessHandling
             {
                 //stop thread
                 _readThread.Abort();
-                //wait for thread to finish
-                _readThread.Join();
             }
         }
     }

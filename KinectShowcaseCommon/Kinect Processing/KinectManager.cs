@@ -314,10 +314,10 @@ namespace KinectShowcaseCommon.Kinect_Processing
                                 {
                                     closestValid = currentBody;
                                     bestDistance = distance;
-                                    _hasFavorPoint = false;
                                 }
                             }
                         }
+                        _hasFavorPoint = false;
                     }
                     
                     if (closestValid == null)
