@@ -296,6 +296,7 @@ namespace KinectShowcaseCommon.Kinect_Processing
             {
                 _lastConfirmedHandState = HandState.NotTracked;
                 _handStateCounter.Reset();
+                _scaledHandLocationFilter.Set(new Point(this.HandCoordRangeX / 2, this.HandCoordRangeY / 2));
             }
         }
 
