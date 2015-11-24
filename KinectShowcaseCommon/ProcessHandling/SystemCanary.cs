@@ -23,12 +23,16 @@ namespace KinectShowcaseCommon.ProcessHandling
     {
         private static readonly ILog log = LogManager.GetLogger(System.Reflection.MethodBase.GetCurrentMethod().DeclaringType);
 
+        private const float TIME_BETWEEN_UPDATES = 1.0f * 1000.0f; //milliseconds
+
         private static volatile SystemCanary _instance;
         private static object _syncRoot = new Object();
 
         public ISystemProgressListener ProgessListener;
 
         private IPCClient _client;
+
+        private DateTime _lastInteractionUpdateTime = DateTime.Now;
 
         public static SystemCanary Default
         {
@@ -69,8 +73,12 @@ namespace KinectShowcaseCommon.ProcessHandling
 
         public void SystemDidRecieveInteraction()
         {
-            SystemMessage interactMes = new SystemMessage(SystemMessage.MessageType.Interaction, DateTime.Now.ToString());
-            _client.SendMessage(interactMes);
+            if ((DateTime.Now - _lastInteractionUpdateTime).Milliseconds > TIME_BETWEEN_UPDATES)
+            {
+                SystemMessage interactMes = new SystemMessage(SystemMessage.MessageType.Interaction, DateTime.Now.ToString());
+                _client.SendMessage(interactMes);
+                _lastInteractionUpdateTime = DateTime.Now;
+            }
         }
 
         public void AskForKill()
