@@ -73,7 +73,7 @@ namespace KinectShowcaseCommon.ProcessHandling
 
         public void SystemDidRecieveInteraction()
         {
-            if ((DateTime.Now - _lastInteractionUpdateTime).Milliseconds > TIME_BETWEEN_UPDATES)
+            if ((DateTime.Now - _lastInteractionUpdateTime).TotalMilliseconds > TIME_BETWEEN_UPDATES)
             {
                 SystemMessage interactMes = new SystemMessage(SystemMessage.MessageType.Interaction, DateTime.Now.ToString());
                 _client.SendMessage(interactMes);

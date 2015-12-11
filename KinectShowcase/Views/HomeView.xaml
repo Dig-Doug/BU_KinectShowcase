@@ -43,6 +43,11 @@
         <!--<Image x:Name="Logo_UROP" Source="/KinectShowcase;component/Assets/Logos/logo_urop.png" HorizontalAlignment="Right" VerticalAlignment="Top" Grid.Row="2" Visibility="{Binding ControlVisibility}" />-->
 
 
+        <StackPanel  Grid.Row="2" HorizontalAlignment="Center">
+            <TextBlock Text="Move your hand around near your shoulder to move the cursor" TextAlignment="Center" Foreground="White" FontSize="32" />
+            <TextBlock Text="Select buttons by closing your hand" TextAlignment="Center" Foreground="White" FontSize="32" />
+        </StackPanel>
+
         <ui:KinectButton HorizontalAlignment="Right"  Grid.Row="2" Command="{Binding OpenAuthorView}" Height="104" Width="202" Style="{DynamicResource Button_NoHighlight}" Visibility="{Binding ControlVisibility}" Margin="0" >
             <ui:KinectButton.Background>
                 <ImageBrush ImageSource="/KinectShowcase;component/Assets/Logos/logo_urop.png"/>
