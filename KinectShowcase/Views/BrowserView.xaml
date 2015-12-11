@@ -14,7 +14,9 @@
             <RowDefinition Height="208" />
         </Grid.RowDefinitions>
 
-        <ui:KinectWebBrowser Grid.Row="0" x:Name="webBrowser"/>
+        <ui:KinectWebBrowser Grid.Row="0" x:Name="webBrowser" Panel.ZIndex="2"/>
+
+        <TextBlock Grid.Row="0" HorizontalAlignment="Center" VerticalAlignment="Center" Text="Internet down :(" Foreground="White" FontSize="32" />
 
         <StackPanel Grid.Row="1" Orientation="Horizontal" HorizontalAlignment="Center" Panel.ZIndex="2">
             <ui:KinectButton Command="{Binding OpenHomeViewCommand}" Margin="0,0,60,0" Style="{DynamicResource CircleButton}" HorizontalAlignment="Left">
