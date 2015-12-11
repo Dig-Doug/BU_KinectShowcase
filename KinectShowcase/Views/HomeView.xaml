@@ -43,7 +43,7 @@
         <!--<Image x:Name="Logo_UROP" Source="/KinectShowcase;component/Assets/Logos/logo_urop.png" HorizontalAlignment="Right" VerticalAlignment="Top" Grid.Row="2" Visibility="{Binding ControlVisibility}" />-->
 
 
-        <StackPanel  Grid.Row="2" HorizontalAlignment="Center">
+        <StackPanel  Grid.Row="2" HorizontalAlignment="Center" Visibility="{Binding ControlVisibility}">
             <TextBlock Text="Move your hand around near your shoulder to move the cursor" TextAlignment="Center" Foreground="White" FontSize="32" />
             <TextBlock Text="Select buttons by closing your hand" TextAlignment="Center" Foreground="White" FontSize="32" />
         </StackPanel>
