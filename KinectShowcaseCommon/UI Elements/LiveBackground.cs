@@ -38,12 +38,13 @@ namespace KinectShowcaseCommon.UI_Elements
         private const int BytesPerPixel = 4;
         private static readonly uint[] BodyColor =
         {
-            0x0000FF00,
-            0x00FF0000,
-            0xFFFF4000,
-            0x40FFFF00,
-            0xFF40FF00,
-            0xFF808000,
+            //rgba
+            0x99000000,
+            0x00990000,
+            0x99994000,
+            0x40998000,
+            0x99408000,
+            0x99808000,
         };
         private uint[] bodyIndexPixels = null;
         private const float InfraredSourceValueMaximum = (float)ushort.MaxValue;

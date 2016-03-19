@@ -230,8 +230,13 @@ namespace KinectShowcaseCommon.UI_Elements
 
                         this.DrawBody(joints, jointPoints, dc, drawPen);
 
-                        this.DrawHand(body.HandLeftState, jointPoints[JointType.HandLeft], dc);
-                        this.DrawHand(body.HandRightState, jointPoints[JointType.HandRight], dc);
+                        if (body != null && KinectManager.Default.CurrentlyTrackingBody != null && body.TrackingId == KinectManager.Default.CurrentlyTrackingBody.TrackingId)
+                        {
+                            if (KinectManager.Default.HandManager.TrackingLeftHand)
+                                this.DrawHand(body.HandLeftState, jointPoints[JointType.HandLeft], dc);
+                            else
+                                this.DrawHand(body.HandRightState, jointPoints[JointType.HandRight], dc);
+                        }
 
                         //draw hand rect
                         if (penIndex == 0 && this.ShouldDrawHandRect)

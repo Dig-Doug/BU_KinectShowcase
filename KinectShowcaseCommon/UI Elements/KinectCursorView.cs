@@ -205,26 +205,28 @@ namespace KinectShowcaseCommon.UI_Elements
                 this._cursorPosition.X = aLoc.X;
                 this._cursorPosition.Y = aLoc.Y;
 
+                const float marginX = 20;
+                const float marginY = 20;
                 //keeps the cursor on screen
                 bool handIsOffscreen = false;
-                if (_cursorPosition.X < 0)
+                if (_cursorPosition.X < marginX)
                 {
-                    _cursorPosition.X = 0;
+                    _cursorPosition.X = marginX;
                     handIsOffscreen = true;
                 }
-                else if (_cursorPosition.X > KinectManager.Default.HandManager.HandCoordRangeX)
+                else if (_cursorPosition.X > KinectManager.Default.HandManager.HandCoordRangeX - marginX)
                 {
-                    _cursorPosition.X = KinectManager.Default.HandManager.HandCoordRangeX;
+                    _cursorPosition.X = KinectManager.Default.HandManager.HandCoordRangeX - marginX;
                     handIsOffscreen = true;
                 }
-                if (_cursorPosition.Y < 0)
+                if (_cursorPosition.Y < marginY)
                 {
-                    _cursorPosition.Y = 0;
+                    _cursorPosition.Y = marginY;
                     handIsOffscreen = true;
                 }
-                else if (_cursorPosition.Y > KinectManager.Default.HandManager.HandCoordRangeY)
+                else if (_cursorPosition.Y > KinectManager.Default.HandManager.HandCoordRangeY - marginY)
                 {
-                    _cursorPosition.Y = KinectManager.Default.HandManager.HandCoordRangeY;
+                    _cursorPosition.Y = KinectManager.Default.HandManager.HandCoordRangeY - marginY;
                     handIsOffscreen = true;
                 }
 

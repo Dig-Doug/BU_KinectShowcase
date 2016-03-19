@@ -30,11 +30,13 @@
                     <ImageBrush ImageSource="/KinectShowcase;component/Assets/Icons/icon_gallery_rounded.png"/>
                 </ui:KinectButton.Background>
             </ui:KinectButton>
+            <!--
             <ui:KinectButton x:Name="Button_Web" Command="{Binding OpenBrowserView}" Width="{StaticResource buttonHeight}" Style="{DynamicResource Button_NoHighlight}">
                 <ui:KinectButton.Background>
                     <ImageBrush ImageSource="/KinectShowcase;component/Assets/Icons/icon_web_rounded.png"/>
                 </ui:KinectButton.Background>
             </ui:KinectButton>
+            -->
         </StackPanel>
 
         <Image x:Name="Logo_BU" Source="/KinectShowcase;component/Assets/Logos/logo_bu.png" HorizontalAlignment="Left" VerticalAlignment="Top" Grid.Row="2" Visibility="{Binding ControlVisibility}" />
@@ -43,9 +45,9 @@
         <!--<Image x:Name="Logo_UROP" Source="/KinectShowcase;component/Assets/Logos/logo_urop.png" HorizontalAlignment="Right" VerticalAlignment="Top" Grid.Row="2" Visibility="{Binding ControlVisibility}" />-->
 
 
-        <StackPanel  Grid.Row="2" HorizontalAlignment="Center" Visibility="{Binding ControlVisibility}">
-            <TextBlock Text="Move your hand around near your shoulder to move the cursor" TextAlignment="Center" Foreground="White" FontSize="32" />
-            <TextBlock Text="Select buttons by closing your hand" TextAlignment="Center" Foreground="White" FontSize="32" />
+        <StackPanel  Grid.RowSpan="2" Grid.Row="1" HorizontalAlignment="Center"  VerticalAlignment="Bottom" Visibility="{Binding ControlVisibility}">
+            <TextBlock Text="Move your hand around near your shoulder to move the cursor" TextAlignment="Center" Foreground="Red" FontSize="48" />
+            <TextBlock Text="Select buttons by closing your hand" TextAlignment="Center" Foreground="Red" FontSize="48" />
         </StackPanel>
 
         <ui:KinectButton HorizontalAlignment="Right"  Grid.Row="2" Command="{Binding OpenAuthorView}" Height="104" Width="202" Style="{DynamicResource Button_NoHighlight}" Visibility="{Binding ControlVisibility}" Margin="0" >

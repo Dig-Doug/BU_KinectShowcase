@@ -17,12 +17,11 @@
         </Grid.RowDefinitions>
 
         <StackPanel Orientation="Vertical" HorizontalAlignment="Center">
-            <TextBlock Text="Games" Foreground="White" HorizontalAlignment="Center" FontSize="104" />
+            <TextBlock Text="Games by EK131/EK132 Freshmen (2014)" Foreground="White" HorizontalAlignment="Center" FontSize="90" />
             <TextBlock Name="PageCountPlaceholder" Text="{Binding CurrentPageText}" Foreground="White" HorizontalAlignment="Center" FontSize="32" />
         </StackPanel>
 
         <StackPanel Grid.Row="2" Orientation="Vertical" HorizontalAlignment="Center" VerticalAlignment="Center">
-            <TextBlock Text="Games created by Freshman in EK131 in Fall 2014" Foreground="White" HorizontalAlignment="Center" FontSize="20" />
             <ui:KinectButton Command="{Binding OpenHomeViewCommand}" Margin="50,0,50,0" Style="{DynamicResource CircleButton}">
                 <ui:KinectButton.Background>
                     <ImageBrush ImageSource="/KinectShowcase;component/Assets/Buttons/button_return.png"/>
