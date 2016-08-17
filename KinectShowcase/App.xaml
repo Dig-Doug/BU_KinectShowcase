@@ -1,66 +1,54 @@
-﻿<Application x:Class="KinectShowcase.App" xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation" xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml" StartupUri="MainWindow.xaml" xmlns:d="http://schemas.microsoft.com/expression/blend/2008" d1p1:Ignorable="d" xmlns:d1p1="http://schemas.openxmlformats.org/markup-compatibility/2006">
+<Application x:Class="KinectShowcase.App" xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation" xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml" StartupUri="MainWindow.xaml" xmlns:d="http://schemas.microsoft.com/expression/blend/2008" d1p1:Ignorable="d" xmlns:d1p1="http://schemas.openxmlformats.org/markup-compatibility/2006">
   <Application.Resources>
     <ResourceDictionary>
       <vm:ViewModelLocator x:Key="Locator" d:IsDataSource="True" xmlns:vm="clr-namespace:KinectShowcase.ViewModel" />
-
-
-            <Style x:Key="Button_NoHighlight" TargetType="{x:Type Button}">
-                <Setter Property="OverridesDefaultStyle" Value="True" />
-                <Setter Property="Margin" Value="5" />
-                <Setter Property="Foreground" Value="{x:Null}" />
-                <Setter Property="BorderBrush" Value="{x:Null}" />
-                <Setter Property="Template">
-                    <Setter.Value>
-                        <ControlTemplate TargetType="{x:Type Button}">
-                            <Grid Background="{TemplateBinding Background}">
-                                <ContentPresenter HorizontalAlignment="Center" VerticalAlignment="Center" />
-                            </Grid>
-                            <ControlTemplate.Triggers>
-                                <Trigger Property="IsMouseOver" Value="True" />
-                            </ControlTemplate.Triggers>
-                        </ControlTemplate>
-                    </Setter.Value>
-                </Setter>
-            </Style>
-        
-        
-        
-            <Style x:Key="CircleButton" TargetType="{x:Type Button}">
-                <Setter Property="OverridesDefaultStyle" Value="True" />
-                <Setter Property="Margin" Value="5" />
-                <Setter Property="Width" Value="180" />
-                <Setter Property="Height" Value="180" />
-                <Setter Property="Foreground" Value="{x:Null}" />
-                <Setter Property="BorderBrush" Value="{x:Null}" />
-                <Setter Property="Template">
-                    <Setter.Value>
-                        <ControlTemplate TargetType="{x:Type Button}">
-                            <Grid Name="rootGrid" Background="{TemplateBinding Background}">
-                                <ContentPresenter HorizontalAlignment="Center" VerticalAlignment="Center" />
-                                <Ellipse x:Name="r1" Fill="White" Width="{TemplateBinding ActualWidth}" Height="{TemplateBinding ActualHeight}" Opacity="0.0" />
-                            </Grid>
-                            <ControlTemplate.Triggers>
-                                <Trigger Property="IsMouseOver" Value="True">
-                                    <Setter TargetName="r1" Property="Opacity" Value="0.15" />
-                                </Trigger>
-                                <Trigger Property="IsEnabled" Value="True">
-                                    <Setter TargetName="rootGrid" Property="Opacity" Value="1.0" />
-                                </Trigger>
-                                <Trigger Property="IsEnabled" Value="False">
-                                    <Setter TargetName="rootGrid" Property="Opacity" Value="0.0" />
-                                </Trigger>
-                            </ControlTemplate.Triggers>
-                        </ControlTemplate>
-                    </Setter.Value>
-                </Setter>
-            </Style>
-
-
-        </ResourceDictionary>
-      
-      
-      
-      
-      
+      <Style x:Key="Button_NoHighlight" TargetType="{x:Type Button}">
+        <Setter Property="OverridesDefaultStyle" Value="True" />
+        <Setter Property="Margin" Value="5" />
+        <Setter Property="Foreground" Value="{x:Null}" />
+        <Setter Property="BorderBrush" Value="{x:Null}" />
+        <Setter Property="Template">
+          <Setter.Value>
+            <ControlTemplate TargetType="{x:Type Button}">
+              <Grid Background="{TemplateBinding Background}">
+                <ContentPresenter HorizontalAlignment="Center" VerticalAlignment="Center" />
+              </Grid>
+              <ControlTemplate.Triggers>
+                <Trigger Property="IsMouseOver" Value="True" />
+              </ControlTemplate.Triggers>
+            </ControlTemplate>
+          </Setter.Value>
+        </Setter>
+      </Style>
+      <Style x:Key="CircleButton" TargetType="{x:Type Button}">
+        <Setter Property="OverridesDefaultStyle" Value="True" />
+        <Setter Property="Margin" Value="5" />
+        <Setter Property="Width" Value="180" />
+        <Setter Property="Height" Value="180" />
+        <Setter Property="Foreground" Value="{x:Null}" />
+        <Setter Property="BorderBrush" Value="{x:Null}" />
+        <Setter Property="Template">
+          <Setter.Value>
+            <ControlTemplate TargetType="{x:Type Button}">
+              <Grid Name="rootGrid" Background="{TemplateBinding Background}">
+                <ContentPresenter HorizontalAlignment="Center" VerticalAlignment="Center" />
+                <Ellipse x:Name="r1" Fill="White" Width="{TemplateBinding ActualWidth}" Height="{TemplateBinding ActualHeight}" Opacity="0.0" />
+              </Grid>
+              <ControlTemplate.Triggers>
+                <Trigger Property="IsMouseOver" Value="True">
+                  <Setter TargetName="r1" Property="Opacity" Value="0.15" />
+                </Trigger>
+                <Trigger Property="IsEnabled" Value="True">
+                  <Setter TargetName="rootGrid" Property="Opacity" Value="1.0" />
+                </Trigger>
+                <Trigger Property="IsEnabled" Value="False">
+                  <Setter TargetName="rootGrid" Property="Opacity" Value="0.0" />
+                </Trigger>
+              </ControlTemplate.Triggers>
+            </ControlTemplate>
+          </Setter.Value>
+        </Setter>
+      </Style>
+    </ResourceDictionary>
   </Application.Resources>
 </Application>

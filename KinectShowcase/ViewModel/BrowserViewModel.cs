@@ -188,6 +188,21 @@ namespace KinectShowcase.ViewModel
         {
         }
 
+        public bool OnResourceResponse(IWebBrowser browserControl, IBrowser browser, IFrame frame, IRequest request, IResponse response)
+        {
+            return true;
+        }
+
+        public void OnResourceLoadComplete(IWebBrowser browserControl, IBrowser browser, IFrame frame, IRequest request, IResponse response, UrlRequestStatus status, long receivedContentLength)
+        {
+            
+        }
+
+        public IResponseFilter GetResourceResponseFilter(IWebBrowser browserControl, IBrowser browser, IFrame frame, IRequest request, IResponse response)
+        {
+            throw new NotImplementedException();
+        }
+
         #endregion
     }
 }
