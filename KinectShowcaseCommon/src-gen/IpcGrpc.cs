@@ -139,7 +139,7 @@ namespace Ipc {
     /// <summary>Creates service definition that can be registered with a server</summary>
     public static ServerServiceDefinition BindService(SlaveBase serviceImpl)
     {
-      return ServerServiceDefinition.CreateBuilder()
+            return ServerServiceDefinition.CreateBuilder().Build();
     }
 
   }

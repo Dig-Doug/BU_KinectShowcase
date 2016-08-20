@@ -5,15 +5,24 @@ using System;
 using System.Diagnostics;
 using System.Threading;
 using System.Windows;
+using Grpc.Core;
+using Ipc;
+using System.Threading.Tasks;
+
+/**
+ * Regenerate protos with: ..\..\..\..\packages\Grpc.Tools.0.15.0\tools\windows_x86\protoc.exe -I../../../proto --csharp_out=../../../src-gen --grpc_out ../../../src-gen  ../../../proto/ipc.proto --plugin=protoc-gen-grpc=..\..\..\..\packages\Grpc.Tools.0.15.0\tools\windows_x86\grpc_csharp_plugin.exe
+ */
 
 namespace KinectShowcaseCommon.ProcessHandling
 {
-    public sealed class SystemWatchdog : ISystemInteractionListener, IPCHandler.MessageReceiver
+    public sealed class SystemWatchdog : Ipc.Master.MasterBase, ISystemInteractionListener
     {
         private static readonly ILog log = LogManager.GetLogger(System.Reflection.MethodBase.GetCurrentMethod().DeclaringType);
 
         //max timeout for child processes, if interaction time get larger than this, the child is killed
         private const float INTERACTION_TIME_THRESHOLD = 0.25f * 60.0f;
+        public const int MASTER_PORT = 22000;
+        public const int SLAVE_PORT = 22001;
 
         //singleton stuffs
         private static volatile SystemWatchdog _instance;
@@ -32,8 +41,9 @@ namespace KinectShowcaseCommon.ProcessHandling
         //threads for watching and talking with processes
         private Thread _watchThread, _generalThread;
 
-        private IPCServer _server;
         private volatile bool _shouldStop = false;
+
+        private Server _grpcServer;
 
         //singleton watchdog
         public static SystemWatchdog Default
@@ -53,22 +63,41 @@ namespace KinectShowcaseCommon.ProcessHandling
             }
         }
 
+        public override Task<KeepAliveResponse> KeepAlive(KeepAliveRequest request, ServerCallContext context)
+        {
+            log.Debug("Keep alive called!");
+
+            // Store interaction time
+            this._lastInteractionTime = DateTime.Now;
+
+            KeepAliveResponse response = new KeepAliveResponse
+            {
+                
+            };
+            return Task.FromResult(response);
+        }
+
         private SystemWatchdog()
         {
-            _server = new IPCServer();
-            _server.Receiver = this;
-            _server.Start();
-
             //start the general managing thread
             _generalThread = new Thread(new ThreadStart(ProgramManagement_Main));
             _generalThread.Start();
+
+            // Start the gRPC server so slaves can connect
+            _grpcServer = new Server
+            {
+                Services = { Ipc.Master.BindService(this) },
+                Ports = { new ServerPort("localhost", MASTER_PORT, ServerCredentials.Insecure) }
+            };
+            _grpcServer.Start();
         }
 
         public void OnExit()
         {
             _shouldStop = true;
 
-            _server.Close();
+            // Shutdown the gRPC server
+            _grpcServer.ShutdownAsync().Wait();
 
             if (this._generalThread != null)
             {
@@ -147,7 +176,7 @@ namespace KinectShowcaseCommon.ProcessHandling
             _childProcess.StartInfo.FileName = aExecutablePath;
             _childProcess.StartInfo.UseShellExecute = false;
 
-            _childProcess.StartInfo.Arguments = _server.GetOutServerClientHandle() + " " + _server.GetInServerClientHandle();
+            _childProcess.StartInfo.Arguments = "--master_port " + MASTER_PORT + " --slave_port " + SLAVE_PORT;
             _childProcess.Start();
 
             //create a thread to watch the child process
@@ -162,9 +191,6 @@ namespace KinectShowcaseCommon.ProcessHandling
 
         private void WatchProcess()
         {
-            //wait until the server has connected to a client
-            while (!_server.IsConnected()) ;
-
             bool shouldQuit = false;
             while (!_shouldStop && !shouldQuit)
             {
@@ -198,6 +224,7 @@ namespace KinectShowcaseCommon.ProcessHandling
             this._lastInteractionTime = DateTime.Now;
         }
 
+        /*
         public void ReceivedMessage(SystemMessage aMessage)
         {
             switch (aMessage.Type)
@@ -297,6 +324,7 @@ namespace KinectShowcaseCommon.ProcessHandling
                     }
             }
         }
+        */
 
         #endregion
     }

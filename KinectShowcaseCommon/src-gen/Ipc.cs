@@ -23,15 +23,15 @@ namespace Ipc {
     static IpcReflection() {
       byte[] descriptorData = global::System.Convert.FromBase64String(
           string.Concat(
-            "CglpcGMucHJvdG8SA2lwYyIgChBLZWVwQWxpdmVSZXF1ZXN0EgwKBHRlc3QY",
-            "ASABKAkiIQoRS2VlcEFsaXZlUmVzcG9uc2USDAoEdGVzdBgBIAEoCTJGCgZN",
-            "YXN0ZXISPAoJS2VlcEFsaXZlEhUuaXBjLktlZXBBbGl2ZVJlcXVlc3QaFi5p",
-            "cGMuS2VlcEFsaXZlUmVzcG9uc2UiADIHCgVTbGF2ZWIGcHJvdG8z"));
+            "CglpcGMucHJvdG8SA2lwYyIgChBLZWVwQWxpdmVSZXF1ZXN0EgwKBHRpbWUY",
+            "ASABKAIiEwoRS2VlcEFsaXZlUmVzcG9uc2UyRgoGTWFzdGVyEjwKCUtlZXBB",
+            "bGl2ZRIVLmlwYy5LZWVwQWxpdmVSZXF1ZXN0GhYuaXBjLktlZXBBbGl2ZVJl",
+            "c3BvbnNlIgAyBwoFU2xhdmViBnByb3RvMw=="));
       descriptor = pbr::FileDescriptor.FromGeneratedCode(descriptorData,
           new pbr::FileDescriptor[] { },
           new pbr::GeneratedClrTypeInfo(null, new pbr::GeneratedClrTypeInfo[] {
-            new pbr::GeneratedClrTypeInfo(typeof(global::Ipc.KeepAliveRequest), global::Ipc.KeepAliveRequest.Parser, new[]{ "Test" }, null, null, null),
-            new pbr::GeneratedClrTypeInfo(typeof(global::Ipc.KeepAliveResponse), global::Ipc.KeepAliveResponse.Parser, new[]{ "Test" }, null, null, null)
+            new pbr::GeneratedClrTypeInfo(typeof(global::Ipc.KeepAliveRequest), global::Ipc.KeepAliveRequest.Parser, new[]{ "Time" }, null, null, null),
+            new pbr::GeneratedClrTypeInfo(typeof(global::Ipc.KeepAliveResponse), global::Ipc.KeepAliveResponse.Parser, null, null, null, null)
           }));
     }
     #endregion
@@ -58,20 +58,20 @@ namespace Ipc {
     partial void OnConstruction();
 
     public KeepAliveRequest(KeepAliveRequest other) : this() {
-      test_ = other.test_;
+      time_ = other.time_;
     }
 
     public KeepAliveRequest Clone() {
       return new KeepAliveRequest(this);
     }
 
-    /// <summary>Field number for the "test" field.</summary>
-    public const int TestFieldNumber = 1;
-    private string test_ = "";
-    public string Test {
-      get { return test_; }
+    /// <summary>Field number for the "time" field.</summary>
+    public const int TimeFieldNumber = 1;
+    private float time_;
+    public float Time {
+      get { return time_; }
       set {
-        test_ = pb::ProtoPreconditions.CheckNotNull(value, "value");
+        time_ = value;
       }
     }
 
@@ -86,13 +86,13 @@ namespace Ipc {
       if (ReferenceEquals(other, this)) {
         return true;
       }
-      if (Test != other.Test) return false;
+      if (Time != other.Time) return false;
       return true;
     }
 
     public override int GetHashCode() {
       int hash = 1;
-      if (Test.Length != 0) hash ^= Test.GetHashCode();
+      if (Time != 0F) hash ^= Time.GetHashCode();
       return hash;
     }
 
@@ -101,16 +101,16 @@ namespace Ipc {
     }
 
     public void WriteTo(pb::CodedOutputStream output) {
-      if (Test.Length != 0) {
-        output.WriteRawTag(10);
-        output.WriteString(Test);
+      if (Time != 0F) {
+        output.WriteRawTag(13);
+        output.WriteFloat(Time);
       }
     }
 
     public int CalculateSize() {
       int size = 0;
-      if (Test.Length != 0) {
-        size += 1 + pb::CodedOutputStream.ComputeStringSize(Test);
+      if (Time != 0F) {
+        size += 1 + 4;
       }
       return size;
     }
@@ -119,8 +119,8 @@ namespace Ipc {
       if (other == null) {
         return;
       }
-      if (other.Test.Length != 0) {
-        Test = other.Test;
+      if (other.Time != 0F) {
+        Time = other.Time;
       }
     }
 
@@ -131,8 +131,8 @@ namespace Ipc {
           default:
             input.SkipLastField();
             break;
-          case 10: {
-            Test = input.ReadString();
+          case 13: {
+            Time = input.ReadFloat();
             break;
           }
         }
@@ -161,21 +161,10 @@ namespace Ipc {
     partial void OnConstruction();
 
     public KeepAliveResponse(KeepAliveResponse other) : this() {
-      test_ = other.test_;
     }
 
     public KeepAliveResponse Clone() {
       return new KeepAliveResponse(this);
-    }
-
-    /// <summary>Field number for the "test" field.</summary>
-    public const int TestFieldNumber = 1;
-    private string test_ = "";
-    public string Test {
-      get { return test_; }
-      set {
-        test_ = pb::ProtoPreconditions.CheckNotNull(value, "value");
-      }
     }
 
     public override bool Equals(object other) {
@@ -189,13 +178,11 @@ namespace Ipc {
       if (ReferenceEquals(other, this)) {
         return true;
       }
-      if (Test != other.Test) return false;
       return true;
     }
 
     public override int GetHashCode() {
       int hash = 1;
-      if (Test.Length != 0) hash ^= Test.GetHashCode();
       return hash;
     }
 
@@ -204,26 +191,16 @@ namespace Ipc {
     }
 
     public void WriteTo(pb::CodedOutputStream output) {
-      if (Test.Length != 0) {
-        output.WriteRawTag(10);
-        output.WriteString(Test);
-      }
     }
 
     public int CalculateSize() {
       int size = 0;
-      if (Test.Length != 0) {
-        size += 1 + pb::CodedOutputStream.ComputeStringSize(Test);
-      }
       return size;
     }
 
     public void MergeFrom(KeepAliveResponse other) {
       if (other == null) {
         return;
-      }
-      if (other.Test.Length != 0) {
-        Test = other.Test;
       }
     }
 
@@ -234,10 +211,6 @@ namespace Ipc {
           default:
             input.SkipLastField();
             break;
-          case 10: {
-            Test = input.ReadString();
-            break;
-          }
         }
       }
     }

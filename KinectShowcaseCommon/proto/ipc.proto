@@ -11,9 +11,9 @@ service Slave {
 }
 
 message KeepAliveRequest {
-	string test = 1;
+	float time = 1;
 }
 
 message KeepAliveResponse {
-	string test = 1;
+	
 }
