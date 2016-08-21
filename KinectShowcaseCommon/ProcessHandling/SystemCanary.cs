@@ -14,12 +14,13 @@ using System.Windows;
 using KinectShowcaseCommon.Kinect_Processing;
 using log4net;
 using Microsoft.Kinect;
+using Grpc.Core;
 
 namespace KinectShowcaseCommon.ProcessHandling
 {
-    // Canaries were brought into mineshafts to detect posionus gases
+    // Canaries were brought into mineshafts to detect posionous gases
     // This one detects when the program is done :)
-    public class SystemCanary : ISystemInteractionListener, IPCHandler.MessageReceiver
+    public class SystemCanary : Ipc.Slave.SlaveBase, ISystemInteractionListener
     {
         private static readonly ILog log = LogManager.GetLogger(System.Reflection.MethodBase.GetCurrentMethod().DeclaringType);
 
@@ -30,9 +31,11 @@ namespace KinectShowcaseCommon.ProcessHandling
 
         public ISystemProgressListener ProgessListener;
 
-        private IPCClient _client;
-
         private DateTime _lastInteractionUpdateTime = DateTime.Now;
+
+        private Server _grpcServer;
+        private Channel _grpcChannel;
+        private Ipc.Master.MasterClient _masterClient;
 
         public static SystemCanary Default
         {
@@ -53,36 +56,51 @@ namespace KinectShowcaseCommon.ProcessHandling
 
         private SystemCanary()
         {
-            _client = new IPCClient();
-            _client.Receiver = this;
         }
 
         ~SystemCanary()
         {
-            _client.Close();
+            _grpcChannel.ShutdownAsync().Wait();
         }
 
-        public void DidStartWithStreamHandles(string aInHandle, string aOutHandle)
+        public void StartGRPC(int masterPort, int slavePort)
         {
-            log.Info("Starting with handles IN: " + aInHandle + " OUT: " + aOutHandle);
-            _client.ConnectWithStreamHandles(aInHandle, aOutHandle);
-
-            SystemMessage pingMes = new SystemMessage(SystemMessage.MessageType.Ack, DateTime.Now.ToString());
-            _client.SendMessage(pingMes);
+            // Get a client for the master
+            _grpcChannel = new Channel("127.0.0.1:" + masterPort, ChannelCredentials.Insecure);
+            _masterClient = new Ipc.Master.MasterClient(_grpcChannel);
+            // Start the gRPC server for control
+            _grpcServer = new Server
+            {
+                Services = { Ipc.Slave.BindService(this) },
+                Ports = { new ServerPort("localhost", slavePort, ServerCredentials.Insecure) }
+            };
+            _grpcServer.Start();
         }
 
         public void SystemDidRecieveInteraction()
         {
             if ((DateTime.Now - _lastInteractionUpdateTime).TotalMilliseconds > TIME_BETWEEN_UPDATES)
             {
-                SystemMessage interactMes = new SystemMessage(SystemMessage.MessageType.Interaction, DateTime.Now.ToString());
-                _client.SendMessage(interactMes);
                 _lastInteractionUpdateTime = DateTime.Now;
+
+                try
+                {
+                    _masterClient.KeepAliveAsync(new Ipc.KeepAliveRequest
+                    {
+                        Time = 10 // TODO(doug) - This should be changed if the time field is used
+                    }, deadline: DateTime.UtcNow.AddMilliseconds(TIME_BETWEEN_UPDATES));
+                }
+                catch (Grpc.Core.RpcException e)
+                {
+                    // Expected when there's no master
+                    log.Warn(e.Message);
+                }
             }
         }
 
         public void AskForKill()
         {
+            /*
             log.Info("Asking for kill");
             //send state
             string handLoc = KinectManager.Default.HandManager.HandPosition.X + " " + KinectManager.Default.HandManager.HandPosition.Y;
@@ -103,8 +121,11 @@ namespace KinectShowcaseCommon.ProcessHandling
             {
                 Application.Current.Shutdown();
             }
+            */
+            Application.Current.Shutdown();
         }
 
+        /*
         public void ReceivedMessage(SystemMessage aMessage)
         {
             switch (aMessage.Type)
@@ -159,5 +180,6 @@ namespace KinectShowcaseCommon.ProcessHandling
                     }
             }
         }
+        */
     }
 }

@@ -1,25 +1,10 @@
 ﻿using System;
-using System.Collections.Generic;
 using System.ComponentModel;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 using System.Windows;
-using System.Windows.Controls;
-using System.Windows.Data;
-using System.Windows.Documents;
-using System.Windows.Input;
 using System.Windows.Media;
-using System.Windows.Media.Imaging;
-using System.Windows.Navigation;
-using System.Windows.Shapes;
-using Microsoft.Kinect;
-using Microsoft.Kinect.Input;
 using System.Diagnostics;
 using KinectShowcaseCommon.Kinect_Processing;
-using System.Runtime.InteropServices;
 using CefSharp.Wpf;
-using CefSharp;
 
 namespace KinectShowcaseCommon.UI_Elements
 {
@@ -31,7 +16,7 @@ namespace KinectShowcaseCommon.UI_Elements
         private static bool hasInitUserAgent = false;
 
         private KinectManager _kinectManager = null;
-        private Rect _kinectSpaceBounds;
+        private System.Windows.Rect _kinectSpaceBounds;
         private bool _clickBeganInside = false;
         private Point _clickBeganPoint;
         private bool _hasScrolled = false;
@@ -121,7 +106,7 @@ namespace KinectShowcaseCommon.UI_Elements
                 bottomRight.Y *= _kinectManager.HandManager.HandCoordRangeY;
 
                 //these points now define the bounds of the button in kinect space
-                this._kinectSpaceBounds = new Rect(topLeft, bottomRight);
+                this._kinectSpaceBounds = new System.Windows.Rect(topLeft, bottomRight);
             }
         }
 

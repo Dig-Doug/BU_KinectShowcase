@@ -1,4 +1,5 @@
-﻿using KinectShowcaseCommon.Kinect_Processing;
+﻿using CommandLine;
+using KinectShowcaseCommon.Kinect_Processing;
 using KinectShowcaseCommon.ProcessHandling;
 using KinectShowcaseGameTemplate.ViewModel;
 using log4net;
@@ -19,6 +20,16 @@ namespace KinectShowcaseGameTemplate
     /// </summary>
     public partial class App : Application
     {
+        class Options
+        {
+            [Option("master_port", DefaultValue = SystemWatchdog.MASTER_PORT, HelpText = "Port master is listening on")]
+            public int MasterPort { get; set; }
+            [Option("slave_port", DefaultValue = SystemWatchdog.SLAVE_PORT, HelpText = "Port slave should listen on")]
+            public int SlavePort { get; set; }
+        }
+
+
+
         private static readonly ILog log = LogManager.GetLogger(System.Reflection.MethodBase.GetCurrentMethod().DeclaringType);
 
         public App()
@@ -34,9 +45,14 @@ namespace KinectShowcaseGameTemplate
         void App_Startup(object sender, StartupEventArgs e)
         {
             log.Debug("starting...");
-            if (e.Args.Length > 1)
+            var options = new Options();
+            if (CommandLine.Parser.Default.ParseArguments(e.Args, options))
             {
-                SystemCanary.Default.DidStartWithStreamHandles(e.Args[0], e.Args[1]);
+                SystemCanary.Default.StartGRPC(options.MasterPort, options.SlavePort);
+            }
+            else
+            {
+                // TODO(doug) - Print usage
             }
         }
 

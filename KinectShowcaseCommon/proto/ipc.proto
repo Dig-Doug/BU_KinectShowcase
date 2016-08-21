@@ -1,0 +1,19 @@
+﻿syntax = "proto3";
+
+package ipc;
+
+service Master {
+	rpc KeepAlive(KeepAliveRequest) returns (KeepAliveResponse) {}
+}
+
+service Slave {
+	
+}
+
+message KeepAliveRequest {
+	float time = 1;
+}
+
+message KeepAliveResponse {
+	
+}
