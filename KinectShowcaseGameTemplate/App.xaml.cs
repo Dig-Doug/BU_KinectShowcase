@@ -37,8 +37,9 @@ namespace KinectShowcaseGameTemplate
         {
             log4net.Config.XmlConfigurator.Configure();
 
+            // TODO(doug) - Read config from file
             //init the kinect manager
-            KinectManager.Config config = KinectManagerConfigReader.GetConfig();
+            KinectManager.Config config = new KinectManager.Config();
             KinectManager.Default.Init(SystemCanary.Default, config);
         }
 
