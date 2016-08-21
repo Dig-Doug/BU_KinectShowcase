@@ -87,7 +87,7 @@ namespace KinectShowcase.ViewModel
             _isInteracting = true;
             RaisePropertyChanged("ControlVisibility");
 
-            System.Diagnostics.Process.Start(@"C:\KinectShowcase\scripts\toggle_numlock.vbs");
+            //System.Diagnostics.Process.Start(@"C:\KinectShowcase\scripts\toggle_numlock.vbs");
         }
 
         public void KinectManagerDidFinishTracking(KinectManager aManager)

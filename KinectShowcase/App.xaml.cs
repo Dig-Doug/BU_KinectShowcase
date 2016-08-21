@@ -4,6 +4,7 @@ using KinectShowcase.ViewModel;
 using KinectShowcaseCommon.Kinect_Processing;
 using KinectShowcaseCommon.ProcessHandling;
 using log4net;
+using Newtonsoft.Json;
 using System;
 using System.Collections.Generic;
 using System.Configuration;
@@ -23,43 +24,29 @@ namespace KinectShowcase
     {
         private static readonly ILog log = LogManager.GetLogger(System.Reflection.MethodBase.GetCurrentMethod().DeclaringType);
 
-        private const string CONFIG_FILE = "showcase_config.txt";
-        private const string CONFIG_SKIP = "#";
-        private const string CONFIG_GAMES_PATH = "game=";
-        private const string CONFIG_PICS_PATH = "pics=";
-        private const string CONFIG_FOLDER_ICON = "fldi=";
+        private const string DATA_DIR_NAME = "KinectShowcase";
+        private const string CONFIG_FILE = "config.json";
+        private const string DEFAULT_CONFIG_FILE = "default_config.json";
 
-        private string _gameDirectory;
-        private string _pictureDirectory;
-        private string _folderIconPath;
+        private string dataDir;
+        private KinectShowcaseConfig config;
 
         public App()
             : base()
         {
             log4net.Config.XmlConfigurator.Configure();
 
-            this.GetConfig();
+            this.InitConfig();
 
             log.Info("Getting kinect manager config");
 
-            KinectManager.Config config = KinectManagerConfigReader.GetConfig();
-
             log.Info("Initializing kinect");
             //init the kinect manager
-            KinectManager.Default.Init(SystemWatchdog.Default, config);
+            KinectManager.Default.Init(SystemWatchdog.Default, config.KinectManagerConfig);
 
-            if (_gameDirectory != null && Directory.Exists(_gameDirectory))
-            {
-                log.Info("Games dir: " + _gameDirectory);
-                GamesDatabase.Default.GamesRootFolder = this._gameDirectory;   
-            }
-            if (_pictureDirectory != null && Directory.Exists(_pictureDirectory))
-            {
-                log.Info("Folder icon: " + _folderIconPath);
-                log.Info("Gallery folder: " + _pictureDirectory);
-                GalleryItemManager.Default.FolderIconPath = _folderIconPath;
-                GalleryItemManager.Default.RootFolder = _pictureDirectory;
-            }
+            GamesDatabase.Default.GamesRootFolder = this.dataDir + System.IO.Path.DirectorySeparatorChar + this.config.GamesDir;
+            GalleryItemManager.Default.FolderIconPath = "pack://application:,,,/KinectShowcase;component/Assets/Buttons/folder_icon.png";
+            GalleryItemManager.Default.RootFolder = this.dataDir + System.IO.Path.DirectorySeparatorChar + this.config.GalleryDir;
         }
 
         protected override void OnStartup(StartupEventArgs e)
@@ -76,79 +63,45 @@ namespace KinectShowcase
             SystemWatchdog.Default.OnExit();
         }
 
-        private void GetConfig()
+        private void InitConfig()
         {
-            try
+            // Get the root data directory path
+            string path = Directory.GetParent(Environment.GetFolderPath(Environment.SpecialFolder.ApplicationData)).FullName;
+            if (Environment.OSVersion.Version.Major >= 6)
             {
-                /*
-                string fullName = System.Reflection.Assembly.GetExecutingAssembly().Location;
-                string exeName = System.Reflection.Assembly.GetExecutingAssembly().Location;
-                int index = 0;
-                while (exeName.IndexOf("\\") != -1)
+                path = Directory.GetParent(path).ToString();
+            }
+
+            // Create the data dir if it doesn't exist
+            this.dataDir = path + System.IO.Path.DirectorySeparatorChar + DATA_DIR_NAME;
+            Directory.CreateDirectory(this.dataDir);
+
+            // Init with default config
+            this.config = new KinectShowcaseConfig();
+
+            // Write a default config file for reference
+            string defConfigFilePath = this.dataDir + System.IO.Path.DirectorySeparatorChar + DEFAULT_CONFIG_FILE;
+            File.WriteAllText(defConfigFilePath, JsonConvert.SerializeObject(this.config, Formatting.Indented));
+
+            // Check if the config file exists
+            string configFilePath = this.dataDir + System.IO.Path.DirectorySeparatorChar + CONFIG_FILE;
+            if (File.Exists(configFilePath))
+            {
+                try
                 {
-                    index = exeName.IndexOf("\\");
-                    exeName = exeName.Substring(index + 1);
+                    // Read and parse the config file
+                    string configData = File.ReadAllText(configFilePath);
+                    this.config = JsonConvert.DeserializeObject<KinectShowcaseConfig>(configData);
                 }
-                string configPath = fullName.Substring(0, fullName.IndexOf(exeName)) + CONFIG_FILE;
-                */
-                string manifestPath = "C:\\KinectShowcase\\showcase_config.txt";
-                if (File.Exists(manifestPath))
+                catch (JsonException e)
                 {
-                    using (StreamReader manifestStream = new StreamReader(manifestPath))
-                    {
-                        int lineCount = 0;
-                        while (!manifestStream.EndOfStream)
-                        {
-                            lineCount++;
-
-                            string line = manifestStream.ReadLine();
-
-                            //check if this line is a comment
-                            if (!line.Substring(0, 1).Equals(CONFIG_SKIP))
-                            {
-                                if (line.Length > 5)
-                                {
-                                    //get the line prefix
-                                    string prefix = line.Substring(0, 5);
-                                    //get the data after it
-                                    string data = line.Substring(5, line.Length - 5);
-
-                                    //process the prefix & data
-                                    if (prefix.Equals(CONFIG_GAMES_PATH))
-                                    {
-                                        this._gameDirectory = data;
-                                    }
-                                    else if (prefix.Equals(CONFIG_PICS_PATH))
-                                    {
-                                        _pictureDirectory = data;
-                                    }
-                                    else if (prefix.Equals(CONFIG_FOLDER_ICON))
-                                    {
-                                        _folderIconPath = data;
-                                    }
-                                    else
-                                    {
-                                        //unknown tag
-                                        Debug.WriteLine("App - WARN - Line " + lineCount + "had an unknown prefix");
-                                    }
-                                }
-                                else
-                                {
-                                    //line wasn't long enough to be valid
-                                    Debug.WriteLine("App - WARN - Line " + lineCount + "was too short be valid");
-                                }
-                            }
-                        }
-
-                        manifestStream.Close();
-                    }
+                    // TODO(doug) - Write error to log
                 }
             }
-            catch (IOException e)
-            {
-                //error
-                Debug.WriteLine("App - EXCEPTION - Exception Message: " + e.Message);
-            }
+
+            // Create directories if they don't exist
+            Directory.CreateDirectory(this.dataDir + System.IO.Path.DirectorySeparatorChar + this.config.GamesDir);
+            Directory.CreateDirectory(this.dataDir + System.IO.Path.DirectorySeparatorChar + this.config.GalleryDir);
         }
     }
 }

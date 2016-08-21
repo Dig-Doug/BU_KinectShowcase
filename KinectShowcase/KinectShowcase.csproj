@@ -83,6 +83,10 @@
       <HintPath>..\packages\CommonServiceLocator.1.3\lib\portable-net4+sl5+netcore45+wpa81+wp8\Microsoft.Practices.ServiceLocation.dll</HintPath>
       <Private>True</Private>
     </Reference>
+    <Reference Include="Newtonsoft.Json, Version=9.0.0.0, Culture=neutral, PublicKeyToken=30ad4fe6b2a6aeed, processorArchitecture=MSIL">
+      <HintPath>..\packages\Newtonsoft.Json.9.0.1\lib\net45\Newtonsoft.Json.dll</HintPath>
+      <Private>True</Private>
+    </Reference>
     <Reference Include="System" />
     <Reference Include="System.Data" />
     <Reference Include="System.Drawing" />
@@ -111,6 +115,8 @@
       <Generator>MSBuild:Compile</Generator>
       <SubType>Designer</SubType>
     </ApplicationDefinition>
+    <Compile Include="ConfigManager.cs" />
+    <Compile Include="KinectShowcaseConfig.cs" />
     <Compile Include="Models\Gallery\GalleryItem.cs" />
     <Compile Include="Models\Gallery\GalleryItemManager.cs" />
     <Compile Include="Models\Games\GameDataModel.cs" />
@@ -248,6 +254,9 @@
   </ItemGroup>
   <ItemGroup>
     <Resource Include="Assets\Buttons\button_return.png" />
+  </ItemGroup>
+  <ItemGroup>
+    <Resource Include="Assets\Buttons\folder_icon.png" />
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
   <Import Project="..\packages\cef.redist.x86.3.2357.1287\build\cef.redist.x86.targets" Condition="Exists('..\packages\cef.redist.x86.3.2357.1287\build\cef.redist.x86.targets')" />
