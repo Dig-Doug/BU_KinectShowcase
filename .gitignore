@@ -180,6 +180,10 @@ UpgradeLog*.htm
 *.bim.layout
 *.bim_*.settings
 
+
+.vs
+
+
 # Microsoft Fakes
 FakesAssemblies/
 
