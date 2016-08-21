@@ -60,7 +60,7 @@ namespace KinectShowcaseCommon.ProcessHandling
 
         ~SystemCanary()
         {
-            _grpcChannel.ShutdownAsync().Wait();
+            _grpcChannel.ShutdownAsync();
         }
 
         public void StartGRPC(int masterPort, int slavePort)

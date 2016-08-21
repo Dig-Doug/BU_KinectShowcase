@@ -1,0 +1,62 @@
+﻿<Window x:Class="KinectLogin.MainWindow"
+xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+xmlns:k="http://schemas.microsoft.com/kinect/2014"
+        xmlns:local="clr-namespace:KinectShowcaseCommon.UI_Elements;assembly=KinectShowcaseCommon"
+Title="MainWindow" Height="900" Width="1440" KeyDown="Window_KeyDown"
+    ResizeMode="NoResize" WindowState="Maximized" WindowStyle="None">
+
+    <Grid>
+        <local:KinectCursorView x:Name="cursorView" Panel.ZIndex="1"/>
+        <Viewbox Stretch="Uniform">
+            <Grid>
+
+                <k:KinectUserViewer VerticalAlignment="Top" HorizontalAlignment="Center" k:KinectRegion.KinectRegion="{Binding ElementName=kinectRegion}" Height="100" UserColoringMode="Manual" Margin="725,-10,725,0" />
+                <k:KinectRegion x:Name="kinectRegion" Background="White" Margin="0,-10,0,9.8" >
+                    <Grid x:Name="kinectRegionGrid">
+                        <local:KinectButton x:Name="Load" Content="Load Data" HorizontalAlignment="Left" Margin="40,637,0,0" VerticalAlignment="Top" Width="122" FontSize="24" Click="Load_Click" Height="53"/>
+
+                        <local:KinectButton x:Name="HomeButton" Click="ButtonPressedEvent"  Background="{x:Null}"  Foreground="#FF1B0808" VerticalAlignment="Top" Margin="40,28,0,0" HorizontalAlignment="Left" Height="242" Width="669" RenderTransformOrigin="0.507,0.329">
+                            <Image Source ="/Images/titlebar.gif"/>
+                        </local:KinectButton>
+                        <local:KinectButton x:Name="EnrollButton" Content="Enroll: Add Me" VerticalAlignment="Top" Margin="26,305,0,0" HorizontalAlignment="Left" Height="150" Width="534" Click="ButtonPressedEvent" Foreground="White" Background="#FF991515" FontSize="64"/>
+                        <local:KinectButton x:Name="LoginGuessButton" Content="Login: Recognize Me" VerticalAlignment="Top" HorizontalAlignment="Left" Height="150" Width="534" Click="ButtonPressedEvent" Foreground="White" Background="#FF991515" Margin="502,465,0,0" FontSize="50"/>
+                        <local:KinectButton x:Name="LoginIAmButton" Content="Login: Verify I am &lt;X&gt;" VerticalAlignment="Top" Margin="997,637,0,0" HorizontalAlignment="Left" Height="150" Width="534" Click="ButtonPressedEvent" Foreground="White" Background="#FF991515" FontSize="50">
+
+                        </local:KinectButton>
+                        <local:KinectButton x:Name="UserSlot1" Content="User1" Click="ButtonPressedEvent" VerticalAlignment="Top" Margin="171,340,0,0" HorizontalAlignment="Left" Height="275" Width="278" Foreground="White" Background="#FFA21919" FontSize="40" />
+                        <local:KinectButton x:Name="UserSlot2" Content="User2" VerticalAlignment="Top" Margin="494,340,0,0" HorizontalAlignment="Left" Height="275" Width="278" Click="ButtonPressedEvent" Foreground="White" Background="#FFB61414" FontSize="40" >
+                        </local:KinectButton>
+                        <local:KinectButton x:Name="UserSlot3" Content="User3" VerticalAlignment="Top" Margin="810,340,0,0" HorizontalAlignment="Left" Height="275" Width="278" Click="ButtonPressedEvent" Foreground="White" Background="#FFB91010" FontSize="40" >
+                        </local:KinectButton>
+                        <local:KinectButton x:Name="UserSlot4" Content="User4" VerticalAlignment="Top" Margin="1134,340,0,0" HorizontalAlignment="Left" Height="275" Width="277" Click="ButtonPressedEvent" Foreground="White" Background="#FFB21212" FontSize="40" >
+                        </local:KinectButton>
+                        <ProgressBar x:Name="RecordingProgress" Minimum="0" Maximum="100" Margin="129,125,989,627.2" Foreground="#FFDE1818"/>
+                        <TextBlock x:Name="ProgressText" Margin="40,28,843,718.2" FontSize="55">Countdown to recording:</TextBlock>
+                        <TextBlock x:Name="ResultText" Margin="40,770,1070,27" FontSize="36" Height="58"></TextBlock>
+
+                        <local:KinectButton x:Name="ReadyButton" Content="Ready!" VerticalAlignment="Top" Margin="631,645,0,0" HorizontalAlignment="Left" Height="142" Width="334" Click="ButtonPressedEvent" Foreground="White" Background="#FF991515" FontSize="40" RenderTransformOrigin="0.55,0.898"/>
+                        <Slider x:Name="ThreshSlider" HorizontalAlignment="Left" Margin="40,695,0,0" VerticalAlignment="Top" Width="356" Height="70" Maximum="100" Value="5" ValueChanged="ThreshSlider_ValueChanged" SmallChange="1"/>
+                        <TextBlock x:Name="ThresholdBlock" HorizontalAlignment="Left" Margin="40,733,0,0" TextWrapping="Wrap" Text="Threshold: 5" VerticalAlignment="Top"/>
+                    </Grid>
+                </k:KinectRegion>
+
+                <!--<Canvas x:Name="StickMen" Height="179" Width="257" Margin="652,10,675,630.2"></Canvas> -->
+                <Canvas x:Name="StickMen" Height="700" Width="640" Margin="324,76,306,79.2"/>
+                <Canvas x:Name="MiniStick" HorizontalAlignment="Left" Height="320" Margin="1197,10,0,0" VerticalAlignment="Top" Width="372"/>
+
+                <TextBlock x:Name="TutorialText" TextWrapping="Wrap" Margin="414,606,245,79" FontSize="48" RenderTransformOrigin="0.669,0.566" Height="170">
+                    Start gesture after progress bar is completed.
+                    <LineBreak/>
+                    Perform Gesture 3 Times.
+
+                </TextBlock>
+
+            </Grid>
+
+        </Viewbox>
+        <TextBlock Name="stateMessage" Text="Connect the Kinect!" Foreground="Red" HorizontalAlignment="Center" VerticalAlignment="Bottom" FontSize="72" />
+    </Grid>
+
+</Window>
+    
