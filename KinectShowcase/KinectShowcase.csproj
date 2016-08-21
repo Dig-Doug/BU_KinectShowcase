@@ -87,7 +87,7 @@
     </Reference>
     <Reference Include="Newtonsoft.Json, Version=9.0.0.0, Culture=neutral, PublicKeyToken=30ad4fe6b2a6aeed, processorArchitecture=MSIL">
       <HintPath>..\packages\Newtonsoft.Json.9.0.1\lib\net45\Newtonsoft.Json.dll</HintPath>
-<Private>True</Private>
+      <Private>True</Private>
     </Reference>
     <Reference Include="SharpDX, Version=3.0.2.0, Culture=neutral, PublicKeyToken=b4dcf0f35e5521f1, processorArchitecture=MSIL">
       <HintPath>..\packages\SharpDX.3.0.2\lib\net45\SharpDX.dll</HintPath>
@@ -128,6 +128,7 @@
     <Compile Include="KinectShowcaseConfig.cs" />
     <Compile Include="Models\Gallery\GalleryItem.cs" />
     <Compile Include="Models\Gallery\GalleryItemManager.cs" />
+    <Compile Include="Models\Games\GameConfig.cs" />
     <Compile Include="Models\Games\GameDataModel.cs" />
     <Compile Include="Models\Games\GamesDatabase.cs" />
     <Compile Include="ViewModel\BrowserViewModel.cs" />

@@ -1,4 +1,5 @@
-﻿using System;
+﻿using Newtonsoft.Json;
+using System;
 using System.Collections.Generic;
 using System.Diagnostics;
 using System.IO;
@@ -31,13 +32,8 @@ namespace KinectShowcase.Models.Games
         }
         #endregion
 
-        private const string MAINIFEST_FILE_NAME = "_app_manifest.txt";
-        private const string MAINIFEST_LINE_SKIP = "#";
-        private const string MAINIFEST_LINE_TITLE = "ttl=";
-        private const string MAINIFEST_LINE_EXE = "exe=";
-        private const string MAINIFEST_LINE_ICON = "icn=";
-        private const string MAINIFEST_LINE_SCREENSHOT = "scr=";
-        private const string MAINIFEST_LINE_DESCRIPTION = "des=";
+        private const string CONFIG_FILE = "config.json";
+        private const string DEFAULT_CONFIG_FILE = "default_config.json";
 
         private string _gamesRootFolder;
         public List<GameDataModel> Games { get; private set; }
@@ -87,93 +83,29 @@ namespace KinectShowcase.Models.Games
         {
             GameDataModel result = null;
 
-            try
+            GameConfig config = new GameConfig();
+
+            // Always write a default config file
+            string defConfigFilePath = aFolder + System.IO.Path.DirectorySeparatorChar + DEFAULT_CONFIG_FILE;
+            File.WriteAllText(defConfigFilePath, JsonConvert.SerializeObject(config, Formatting.Indented));
+
+            // Try and get the game config
+            string configPath = aFolder + "/" + CONFIG_FILE;
+            if (File.Exists(configPath))
             {
-                string manifestPath = aFolder + "/" + MAINIFEST_FILE_NAME;
-                if (File.Exists(manifestPath))
+                try
                 {
-                    using (StreamReader manifestStream = new StreamReader(manifestPath))
+                    config = JsonConvert.DeserializeObject<GameConfig>(File.ReadAllText(configPath));
+
+                    if (config.HasRequiredFields())
                     {
-                        string exePath = null, title = null, iconPath = null, screenshotPath = null, descriptionPath = null;
-
-                        int lineCount = 0;
-                        while (!manifestStream.EndOfStream)
-                        {
-                            lineCount++;
-
-                            string line = manifestStream.ReadLine();
-
-                            //check if this line is a comment
-                            if (!line.Substring(0, 1).Equals(MAINIFEST_LINE_SKIP))
-                            {
-                                if (line.Length > 4)
-                                {
-                                    //get the line prefix
-                                    string prefix = line.Substring(0, 4);
-                                    //get the data after it
-                                    string data = line.Substring(4, line.Length - 4);
-
-                                    //process the prefix & data
-                                    if (prefix.Equals(MAINIFEST_LINE_TITLE))
-                                    {
-                                        title = data;
-                                    }
-                                    else if (prefix.Equals(MAINIFEST_LINE_EXE))
-                                    {
-                                        exePath = data;
-                                    }
-                                    else if (prefix.Equals(MAINIFEST_LINE_ICON))
-                                    {
-                                        iconPath = data;
-                                    }
-                                    else if (prefix.Equals(MAINIFEST_LINE_SCREENSHOT))
-                                    {
-                                        screenshotPath = data;
-                                    }
-                                    else if (prefix.Equals(MAINIFEST_LINE_DESCRIPTION))
-                                    {
-                                        descriptionPath = data;
-                                    }
-                                    else
-                                    {
-                                        //unknown tag
-                                        Debug.WriteLine("GameLoader - WARN - Line " + lineCount + "had an unknown prefix");
-                                    }
-                                }
-                                else
-                                {
-                                    //line wasn't long enough to be valid
-                                    Debug.WriteLine("GameLoader - WARN - Line " + lineCount + "was too short be valid");
-                                }
-                            }
-                        }
-
-                        //check that we got all the data we require
-                        if (exePath != null && title != null && iconPath != null && screenshotPath != null && descriptionPath != null)
-                        {
-                            //WOOT! They followed all of the directions, load their game
-                            result = new GameDataModel(aFolder, exePath, title, iconPath, screenshotPath, descriptionPath);
-                        }
-                        else
-                        {
-                            //figure out what's missing and print a helpful message :) How nice.
-                            string missingString = "";
-                            missingString += (exePath == null ? " exe" : "");
-                            missingString += (title == null ? " ttl" : "");
-                            missingString += (iconPath == null ? " icn" : "");
-                            missingString += (screenshotPath == null ? " scr" : "");
-                            missingString += (descriptionPath == null ? " des" : "");
-                            Debug.WriteLine("GameLoader - ERROR - Missing required data:" + missingString);
-                        }
-
-                        manifestStream.Close();
+                        result = new GameDataModel(aFolder, config.Executable, config.Title, config.Icon, config.Screenshot, config.DescriptionFile);
                     }
                 }
-            }
-            catch (IOException e)
-            {
-                //error
-                Debug.WriteLine("GameDatabaseLoader - EXCEPTION - Exception Message: " + e.Message);
+                catch (JsonException e)
+                {
+                    // TODO(doug) - handle
+                }
             }
 
             return result;
