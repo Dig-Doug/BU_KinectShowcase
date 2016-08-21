@@ -9,8 +9,8 @@ namespace KinectShowcase
 {
     class KinectShowcaseConfig
     {
-        public string GamesDir = "games";
-        public string GalleryDir = "gallery";
+        public string GamesDir = "Games";
+        public string GalleryDir = "Gallery";
         public KinectManager.Config KinectManagerConfig = new KinectManager.Config();
     }
 }
