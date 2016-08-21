@@ -65,8 +65,6 @@ namespace KinectShowcaseCommon.ProcessHandling
 
         public override Task<KeepAliveResponse> KeepAlive(KeepAliveRequest request, ServerCallContext context)
         {
-            log.Debug("Keep alive called!");
-
             // Store interaction time
             this._lastInteractionTime = DateTime.Now;
 

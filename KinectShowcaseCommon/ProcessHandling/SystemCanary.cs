@@ -88,7 +88,7 @@ namespace KinectShowcaseCommon.ProcessHandling
                     _masterClient.KeepAliveAsync(new Ipc.KeepAliveRequest
                     {
                         Time = 10 // TODO(doug) - This should be changed if the time field is used
-                    }, null, DateTime.Now.AddMilliseconds(10));
+                    }, deadline: DateTime.UtcNow.AddMilliseconds(TIME_BETWEEN_UPDATES));
                 }
                 catch (Grpc.Core.RpcException e)
                 {
