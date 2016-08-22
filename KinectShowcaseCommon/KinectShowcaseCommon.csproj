@@ -169,7 +169,6 @@
     <None Include="packages.config" />
     <None Include="proto\ipc.proto" />
   </ItemGroup>
-  <ItemGroup />
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
   <PropertyGroup>
     <PostBuildEvent>
