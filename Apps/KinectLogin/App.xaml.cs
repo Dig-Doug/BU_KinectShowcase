@@ -19,8 +19,6 @@ namespace KinectLogin
     /// </summary>
     public partial class App : Application
     {
-        internal KinectRegion KinectRegion { get; set; }
-
         class Options
         {
             [Option("master_port", DefaultValue = SystemWatchdog.MASTER_PORT, HelpText = "Port master is listening on")]

@@ -134,18 +134,14 @@ namespace KinectLogin
 
             //this must ALWAYS be first
             InitializeComponent();
-
-            KinectRegion.SetKinectRegion(this, kinectRegion);
-            App app = ((App)Application.Current);
-            app.KinectRegion = kinectRegion;
             
             //// one sensor is currently supported
             this.kinectsensor = KinectSensor.GetDefault();
             // get the depth (display) extents
-            FrameDescription frameDescription = this.kinectRegion.KinectSensor.DepthFrameSource.FrameDescription;
+            FrameDescription frameDescription = this.kinectsensor.DepthFrameSource.FrameDescription;
 
             // open the reader for the body frames
-            this.bodyFrameReader = this.kinectRegion.KinectSensor.BodyFrameSource.OpenReader();
+            this.bodyFrameReader = this.kinectsensor.BodyFrameSource.OpenReader();
             this.bodyFrameReader.FrameArrived += this.Reader_FrameArrived;
             // open the sensor
             kinectsensor.Open();
@@ -154,6 +150,8 @@ namespace KinectLogin
 
             
             initButtons();
+
+            this.SetThreshold(5);
             
             currentUser = -1; //bugs out?!
             currentState = ScreenStates.HOME;
@@ -1138,63 +1136,32 @@ namespace KinectLogin
             return point;
         }
 
-        private void Load_Click(object sender, RoutedEventArgs e)
+        private void LoadAClick(object sender, RoutedEventArgs e)
         {
-            List<string> dirs = new List<string>(Directory.EnumerateDirectories(desktopDir + "KinectSamples"));
-            foreach (string dir in dirs)
-            {
-                int user = Int32.Parse((dir[dir.Length - 1]).ToString())-1;
-                List<string> files = new List<string>(Directory.EnumerateFiles(dir));
-                foreach (string file in files)
-                {                        
-                    int curFile = Int32.Parse((file[file.Length-5]).ToString());
-
-                    int currentLine = 0;
-                    //Find lines for memory allocation
-                    using (TextFieldParser parser = new TextFieldParser(file))
-                    {
-                        parser.SetDelimiters(",");
-                        
-
-                        //get number of lines
-                        while (!parser.EndOfData)
-                        {
-                            parser.ReadFields();
-                            currentLine++;
-                        }
-                    }
-                    using (TextFieldParser parser = new TextFieldParser(file))
-                    {
-                        float[,] currentData = new float[currentLine, 75];
-                        currentLine = 0;
-                        //MathNet.Numerics.LinearAlgebra.Generic.Matrix<float>[,] currentData = new MathNet.Numerics.LinearAlgebra.Generic.Matrix<float>[currentLine, 75];
-                        while (!parser.EndOfData)
-                        {
-                            //Processing row
-                            parser.SetDelimiters(",");
-
-                            string[] fields = parser.ReadFields();
-                            int it = 0;
-                            foreach (string field in fields)
-                            {
-                                //TODO: Process field
-                                currentData[currentLine, it++] = float.Parse(field.ToString());
-                            }
-                            currentLine++;
-                        }
-                        dataStore[user][0][curFile] = new MathNet.Numerics.LinearAlgebra.Single.DenseMatrix(currentData);
-                        dataEnrolled = true;
-                    }
-                }
-                userHasData[user] = true;
-            }
+            this.SetThreshold(5);
         }
+
+        private void LoadBClick(object sender, RoutedEventArgs e)
+        {
+            this.SetThreshold(25);
+        }
+
+        private void LoadCClick(object sender, RoutedEventArgs e)
+        {
+            this.SetThreshold(75);
+        }
+
 
         private void ThreshSlider_ValueChanged(object sender, RoutedPropertyChangedEventArgs<double> e)
         {
-            acceptThreshold = (float)e.NewValue;
-            if(ThresholdBlock!=null)
-            ThresholdBlock.Text = "Threshold: " + e.NewValue.ToString();
+            this.SetThreshold((float)e.NewValue);
+        }
+
+        private void SetThreshold(float value)
+        {
+            acceptThreshold = value;
+            if (ThresholdBlock != null)
+                ThresholdBlock.Text = "Threshold: " + acceptThreshold.ToString();
         }
 
 
