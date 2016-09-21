@@ -7,7 +7,7 @@
       xmlns:System="clr-namespace:System;assembly=mscorlib"
       mc:Ignorable="d" 
       d:DesignHeight="1080" d:DesignWidth="1920"
-	Title="MainPage" MouseDown="Page_MouseDown" MouseUp="Page_MouseUp">
+	Title="MainPage">
 
     <Page.Resources>
         <SolidColorBrush x:Key="TextBrush" Color="White" />
@@ -58,9 +58,9 @@
                 <ColumnDefinition Width="*"/>
             </Grid.ColumnDefinitions>
 
-            <UniformGrid Grid.Row="0" Grid.RowSpan="3" Grid.Column="0" Grid.ColumnSpan="2" x:Name="uniGrid" HorizontalAlignment="Left" VerticalAlignment="Center" Width="1026" Height="1026"/>
-
-            <TextBlock Grid.Row="0" Grid.Column="2" x:Name="textHere" HorizontalAlignment="Center" TextAlignment="Center" 
+            <local:GameGrid Grid.Row="0" Grid.RowSpan="3" Grid.Column="0" Grid.ColumnSpan="2" x:Name="gameGrid" HorizontalAlignment="Left" VerticalAlignment="Center" Width="1026" Height="1026"/>
+            
+            <TextBlock Grid.Row="0" Grid.Column="2" x:Name="titleText" HorizontalAlignment="Center" TextAlignment="Center" 
                        TextWrapping="Wrap" VerticalAlignment="Top" Text="Tic-Tac-Toe Game (Use Left Hand)" 
                        FontSize="81" 
                        Foreground="{DynamicResource TextBrush}"/>
@@ -87,6 +87,9 @@
                 </local:KinectButton>
 
             </StackPanel>
+
+
+            <Label x:Name="popupLabel" Grid.RowSpan="3" Grid.ColumnSpan="3" HorizontalAlignment="Center" VerticalAlignment="Center" Panel.ZIndex="5"/>
 
         </Grid>
     </Grid>

@@ -27,6 +27,9 @@ namespace KinectShowcaseCommon.UI_Elements
         private Rect _kinectSpaceBounds;
         private Rect _attachBounds;
         private bool _clickBeganInside = false;
+
+        public bool ShouldHandAttach = true;
+
         public KinectButton()
             : base()
         {
@@ -188,7 +191,7 @@ namespace KinectShowcaseCommon.UI_Elements
 
         public bool HandShouldAttach()
         {
-            return true;
+            return this.ShouldHandAttach;
         }
 
         public Point AttachLocation()
