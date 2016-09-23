@@ -2,7 +2,7 @@
 <package>
   <metadata>
     <id>KinectShowcaseCommon</id>
-    <version>1.0.02</version>
+    <version>1.0.03</version>
     <authors>Douglas Roeper</authors>
     <owners>Douglas Roeper</owners>
     <requireLicenseAcceptance>false</requireLicenseAcceptance>

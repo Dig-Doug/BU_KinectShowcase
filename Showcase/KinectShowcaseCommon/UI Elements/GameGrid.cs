@@ -77,10 +77,11 @@ namespace KinectShowcaseCommon.UI_Elements
                     // Set button row & col here to capture value for event handler
                     int buttonRow = row;
                     int buttonCol = col;
-                    button.Click += new RoutedEventHandler((sender, e) => {
+                    button.Click += new RoutedEventHandler((sender, e) =>
+                    {
                         if (Handler != null)
                         {
-                            Handler(buttonRow, buttonCol); 
+                            Handler(buttonRow, buttonCol);
                         }
                     });
                     gridElements[row, col] = button;
@@ -178,17 +179,21 @@ namespace KinectShowcaseCommon.UI_Elements
             return result;
         }
 
-        private void hoverOverLocation(Point aLocation)
+        private void HoverOverLocation(Point location)
         {
-            if (GridCoordinatesWithingBounds((int)lastHoverTile.X, (int)lastHoverTile.Y))
+            for (int row = 0; row < this.gridRows; row++)
             {
-                gridElements[(int)lastHoverTile.Y, (int)lastHoverTile.X].BorderBrush = this.BorderColor;
-            }
-
-            lastHoverTile = aLocation;
-            if (GridCoordinatesWithingBounds((int)aLocation.X, (int)aLocation.Y))
-            {
-                gridElements[(int)lastHoverTile.Y, (int)lastHoverTile.X].BorderBrush = this.HoverColor;
+                for (int col = 0; col < this.gridColumns; col++)
+                {
+                    if (gridElements[row, col].KinectSpaceBounds().Contains(location))
+                    {
+                        gridElements[row, col].BorderBrush = this.HoverColor;
+                    }
+                    else
+                    {
+                        gridElements[row, col].BorderBrush = this.BorderColor;
+                    }
+                }
             }
 
             InvalidateVisual();
@@ -200,19 +205,9 @@ namespace KinectShowcaseCommon.UI_Elements
         {
             bool result = false;
 
-            Point pagePoint = new Point(aEvent.HandPosition.X / aManager.HandCoordRangeX, aEvent.HandPosition.Y / aManager.HandCoordRangeY);
-
-
             Dispatcher.InvokeAsync((Action)delegate ()
             {
-                if (IsLocationInGrid(pagePoint))
-                {
-                    hoverOverLocation(GetGridLocationForPoint(pagePoint));
-                }
-                else
-                {
-                    hoverOverLocation(new Point(-1, -1));
-                }
+                HoverOverLocation(aEvent.HandPosition);
             });
 
             return result;

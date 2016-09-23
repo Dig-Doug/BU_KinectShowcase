@@ -176,7 +176,7 @@ namespace KinectShowcaseGameTemplate
                         if (CheckWinner() == PLAYER_VALUE)
                         {
                             // Show a win message
-                            ShowPopup("You win! :(", 90);
+                            ShowPopup("You win!", 90);
                             // Game is over
                             isGameOver = true;
                         }
@@ -214,7 +214,7 @@ namespace KinectShowcaseGameTemplate
                     if (CheckWinner() == BOT_VALUE)
                     {
                         // Show a message to the player
-                        ShowPopup("You lost! :)", 90);
+                        ShowPopup("You lost!", 90);
                         isGameOver = true;
                     }
                 }
