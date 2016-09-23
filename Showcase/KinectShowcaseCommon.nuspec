@@ -2,12 +2,12 @@
 <package>
   <metadata>
     <id>KinectShowcaseCommon</id>
-    <version>1.0.03</version>
+    <version>1.0.04</version>
     <authors>Douglas Roeper</authors>
     <owners>Douglas Roeper</owners>
     <requireLicenseAcceptance>false</requireLicenseAcceptance>
     <description>Library for the BU Kinect Showcase.</description>
-    <releaseNotes>Initial Release</releaseNotes>
+    <releaseNotes>Added missing dependency</releaseNotes>
     <copyright>Copyright 2016</copyright>
     <tags>Kinect Showcase</tags>
     <dependencies>
