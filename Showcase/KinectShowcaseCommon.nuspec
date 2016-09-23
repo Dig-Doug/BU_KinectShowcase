@@ -25,6 +25,7 @@
 			<dependency id="log4net" version="2.0.5" />
 			<dependency id="Newtonsoft.Json" version="9.0.1" />
 			<dependency id="SharpDX" version="3.0.2" />
+			<dependency id="SharpDX.Mathematics" version="3.0.2" />
 			<dependency id="SharpGL" version="2.4.0.0" />
 			<dependency id="SharpGL.WPF" version="2.4.0.0" />
 			<dependency id="SharpGLforWPF" version="2.4.0.0" />

@@ -141,8 +141,8 @@ namespace KinectShowcaseGameTemplate
 
             // Configure the game grid
             gameGrid.SetSize(GAME_GRID_ROWS_COUNT, GAME_GRID_COLUMNS_COUNT);
-            // Set if the hand should attach to the buttons (confused? - try it out)
-            gameGrid.ButtonsShouldAttach = true;
+            // Set if the hand should attach to center of the buttons
+            gameGrid.ButtonsShouldAttach = false;
             // Configure how the grid looks
             gameGrid.BorderColor = Brushes.Gray;
             gameGrid.HoverColor = Brushes.Blue;
