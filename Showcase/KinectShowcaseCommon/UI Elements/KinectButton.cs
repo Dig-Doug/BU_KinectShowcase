@@ -21,12 +21,15 @@ using System.ComponentModel;
 
 namespace KinectShowcaseCommon.UI_Elements
 {
-    public class KinectButton : Button, KinectHandManager.HandStateChangeListener, KinectHandManager.HandLocationListener
+    public class KinectButton : Button, KinectHandManager.HandStateChangeListener, KinectHandManager.HandLocationListener, KinectHandManager.HandControl
     {
         private KinectManager _kinectManager = null;
-        private Rect _kinectSpaceBounds;
+        private Rect _kinectSpaceBounds = new Rect(-10, -10, 0, 0);
         private Rect _attachBounds;
         private bool _clickBeganInside = false;
+
+        public bool ShouldHandAttach = true;
+
         public KinectButton()
             : base()
         {
@@ -188,7 +191,7 @@ namespace KinectShowcaseCommon.UI_Elements
 
         public bool HandShouldAttach()
         {
-            return true;
+            return this.ShouldHandAttach;
         }
 
         public Point AttachLocation()
@@ -197,5 +200,11 @@ namespace KinectShowcaseCommon.UI_Elements
             double centerY = _kinectSpaceBounds.Y + _kinectSpaceBounds.Height / 2;
             return new Point(centerX, centerY);
         }
+
+        public Rect KinectSpaceBounds()
+        {
+            return this._kinectSpaceBounds;
+        }
+
     }
 }

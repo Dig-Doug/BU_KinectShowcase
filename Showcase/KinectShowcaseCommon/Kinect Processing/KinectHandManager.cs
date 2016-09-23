@@ -107,6 +107,11 @@ namespace KinectShowcaseCommon.Kinect_Processing
             Point AttachLocation();
         }
 
+        public interface HandControl
+        {
+            Rect KinectSpaceBounds();
+        }
+
         #endregion
 
         #region Properties

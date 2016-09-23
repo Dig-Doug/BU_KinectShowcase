@@ -1,0 +1,39 @@
+<?xml version="1.0"?>
+<package>
+  <metadata>
+    <id>KinectShowcaseCommon</id>
+    <version>1.0.03</version>
+    <authors>Douglas Roeper</authors>
+    <owners>Douglas Roeper</owners>
+    <requireLicenseAcceptance>false</requireLicenseAcceptance>
+    <description>Library for the BU Kinect Showcase.</description>
+    <releaseNotes>Initial Release</releaseNotes>
+    <copyright>Copyright 2016</copyright>
+    <tags>Kinect Showcase</tags>
+    <dependencies>
+		<group>
+			<dependency id="cef.redist.x64" version="3.2704.1432" />
+			<dependency id="cef.redist.x86" version="3.2704.1432" />
+			<dependency id="CefSharp.Common" version="51.0.0" />
+			<dependency id="CefSharp.Wpf" version="51.0.0" />
+			<dependency id="Google.Protobuf" version="3.0.0" />
+			<dependency id="Google.ProtocolBuffers" version="2.4.1.555" />
+			<dependency id="Grpc" version="0.15.0" />
+			<dependency id="Grpc.Core" version="0.15.0" />
+			<dependency id="Grpc.Tools" version="0.15.0" />
+			<dependency id="Ix-Async" version="1.2.5" />
+			<dependency id="log4net" version="2.0.5" />
+			<dependency id="Newtonsoft.Json" version="9.0.1" />
+			<dependency id="SharpDX" version="3.0.2" />
+			<dependency id="SharpGL" version="2.4.0.0" />
+			<dependency id="SharpGL.WPF" version="2.4.0.0" />
+			<dependency id="SharpGLforWPF" version="2.4.0.0" />
+			<dependency id="WriteableBitmapEx" version="1.5.0.0" />
+		</group>
+    </dependencies>
+  </metadata>
+  <files>
+		<file src="KinectShowcaseCommon\bin\x64\Debug\KinectShowcaseCommon.dll" target="lib\KinectShowcaseCommon.dll" />
+		<file src="KinectEx-master\src\KinectEx\bin\x64\Debug\KinectEx.dll" target="lib\KinectEx.dll" />
+  </files>
+</package>

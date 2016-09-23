@@ -147,6 +147,7 @@
     <Compile Include="src-gen\Ipc.cs" />
     <Compile Include="src-gen\IpcGrpc.cs" />
     <Compile Include="UI Elements\Arc.cs" />
+    <Compile Include="UI Elements\GameGrid.cs" />
     <Compile Include="UI Elements\GaussianBackground.cs" />
     <Compile Include="UI Elements\KinectButton.cs" />
     <Compile Include="UI Elements\KinectCursorView.cs" />

@@ -28,8 +28,6 @@ namespace KinectShowcaseGameTemplate
             public int SlavePort { get; set; }
         }
 
-
-
         private static readonly ILog log = LogManager.GetLogger(System.Reflection.MethodBase.GetCurrentMethod().DeclaringType);
 
         public App()
