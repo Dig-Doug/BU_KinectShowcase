@@ -1,23 +1,12 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 using System.Windows;
 using System.Windows.Controls;
-using System.Windows.Data;
-using System.Windows.Documents;
 using System.Windows.Input;
 using System.Windows.Media;
-using System.Windows.Media.Imaging;
-using System.Windows.Navigation;
 using System.Windows.Shapes;
 using System.IO;
-using Microsoft.VisualBasic.FileIO;
-//new includes for Kinect 1.7 user interface
 using Microsoft.Kinect;
-using Microsoft.Kinect.Wpf.Controls;
-//Timer Black Magic
 using System.Windows.Threading;
 using System.Windows.Media.Animation;
 using KinectShowcaseCommon.Kinect_Processing;
@@ -25,50 +14,36 @@ using KinectShowcaseCommon.Helpers;
 using KinectShowcaseCommon.ProcessHandling;
 using System.Diagnostics;
 
-//Speech Recognition
-//using Microsoft.Speech.AudioFormat;
-//using Microsoft.Speech.Recognition;
-
 namespace KinectLogin
 {
-    
-    /// <summary>
-    /// Interaction logic for MainWindow.xaml
-    /// </summary>
     public partial class MainWindow : Window, KinectManager.StateListener
     {
-       
-        //changed for single-find -- multiple Kinect usage is NOT well defined
-
-        //Kinect variable components
-        const int numJoints = 25;
+        private const float HARD_THRESHOLD = 0.8f;
+        private const float MEDIUM_THRESHOLD = 1.5f;
+        private const float EASY_THRESHOLD = 3.0f;
+        private const int numJoints = 25;
+        private const int numRecords = 3;
 
         private KinectSensor kinectsensor;
-        
-        // ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+        private string desktopDir = Environment.GetFolderPath(Environment.SpecialFolder.DesktopDirectory) + "\\";
 
-        // EDITABLES
-        const int numRecords = 3;
+        enum ScreenStates
+        {
+            HOME, TUTORIAL, SELECTUSER_ENROLL, SELECTUSER_LOGIN, RECORDING_ENROLL,
+            RECORDING_LOGIN_GUESS, RECORDING_LOGIN_GIVEN, RESULT
+        };
 
-        string desktopDir = Environment.GetFolderPath(Environment.SpecialFolder.DesktopDirectory)+"\\";
-
-        // ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-
-
-        enum ScreenStates {HOME, TUTORIAL, SELECTUSER_ENROLL, SELECTUSER_LOGIN, RECORDING_ENROLL, 
-            RECORDING_LOGIN_GUESS, RECORDING_LOGIN_GIVEN, RESULT};
-        
         //Algorithm based variables
         // the very PAINFUL remapping of joint points fml
         //unfortunately, need to remap the skeleton points to original storage
         //in the future hopefully this is less... silly
-        int[] jointorder = { (int)JointType.Head, (int)JointType.Neck,(int)JointType.SpineShoulder, 
-                               (int)JointType.ShoulderLeft, (int)JointType.ElbowLeft, 
+        int[] jointorder = { (int)JointType.Head, (int)JointType.Neck,(int)JointType.SpineShoulder,
+                               (int)JointType.ShoulderLeft, (int)JointType.ElbowLeft,
                                (int)JointType.WristLeft, (int)JointType.HandLeft, (int)JointType.ThumbLeft, (int)JointType.HandTipLeft,
                                (int)JointType.ShoulderRight, (int)JointType.ElbowRight,
                                (int)JointType.WristRight, (int)JointType.HandRight, (int)JointType.ThumbRight, (int)JointType.HandTipRight,
                                (int)JointType.SpineMid, (int)JointType.SpineBase,
-                               (int)JointType.HipLeft, (int)JointType.KneeLeft, 
+                               (int)JointType.HipLeft, (int)JointType.KneeLeft,
                                (int)JointType.AnkleLeft, (int)JointType.FootLeft,
                                (int)JointType.HipRight, (int)JointType.KneeRight,
                                (int)JointType.AnkleRight, (int)JointType.FootRight};
@@ -109,12 +84,12 @@ namespace KinectLogin
         /// </summary>
         private static readonly JointType[][] SkeletonSegmentRuns = new JointType[][]
         {
-            new JointType[] 
-            { 
-                JointType.Head, JointType.SpineShoulder, JointType.SpineMid, JointType.SpineBase 
+            new JointType[]
+            {
+                JointType.Head, JointType.SpineShoulder, JointType.SpineMid, JointType.SpineBase
             },
-            new JointType[] 
-            { 
+            new JointType[]
+            {
                 JointType.HandTipLeft, JointType.ThumbLeft, JointType.HandLeft, JointType.WristLeft, JointType.ElbowLeft, JointType.ShoulderLeft,
                 JointType.SpineShoulder,
                 JointType.ShoulderRight, JointType.ElbowRight, JointType.WristRight, JointType.HandRight, JointType.ThumbRight, JointType.HandTipRight
@@ -127,14 +102,12 @@ namespace KinectLogin
             }
         };
 
-
-
         public MainWindow()
         {
 
             //this must ALWAYS be first
             InitializeComponent();
-            
+
             //// one sensor is currently supported
             this.kinectsensor = KinectSensor.GetDefault();
             // get the depth (display) extents
@@ -148,11 +121,11 @@ namespace KinectLogin
             recordNumber = 0;
             //initialization Buttons for visibility
 
-            
+
             initButtons();
 
-            this.SetThreshold(5);
-            
+            this.SetThreshold(HARD_THRESHOLD);
+
             currentUser = -1; //bugs out?!
             currentState = ScreenStates.HOME;
 
@@ -168,7 +141,7 @@ namespace KinectLogin
             //initialize dataStore -- 4 user limit
             dataStore = new MathNet.Numerics.LinearAlgebra.Generic.Matrix<float>[4][][];
             for (int i = 0; i < dataStore.Length; i++)
-            { 
+            {
                 //for each user give space for "1" gesture
                 dataStore[i] = new MathNet.Numerics.LinearAlgebra.Generic.Matrix<float>[1][];
                 for (int j = 0; j < dataStore[i].Length; j++)
@@ -181,12 +154,12 @@ namespace KinectLogin
                 UserSlot3.ToString(), UserSlot4.ToString()};
             userHasData = new bool[4] { false, false, false, false };
             dataEnrolled = false;
-         
+
             //set up recordingBuffer
             rb = new RecordingBuffer(5 * 30, 25); //full joints 5 seconds;
             rb.clearBuffer();
 
-            
+
             //set state to welcome
             setProgramState(ScreenStates.HOME);
 
@@ -268,12 +241,6 @@ namespace KinectLogin
             });
         }
 
-
-        /// <summary>
-        /// Execute start up tasks
-        /// </summary>
-        /// <param name="sender">object sending the event</param>
-        /// <param name="e">event arguments</param>
         private void MainWindow_Loaded(object sender, RoutedEventArgs e)
         {
         }
@@ -290,65 +257,27 @@ namespace KinectLogin
             {
                 //update progress bar and countdown the timer
                 timerCount--;
-                setProgressPercentage(100 - 100*((double)timerCount / 30.0), (double)1.0/30.0);
-               // RecordingProgress.Value+= 10;
+                setProgressPercentage(100 - 100 * ((double)timerCount / 30.0), (double)1.0 / 30.0);
+                // RecordingProgress.Value+= 10;
             }
-
-          /*  if (timerCount == 0)
-            {
-                //runs for 4 seconds in total
-                foreach (Button b in allButtons)
-                {
-                    b.Visibility = System.Windows.Visibility.Collapsed;
-                }
-
-                //move the stickman position and make him big!
-                //<Canvas x:Name="StickMen" Width="1193" Height="831" HorizontalAlignment="Right" VerticalAlignment="Bottom" Canvas.Left="137" Canvas.Top="44"/> -->
-                Canvas.SetLeft(StickMen, 437);
-                Canvas.SetTop(StickMen, 44);
-                StickMen.Height = 1093;
-                StickMen.Width = 831;
-
-                timer.Stop();
-                //START THE PRESSES!
-                guiState = RECORDACTIONPAGE;
-                recordingState = RECORDINGIDLE;
-                recordframeIdx = 0;
-                //set frame
-            }
-
-            message.Content = "Preparing to record... " + timerCount;
-            timerCount--;
-            */
-
         }
         void initButtons()
         {
-            allButtons = new List<Button> { HomeButton, EnrollButton, LoginGuessButton, LoginIAmButton, UserSlot1, UserSlot2, 
+            allButtons = new List<Button> { HomeButton, EnrollButton, LoginGuessButton, LoginIAmButton, UserSlot1, UserSlot2,
             UserSlot3, UserSlot4, ReadyButton};
-            welcomeButtons = new List<Button> { HomeButton, EnrollButton, LoginGuessButton, LoginIAmButton};
-            selectUserButtons = new List<Button> { HomeButton, UserSlot1, UserSlot2, UserSlot3, UserSlot4};
-
+            welcomeButtons = new List<Button> { EnrollButton, LoginGuessButton, LoginIAmButton };
+            selectUserButtons = new List<Button> { HomeButton, UserSlot1, UserSlot2, UserSlot3, UserSlot4 };
         }
 
         void setProgramState(ScreenStates ss)
         {
             //set current State
             currentState = ss;
-            //disable Kinect region in RECORDING
-        //    if (kinectRegion.KinectSensor == null)
-          //  {
-          //      kinectRegion.KinectSensor = this.sensorChooser.Kinect;
-          //  }
             StickMen.Visibility = System.Windows.Visibility.Collapsed;
 
             switch (ss)
             {
                 case ScreenStates.HOME:
-                   // StickMen.Height = 179;
-                   // StickMen.Width = 257;
-                   // Canvas.SetLeft(StickMen, 675);
-                    //Canvas.SetLeft(StickMen, 630.2);
                     setScreenState(ScreenStates.HOME);
                     break;
                 case ScreenStates.TUTORIAL:
@@ -362,37 +291,19 @@ namespace KinectLogin
                     setScreenState(ScreenStates.SELECTUSER_LOGIN);
                     break;
                 case ScreenStates.RECORDING_ENROLL:
-
                     StickMen.Visibility = System.Windows.Visibility.Visible;
-                    //kinectRegion.KinectSensor = null;
-                    StickMen.Height = 700;
-                    StickMen.Width = 640;
-                    Canvas.SetLeft(StickMen, 306);
-                    Canvas.SetLeft(StickMen, 79.2);
                     rb.clearBuffer();
                     setScreenState(ScreenStates.RECORDING_ENROLL);
                     startTimer(3);
                     break;
                 case ScreenStates.RECORDING_LOGIN_GUESS:
-
                     StickMen.Visibility = System.Windows.Visibility.Visible;
-                    StickMen.Height = 700;
-                    StickMen.Width = 640;
-                    Canvas.SetLeft(StickMen, 306);
-                    Canvas.SetLeft(StickMen, 79.2);
-                    //kinectRegion.KinectSensor = null;
                     rb.clearBuffer();
                     setScreenState(ScreenStates.RECORDING_LOGIN_GUESS);
                     startTimer(3);
                     break;
                 case ScreenStates.RECORDING_LOGIN_GIVEN:
-
                     StickMen.Visibility = System.Windows.Visibility.Visible;
-                    StickMen.Height = 700;
-                    StickMen.Width = 640;
-                    Canvas.SetLeft(StickMen, 306);
-                    Canvas.SetLeft(StickMen, 79.2);
-                    //kinectRegion.KinectSensor = null;
                     rb.clearBuffer();
                     setScreenState(ScreenStates.RECORDING_LOGIN_GIVEN);
                     startTimer(3);
@@ -409,7 +320,7 @@ namespace KinectLogin
 
         void setScreenState(ScreenStates ss)
         {
-            List<Button> VisibleButtons = null; 
+            List<Button> VisibleButtons = null;
 
             //toggle all buttons + widgets to OFF
             RecordingProgress.Visibility = System.Windows.Visibility.Collapsed;
@@ -433,7 +344,7 @@ namespace KinectLogin
                     HomeButton.Visibility = System.Windows.Visibility.Visible;
                     //RecordingProgress.Visibility = System.Windows.Visibility.Visible;
                     TutorialText.Visibility = System.Windows.Visibility.Visible;
-                    ReadyButton.Visibility = System.Windows.Visibility.Visible; 
+                    ReadyButton.Visibility = System.Windows.Visibility.Visible;
                     break;
                 case ScreenStates.SELECTUSER_ENROLL:
                     TutorialText.Visibility = System.Windows.Visibility.Visible;
@@ -449,23 +360,18 @@ namespace KinectLogin
                 case ScreenStates.RECORDING_ENROLL:
                     RecordingProgress.Visibility = System.Windows.Visibility.Visible;
                     ProgressText.Visibility = System.Windows.Visibility.Visible;
-                    //uh nothing? ..... maybe something in the future
                     break;
                 case ScreenStates.RECORDING_LOGIN_GUESS:
                     RecordingProgress.Visibility = System.Windows.Visibility.Visible;
                     ProgressText.Visibility = System.Windows.Visibility.Visible;
-                    //uh nothing? ..... maybe something in the future
                     break;
                 case ScreenStates.RECORDING_LOGIN_GIVEN:
                     RecordingProgress.Visibility = System.Windows.Visibility.Visible;
                     ProgressText.Visibility = System.Windows.Visibility.Visible;
-                    //uh nothing? ..... maybe something in the future
-                    //VisibleButtons = selectUserButtons;
                     break;
                 case ScreenStates.RESULT:
                     HomeButton.Content = "Results/Press to Back";
                     HomeButton.Visibility = System.Windows.Visibility.Visible;
-                    //uh nothing? ..... maybe something in the future
                     break;
                 default:
                     //do nothing?! HOW DID IT GET HERE
@@ -484,33 +390,10 @@ namespace KinectLogin
 
         private void OnLoaded(object sender, RoutedEventArgs routedEventArgs)
         {
- 
-            //oldie code -- since KinectSensorChooser bugging out
-           /* if (KinectSensor.KinectSensors.Count > 0)
-            {
-                kinectsensor = KinectSensor.KinectSensors[0];
-                if (kinectsensor.Status == KinectStatus.Connected)
-                {
-
-                    kinectsensor.SkeletonStream.Enable(new TransformSmoothParameters()
-                    {
-                        Correction = 0.05f,
-                        JitterRadius = 0.05f,
-                        MaxDeviationRadius = 0.01f,
-                        Smoothing = 0.05f
-                    });
-                    kinectsensor.DepthStream.Enable(DepthImageFormat.Resolution640x480Fps30);
-                    kinectsensor.Start();
-                }
-
-            }
-            kinectRegion.KinectSensor = kinectsensor;
-        
-            */
 
         }
 
-        
+
         void Reader_FrameArrived(object sender, BodyFrameArrivedEventArgs e)
         {
             /*do nothing*/
@@ -523,12 +406,12 @@ namespace KinectLogin
                 bf.GetAndRefreshBodyData(bStorage); //copy given skeleton(s) frames (if multiple skeletons found) into buffer
 
                 //once the closest skeleton is determined draw THAT stickman
-                
+
 
                 //pointer to closest skeleton frame
                 Body closestBody = null;
 
-               // int closestId = -1; 
+                // int closestId = -1; 
                 double closestDistance = double.MaxValue;
                 //out of detected skeletons in frame use the closest one -- determine closest one here
                 foreach (var body in bStorage)
@@ -539,7 +422,7 @@ namespace KinectLogin
                         if (body.Joints[JointType.SpineShoulder].Position.Z < closestDistance)
                         {
                             //update Id and distance
-                           // closestId = 0;
+                            // closestId = 0;
                             closestBody = body; //set this skeleton as closest
                             closestDistance = body.Joints[JointType.SpineShoulder].Position.Z;
                         }
@@ -564,7 +447,7 @@ namespace KinectLogin
                 //if progress bar has filled
                 if (timerCount == 0)
                 {
-                    
+
                     //recording logic
                     if (currentState == ScreenStates.RECORDING_ENROLL || currentState == ScreenStates.RECORDING_LOGIN_GIVEN
                         || currentState == ScreenStates.RECORDING_LOGIN_GUESS)
@@ -594,9 +477,9 @@ namespace KinectLogin
                                 queryData = normalizeData(queryData);
                                 dataStore[currentUser][0][recordNumber] = new MathNet.Numerics.LinearAlgebra.Single.DenseMatrix(queryData);
 
-                                if ((recordNumber != numRecords-1))
+                                if ((recordNumber != numRecords - 1))
                                 {
-                                    
+
                                     recordNumber++;
                                     rb.clearBuffer();
                                     startTimer(3);
@@ -604,43 +487,39 @@ namespace KinectLogin
                                 }
                                 else
                                 {
-                                    ResultDisplay resultDisplay;
-
                                     //store in g1, s1 slot
                                     dataEnrolled = true;
-                                    
-                                    dataStore[currentUser][0][recordNumber] = new MathNet.Numerics.LinearAlgebra.Single.DenseMatrix(queryData);
-                                    
-                                    userHasData[currentUser] = true;
-                                    //setProgramState(ScreenStates.RESULT);
-                                    resultDisplay = new ResultDisplay("Recorded " + rb.getBufferNumberFrames() + " frames for " +
-                                userNames[currentUser]);
-                                    resultDisplay.Background = Brushes.Blue;
-                                    this.kinectRegionGrid.Children.Add(resultDisplay);
 
-                                    
+                                    dataStore[currentUser][0][recordNumber] = new MathNet.Numerics.LinearAlgebra.Single.DenseMatrix(queryData);
+
+                                    userHasData[currentUser] = true;
+
+
+                                    showPopup("Recorded " + rb.getBufferNumberFrames() + " frames for " + userNames[currentUser], Brushes.Blue);
+
+
                                     //Code for saving dataStore as .csv file
                                     //For each user
-                                    
-                                        Directory.CreateDirectory(desktopDir+"KinectSamples\\User" + (currentUser+1).ToString());
 
-                                        //For each Sample
-                                        for (int sNum = 0; sNum < numRecords; sNum++)
+                                    Directory.CreateDirectory(desktopDir + "KinectSamples\\User" + (currentUser + 1).ToString());
+
+                                    //For each Sample
+                                    for (int sNum = 0; sNum < numRecords; sNum++)
+                                    {
+                                        using (System.IO.StreamWriter file = new System.IO.StreamWriter(@desktopDir + "KinectSamples\\User" + (currentUser + 1).ToString() + "\\Sample" + sNum.ToString() + ".csv", false))
                                         {
-                                            using (System.IO.StreamWriter file = new System.IO.StreamWriter(@desktopDir+"KinectSamples\\User" + (currentUser+1).ToString() + "\\Sample" + sNum.ToString() + ".csv", false))
+                                            for (int j = 0; j < dataStore[currentUser][0][sNum].RowCount; j++)
                                             {
-                                                for (int j = 0; j < dataStore[currentUser][0][sNum].RowCount; j++)
+                                                for (int i = 0; i < numJoints * 3 - 1; i++)
                                                 {
-                                                    for (int i = 0; i < numJoints * 3 - 1; i++)
-                                                    {
-                                                        file.Write(Convert.ToString(dataStore[currentUser][0][sNum][j, i]) + ",");
-                                                    }
-                                                    file.Write(Convert.ToString(dataStore[currentUser][0][sNum][j, numJoints * 3-1]) + "\n");
+                                                    file.Write(Convert.ToString(dataStore[currentUser][0][sNum][j, i]) + ",");
                                                 }
-                                                
+                                                file.Write(Convert.ToString(dataStore[currentUser][0][sNum][j, numJoints * 3 - 1]) + "\n");
                                             }
+
                                         }
-                                    
+                                    }
+
                                     setProgramState(ScreenStates.HOME);
                                 }
                             }
@@ -656,46 +535,41 @@ namespace KinectLogin
                                 //hide skeleton while processing
                                 StickMen.Visibility = System.Windows.Visibility.Collapsed;
 
-                                
-                                    queryDataExpanded = (rb.getBufferData());
-                                    queryData = new float[rb.getBufferNumberFrames(), numJoints * 3];
-                                    for (int i = 0; i < rb.getBufferNumberFrames(); i++)
+
+                                queryDataExpanded = (rb.getBufferData());
+                                queryData = new float[rb.getBufferNumberFrames(), numJoints * 3];
+                                for (int i = 0; i < rb.getBufferNumberFrames(); i++)
+                                {
+                                    for (int j = 0; j < numJoints * 3; j++)
                                     {
-                                        for (int j = 0; j < numJoints * 3; j++)
-                                        {
-                                            queryData[i, j] = queryDataExpanded[i, j];
-                                        }
+                                        queryData[i, j] = queryDataExpanded[i, j];
                                     }
-                                    queryData = normalizeData(queryData);
-                                
-                                ResultDisplay resultDisplay;
+                                }
+                                queryData = normalizeData(queryData);
+
+
                                 //compute distances
-                                
+
 
                                 switch (currentState)
                                 {
                                     case ScreenStates.RECORDING_LOGIN_GIVEN:
-                                        
+
                                         for (int i = 0; i < numRecords; i++)
                                         {
                                             lookupData = dataStore[currentUser][0][i].ToArray();
                                             dtwScore = gestureDistance(queryData, lookupData, queryData.GetLength(0), lookupData.GetLength(0));
                                             //TODO some analysis here ahahahahah
-                                            ResultText.Text = "User: " + (int)(currentUser+1) + "|Score: " + dtwScore;
+                                            ResultText.Text = "User: " + (int)(currentUser + 1) + "|Score: " + dtwScore;
                                             if (dtwScore <= acceptThreshold)
                                             {
-                                                resultDisplay = new ResultDisplay("Welcome back, " + userNames[currentUser]);
-                                                resultDisplay.Background = Brushes.Green;
-                                                this.kinectRegionGrid.Children.Add(resultDisplay);
+                                                showPopup("Welcome back, " + userNames[currentUser], Brushes.Green);
 
                                                 break;
                                             }
-                                            else if (i==numRecords-1)
+                                            else if (i == numRecords - 1)
                                             {
-                                                resultDisplay = new ResultDisplay("Sorry, I do not think you are " + userNames[currentUser]);
-                                                resultDisplay.Background = Brushes.Red;
-                                                this.kinectRegionGrid.Children.Add(resultDisplay);
-                
+                                                showPopup("Sorry, I do not think you are " + userNames[currentUser], Brushes.Red);
                                             }
                                         }
                                         setProgramState(ScreenStates.HOME);
@@ -719,20 +593,19 @@ namespace KinectLogin
                                             }
                                         }
                                         //after ALL comparisons then do some result feeding here
+
                                         //TODO
-                                        ResultText.Text = "User:" + (int)(userMatchIdx+1) + "|Score:" + bestScore;
+                                        ResultText.Text = "User:" + (int)(userMatchIdx + 1) + "|Score:" + bestScore;
+
                                         if (bestScore <= acceptThreshold)
                                         {
-                                            resultDisplay = new ResultDisplay("Welcome back, " + userNames[userMatchIdx]);
-                                            resultDisplay.Background = Brushes.Green;
+                                            showPopup("Welcome back, " + userNames[userMatchIdx], Brushes.Green);
                                         }
                                         else
                                         {
-                                            resultDisplay = new ResultDisplay("Sorry, I do not think you are anyone I know.");
-                                            resultDisplay.Background = Brushes.Red;
+                                            showPopup("Sorry, I do not think you are anyone I know.", Brushes.Red);
                                         }
 
-                                        this.kinectRegionGrid.Children.Add(resultDisplay);
                                         setProgramState(ScreenStates.HOME);
                                         //ResultText.Text = 
                                         //setProgramState(ScreenStates.RESULT);
@@ -743,7 +616,7 @@ namespace KinectLogin
                                 }
 
                             }
-                            
+
                         }
                         else
                         {
@@ -763,7 +636,7 @@ namespace KinectLogin
                         }
                     }
                 }
-                
+
 
             }
         }
@@ -803,9 +676,9 @@ namespace KinectLogin
                     //spineLength = 1;
                     //subtract from CENTROID (30->32, this is "Hard-coded" data)
                     //then normalize by spinelength
-                    normData[t, jointIdx] = (input[t, jointIdx] - jointCenter[0]) / spineLength;
-                    normData[t, jointIdx + 1] = (input[t, jointIdx + 1] - jointCenter[1]) / spineLength;
-                    normData[t, jointIdx + 2] = (input[t, jointIdx + 2] - jointCenter[2]) / spineLength;
+                    normData[t, jointIdx] = (input[t, jointIdx] - jointCenter[0]) / input[t, jointIdx + 2];// / spineLength;
+                    normData[t, jointIdx + 1] = (input[t, jointIdx + 1] - jointCenter[1]) / input[t, jointIdx + 2]; // / spineLength;
+                    normData[t, jointIdx + 2] = (input[t, jointIdx + 2] - jointCenter[2]) / input[t, jointIdx + 2]; // / spineLength;
                 }
             }
 
@@ -813,70 +686,9 @@ namespace KinectLogin
         }
 
 
-        //void SensorChooserOnKinectChanged(object sender, KinectChangedEventArgs args)
-        //{
-        //    if (args.OldSensor != null)
-        //    {
-        //        try
-        //        {
-                    
-        //            args.OldSensor.DepthFrameSource.DepthMinReliableDistance = DepthRange.Near;
-        //            args.OldSensor.SkeletonStream.EnableTrackingInNearRange = false;
-        //            args.OldSensor.DepthStream.Disable();
-        //            args.OldSensor.SkeletonStream.Disable();
-        //        }
-        //        catch (InvalidOperationException)
-        //        {
-        //            // KinectSensor might enter an invalid state while enabling/disabling streams or stream features.
-        //            // E.g.: sensor might be abruptly unplugged.
-        //        }
-        //    }
-
-        //    if (args.NewSensor != null)
-        //    {
-        //        try
-        //        {
-        //            args.NewSensor.DepthStream.Enable(DepthImageFormat.Resolution640x480Fps30);
-        //            args.NewSensor.SkeletonStream.Enable();
-        //            /* args.NewSensor.SkeletonStream.Enable(new TransformSmoothParameters()
-        //                {
-        //                    Correction = 0.05f,
-        //                    JitterRadius = 0.05f,
-        //                    MaxDeviationRadius = 0.01f,
-        //                    Smoothing = 0.05f
-        //                });
-        //            */
-        //            //add new callback
-        //            args.NewSensor.SkeletonFrameReady += new EventHandler<SkeletonFrameReadyEventArgs>(SkeletonFrameReadyCallback);
-
-        //            try
-        //            {
-        //                args.NewSensor.DepthStream.Range = DepthRange.Default;
-        //                args.NewSensor.SkeletonStream.EnableTrackingInNearRange = true;
-                        
-        //            }
-        //            catch (InvalidOperationException)
-        //            {
-        //                // Non Kinect for Windows devices do not support Near mode, so reset back to default mode.
-        //                args.NewSensor.DepthStream.Range = DepthRange.Default;
-        //                args.NewSensor.SkeletonStream.EnableTrackingInNearRange = false;
-        //            }
-        //        }
-        //        catch (InvalidOperationException)
-        //        {
-        //            // KinectSensor might enter an invalid state while enabling/disabling streams or stream features.
-        //            // E.g.: sensor might be abruptly unplugged.
-        //        }
-        //    }
-        //}
-
-
-
-
         /*
          *  Starts timer with given input in seconds
          */
-
         void setProgressPercentage(double percentage, double timespan)
         {
             //smooth filling
@@ -887,7 +699,7 @@ namespace KinectLogin
 
         void startTimer(int seconds)
         {
-            timerCount = seconds*(1000/100); //timerCount represent TickEvents that must trigger before the program stops
+            timerCount = seconds * (1000 / 100); //timerCount represent TickEvents that must trigger before the program stops
             //though updates every 100 ticks
             RecordingProgress.Value = 0; //set to Start
             //RecordingProgress.Maximum = (timerCount-1) * 10;
@@ -898,40 +710,45 @@ namespace KinectLogin
 
         void enrollPushed(object sender, RoutedEventArgs e)
         {
-            startTimer(3);   
+            startTimer(3);
+        }
+
+        private void showPopup(string text, Brush backgroundColor)
+        {
+            ResultDisplay resultDisplay;
+            resultDisplay = new ResultDisplay(text);
+            resultDisplay.Background = backgroundColor;
+            Grid.SetColumnSpan(resultDisplay, 3);
+            Grid.SetRowSpan(resultDisplay, 3);
+            this.kinectRegionGrid.Children.Add(resultDisplay);
         }
 
         //generic callback function for a button being pressed (ALL of them go here)
         private void ButtonPressedEvent(object sender, RoutedEventArgs e)
         {
-            //could use inheritence but following code is rushed
-            ResultDisplay resultDisplay;
-
             if (sender.Equals(HomeButton))
             {
                 //MessageBox.Show("Clicked Home!");
                 setProgramState(ScreenStates.HOME);
                 return;
             }
-            if (sender.Equals(EnrollButton))
+            else if (sender.Equals(EnrollButton))
             {
                 //MessageBox.Show("Clicked Enroll!");
                 setProgramState(ScreenStates.SELECTUSER_ENROLL);
                 return;
             }
-            if (sender.Equals(ReadyButton))
+            else if (sender.Equals(ReadyButton))
             {
                 //MessageBox.Show("Clicked ReadyButton");
                 setProgramState(ScreenStates.SELECTUSER_ENROLL);
                 return;
             }
-            if (sender.Equals(LoginGuessButton))
+            else if (sender.Equals(LoginGuessButton))
             {
                 if (dataEnrolled != true)
                 {
-                    resultDisplay = new ResultDisplay("Sorry, no users have been enrolled yet!");
-                    resultDisplay.Background = Brushes.Red;
-                    this.kinectRegionGrid.Children.Add(resultDisplay);
+                    showPopup("Sorry, no users have been enrolled yet!", Brushes.Red);
                     setProgramState(ScreenStates.HOME);
                     return;
                     //no users enrolled
@@ -940,13 +757,11 @@ namespace KinectLogin
                 setProgramState(ScreenStates.RECORDING_LOGIN_GUESS);
                 return;
             }
-            if (sender.Equals(LoginIAmButton))
+            else if (sender.Equals(LoginIAmButton))
             {
                 if (dataEnrolled != true)
                 {
-                    resultDisplay = new ResultDisplay("Sorry, no users have been enrolled yet!");
-                    resultDisplay.Background = Brushes.Red;
-                    this.kinectRegionGrid.Children.Add(resultDisplay);
+                    showPopup("Sorry, no users have been enrolled yet!", Brushes.Red);
                     setProgramState(ScreenStates.HOME);
                     return;
                     //no users enrolled
@@ -955,22 +770,20 @@ namespace KinectLogin
                 setProgramState(ScreenStates.SELECTUSER_LOGIN);
                 return;
             }
-            if (sender.Equals(UserSlot1))
+            else if (sender.Equals(UserSlot1))
             {
                 currentUser = 0;
-                if(currentState == ScreenStates.SELECTUSER_ENROLL)
+                if (currentState == ScreenStates.SELECTUSER_ENROLL)
                 {
                     recordNumber = 0;
 
                     setProgramState(ScreenStates.RECORDING_ENROLL);
-                }else //(currentState == ScreenStates.SELECTUSER_LOGIN)
+                }
+                else //(currentState == ScreenStates.SELECTUSER_LOGIN)
                 {
                     if (userHasData[currentUser] == false)
                     {
-                        resultDisplay = new ResultDisplay("Sorry, the profile for " + userNames[currentUser] +
-                            " has not been enrolled yet!");
-                        resultDisplay.Background = Brushes.Red;
-                        this.kinectRegionGrid.Children.Add(resultDisplay);
+                        showPopup("Sorry, the profile for " + userNames[currentUser] + " has not been enrolled yet!", Brushes.Red);
                         setProgramState(ScreenStates.HOME);
                         return;
                     }
@@ -978,7 +791,7 @@ namespace KinectLogin
                 }
                 return;
             }
-            if (sender.Equals(UserSlot2))
+            else if (sender.Equals(UserSlot2))
             {
 
                 currentUser = 1;
@@ -992,10 +805,7 @@ namespace KinectLogin
                 {
                     if (userHasData[currentUser] == false)
                     {
-                        resultDisplay = new ResultDisplay("Sorry, the profile for " + userNames[currentUser] +
-                            " has not been enrolled yet!");
-                        resultDisplay.Background = Brushes.Red;
-                        this.kinectRegionGrid.Children.Add(resultDisplay);
+                        showPopup("Sorry, the profile for " + userNames[currentUser] + " has not been enrolled yet!", Brushes.Red);
                         setProgramState(ScreenStates.HOME);
                         return;
                     }
@@ -1003,7 +813,7 @@ namespace KinectLogin
                 }
                 return;
             }
-            if (sender.Equals(UserSlot3))
+            else if (sender.Equals(UserSlot3))
             {
 
                 currentUser = 2;
@@ -1017,10 +827,7 @@ namespace KinectLogin
                 {
                     if (userHasData[currentUser] == false)
                     {
-                        resultDisplay = new ResultDisplay("Sorry, the profile for " + userNames[currentUser] +
-                            " has not been enrolled yet!");
-                        resultDisplay.Background = Brushes.Red;
-                        this.kinectRegionGrid.Children.Add(resultDisplay);
+                        showPopup("Sorry, the profile for " + userNames[currentUser] + " has not been enrolled yet!", Brushes.Red);
                         setProgramState(ScreenStates.HOME);
                         return;
                     }
@@ -1028,7 +835,7 @@ namespace KinectLogin
                 }
                 return;
             }
-            if (sender.Equals(UserSlot4))
+            else if (sender.Equals(UserSlot4))
             {
 
                 currentUser = 3;
@@ -1043,10 +850,7 @@ namespace KinectLogin
                 {
                     if (userHasData[currentUser] == false)
                     {
-                        resultDisplay = new ResultDisplay("Sorry, the profile for " + userNames[currentUser] +
-                            " has not been enrolled yet!");
-                        resultDisplay.Background = Brushes.Red;
-                        this.kinectRegionGrid.Children.Add(resultDisplay);
+                        showPopup("Sorry, the profile for " + userNames[currentUser] + " has not been enrolled yet!", Brushes.Red);
                         setProgramState(ScreenStates.HOME);
                         return;
                     }
@@ -1054,29 +858,16 @@ namespace KinectLogin
                 }
                 return;
             }
-            
+
         }
 
-       /* private void HomeButtonPress(object sender, RoutedEventArgs e)
-        {
-            kinectRegion.KinectSensor = null;
-            MessageBox.Show("Clicked Home!");
-            HomeButton.Visibility = System.Windows.Visibility.Collapsed;
-        }*/
-
-        /// <summary>
-        /// Draw an individual skeleton.
-        /// </summary>
-        /// <param name="body">The skeleton to draw.</param>
-        /// <param name="brush">The brush to use.</param>
-        /// <param name="thickness">This thickness of the stroke.</param>
         private void DrawStickMan(Body body, Brush brush, int thickness)
         {
             //Debug.Assert(skeleton.TrackingState == SkeletonTrackingState.Tracked, "The skeleton is being tracked.");
             MiniStick.Children.Clear();
             foreach (var run in SkeletonSegmentRuns)
             {
-                var next1 = this.GetJointPoint(body, run[0],StickMen);
+                var next1 = this.GetJointPoint(body, run[0], StickMen);
                 var next2 = this.GetJointPoint(body, run[0], MiniStick);
 
                 for (var i = 1; i < run.Length; i++)
@@ -1101,7 +892,7 @@ namespace KinectLogin
                     var line2 = new Line
                     {
                         Stroke = brush,
-                        StrokeThickness = thickness/2,
+                        StrokeThickness = thickness / 2,
                         X1 = prev2.X,
                         Y1 = prev2.Y,
                         X2 = next2.X,
@@ -1115,12 +906,6 @@ namespace KinectLogin
             }
         }
 
-        /// <summary>
-        /// Convert skeleton joint to a point on the StickMen canvas.
-        /// </summary>
-        /// <param name="body">The skeleton.</param>
-        /// <param name="jointType">The joint to project.</param>
-        /// <returns>The projected point.</returns>
         private Point GetJointPoint(Body body, JointType jointType, Canvas canvas)
         {
             var joint = body.Joints[jointType];
@@ -1138,19 +923,18 @@ namespace KinectLogin
 
         private void LoadAClick(object sender, RoutedEventArgs e)
         {
-            this.SetThreshold(5);
+            this.SetThreshold(HARD_THRESHOLD);
         }
 
         private void LoadBClick(object sender, RoutedEventArgs e)
         {
-            this.SetThreshold(25);
+            this.SetThreshold(MEDIUM_THRESHOLD);
         }
 
         private void LoadCClick(object sender, RoutedEventArgs e)
         {
-            this.SetThreshold(75);
+            this.SetThreshold(EASY_THRESHOLD);
         }
-
 
         private void ThreshSlider_ValueChanged(object sender, RoutedPropertyChangedEventArgs<double> e)
         {
@@ -1163,7 +947,5 @@ namespace KinectLogin
             if (ThresholdBlock != null)
                 ThresholdBlock.Text = "Threshold: " + acceptThreshold.ToString();
         }
-
-
     }
 }

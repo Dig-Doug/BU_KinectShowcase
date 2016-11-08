@@ -55,9 +55,8 @@
       <HintPath>..\..\packages\CommandLineParser.1.9.71\lib\net45\CommandLine.dll</HintPath>
       <Private>True</Private>
     </Reference>
-    <Reference Include="KinectEx, Version=0.4.0.0, Culture=neutral, processorArchitecture=AMD64">
-      <SpecificVersion>False</SpecificVersion>
-      <HintPath>..\..\..\..\Documents\GitHub\BU_KinectShowcase\KinectEx-master\src\KinectEx\bin\x64\Debug\KinectEx.dll</HintPath>
+    <Reference Include="KinectEx">
+      <HintPath>..\..\KinectEx-master\src\KinectEx\bin\x64\Debug\KinectEx.dll</HintPath>
     </Reference>
     <Reference Include="log4net, Version=1.2.15.0, Culture=neutral, PublicKeyToken=669e0ddf0bb1aa2a, processorArchitecture=MSIL">
       <HintPath>..\..\packages\log4net.2.0.5\lib\net45-full\log4net.dll</HintPath>

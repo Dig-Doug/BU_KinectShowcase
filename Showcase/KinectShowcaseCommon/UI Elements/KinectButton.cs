@@ -191,7 +191,7 @@ namespace KinectShowcaseCommon.UI_Elements
 
         public bool HandShouldAttach()
         {
-            return this.ShouldHandAttach;
+            return this.ShouldHandAttach && this.IsVisible;
         }
 
         public Point AttachLocation()

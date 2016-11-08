@@ -53,7 +53,7 @@ namespace KinectShowcaseCommon.Kinect_Processing
         public class Config
         {
             public FilterType XFilter = FilterType.RecursiveFilter, YFilter = FilterType.RecursiveFilter;
-            public float[] XFilterParams = {0.1f}, YFilterParams = {0.1f};
+            public float[] XFilterParams = {0.3f}, YFilterParams = {0.3f};
             public Point HandRectCenter  = new Point(2.0, -3);
             public Size HandRectSize = new Size(2.0, 2.0);
         }
