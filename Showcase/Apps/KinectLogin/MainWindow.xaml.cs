@@ -150,8 +150,7 @@ namespace KinectLogin
                     dataStore[i][j] = new MathNet.Numerics.LinearAlgebra.Generic.Matrix<float>[numRecords];
                 }
             }
-            userNames = new string[]{UserSlot1.Content.ToString(), UserSlot2.Content.ToString(),
-                UserSlot3.ToString(), UserSlot4.ToString()};
+            userNames = new string[]{"User 1", "User 2", "User 3", "User 4"};
             userHasData = new bool[4] { false, false, false, false };
             dataEnrolled = false;
 
@@ -273,7 +272,7 @@ namespace KinectLogin
         {
             //set current State
             currentState = ss;
-            StickMen.Visibility = System.Windows.Visibility.Collapsed;
+            StickMen.Visibility = System.Windows.Visibility.Hidden;
 
             switch (ss)
             {
@@ -323,13 +322,13 @@ namespace KinectLogin
             List<Button> VisibleButtons = null;
 
             //toggle all buttons + widgets to OFF
-            RecordingProgress.Visibility = System.Windows.Visibility.Collapsed;
-            ProgressText.Visibility = System.Windows.Visibility.Collapsed;
-            TutorialText.Visibility = System.Windows.Visibility.Collapsed;
+            RecordingProgress.Visibility = System.Windows.Visibility.Hidden;
+            ProgressText.Visibility = System.Windows.Visibility.Hidden;
+            TutorialText.Visibility = System.Windows.Visibility.Hidden;
 
             foreach (Button b in allButtons)
             {
-                b.Visibility = System.Windows.Visibility.Collapsed;
+                b.Visibility = System.Windows.Visibility.Hidden;
             }
 
             switch (ss)
@@ -533,7 +532,7 @@ namespace KinectLogin
                                 int userMatchIdx = -1;
 
                                 //hide skeleton while processing
-                                StickMen.Visibility = System.Windows.Visibility.Collapsed;
+                                StickMen.Visibility = System.Windows.Visibility.Hidden;
 
 
                                 queryDataExpanded = (rb.getBufferData());
